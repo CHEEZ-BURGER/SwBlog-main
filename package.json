@@ -1,0 +1,10 @@
+{
+  "name": "swblog",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node tools/preview-server.mjs",
+    "check": "node tools/check-scripts.mjs",
+    "build": "npm run check && node tools/build.mjs"
+  }
+}

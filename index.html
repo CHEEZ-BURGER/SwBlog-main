@@ -1,0 +1,2414 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./mainPage_img/logo_pav.ico">
+    <title>SWblog</title>
+
+<script>document.documentElement.classList.add('intro-pending');</script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reset-css@5.0.1/reset.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500&amp;display=swap">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+    <link rel="stylesheet" href="./css/mainPage.css?v=landing-motion-sequence-11">
+    <link rel="stylesheet" href="./css/postExperience.css?v=editorial-post-1">
+    <link rel="stylesheet" href="./css/postRefinement.css?v=editorial-post-2">
+    <link rel="stylesheet" href="./css/lightRefinement.css?v=light-system-1">
+
+    <script src="./js/main.js?v=landing-motion-sequence-11" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="./js/postContent.js?v=editorial-layout-3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="./js/signalField.js?v=2026-1"></script>
+    <link rel="stylesheet" href="./css/editorial.css?v=journal-2">
+    <link rel="stylesheet" href="./css/exhibition.css?v=journal-2">
+    <link rel="stylesheet" href="./css/publication2026.css?v=2026-1">
+</head>
+<body>
+
+<div class="intro-scene" id="index-intro-scene" aria-hidden="true">
+    <div class="intro-copy">
+        <div class="intro-word-mask">
+            <span class="intro-word intro-word-hi" data-intro-word="hi">HI</span>
+        </div>
+        <div class="intro-word-mask">
+            <span class="intro-word intro-word-name" data-intro-word="name">I’M KIMSUNGWOO</span>
+        </div>
+    </div>
+</div>
+
+<div class="scroll-progress-container" id="scroll-progress-container">
+    <div class="scroll-progress-track">
+        <div class="scroll-progress-bar" id="scroll-progress-bar"></div>
+    </div>
+</div>
+
+<button class="scroll-down-btn" onclick="exploreContent()" aria-label="글 목록으로 이동">
+    <span>SCROLL TO EXPLORE</span>
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+</button>
+<div class="headerBtn-box">
+    <div class="hamburger-btn">
+        <button type="button" onclick="btn_1();" class="btn-body" aria-label="메뉴 열기" aria-expanded="false" aria-controls="site-menu"></button>
+        <svg class="menu-arrow" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <path class="menu-arrow-line" d="M2 20H33" />
+        <path class="menu-arrow-head" d="M23 4L39 20L23 36L20 33L33 20L20 7Z" />
+        </svg>
+
+    </div>
+    <img class="logo" src="./mainPage_img/Frame 2.png" alt="logo">
+</div>
+<div class="header-hidden" id="site-menu" aria-hidden="true" inert>
+    <div class="header-hidden-inner">
+        <nav class="fullscreen-menu" aria-label="메인 카테고리">
+            <ul class="typography-list">
+                <li style="--anim-delay: 0.1s;"><a href="./info.html" data-page-transition>INFO</a></li>
+                <li style="--anim-delay: 0.2s;"><a href="./cat_cod.html">DEVELOP</a></li>
+                <li style="--anim-delay: 0.3s;"><span class="menu-unavailable">DESIGN <small>COMING SOON</small></span></li>
+                <li style="--anim-delay: 0.4s;"><span class="menu-unavailable">LIFE <small>COMING SOON</small></span></li>
+            </ul>
+        </nav>
+        <div class="header-hidden-footer" style="--anim-delay: 0.4s;">
+            <div class="social-links" aria-label="SNS 및 연락처">
+                <span class="social-link is-unavailable" aria-label="YouTube, 준비 중" role="img">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.6 7.2a2.9 2.9 0 0 0-2-2C17.8 4.7 12 4.7 12 4.7s-5.8 0-7.6.5a2.9 2.9 0 0 0-2 2A30 30 0 0 0 1.9 12a30 30 0 0 0 .5 4.8 2.9 2.9 0 0 0 2 2c1.8.5 7.6.5 7.6.5s5.8 0 7.6-.5a2.9 2.9 0 0 0 2-2 30 30 0 0 0 .5-4.8 30 30 0 0 0-.5-4.8ZM10 15.2V8.8l5.5 3.2L10 15.2Z"></path></svg>
+                </span>
+                <span class="social-link is-unavailable" aria-label="Instagram, 준비 중" role="img">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1" class="social-icon-fill"></circle></svg>
+                </span>
+                <span class="social-link is-unavailable" aria-label="메일, 준비 중" role="img">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><polyline points="3 7 12 13 21 7"></polyline></svg>
+                </span>
+                <span class="social-link social-contact is-unavailable">CONTACT <small>COMING SOON</small></span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="menu-index-scrim" id="menu-index-scrim" aria-hidden="true"></div>
+<div class="split-layout">
+    <div class="index-panel" id="archive-panel">
+        <button type="button" class="archive-toggle" aria-label="글 목록 펼치기" aria-expanded="false" aria-controls="post-container"><span class="archive-toggle-icon">☷</span><span class="archive-toggle-copy">THE INDEX <small>글 목록</small></span><span class="archive-toggle-arrow">↗</span></button>
+        <div class="page">
+            <header class="masthead">
+                <div class="main-inner hello-header">
+                </div>
+
+                <section class="hello-scene" aria-label="소개">
+                    <div class="hello-content-box">
+                        <h1>KIMSUNGW<span class="hello-dots">
+                            <img class="hello-dot" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="O">
+                            <img class="hello-dot" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="O">
+                        </span></h1>
+                        <p class="hello-p"><span class="current-year">2026</span> Work, Blog, Etc</p>
+                    </div>
+                </section>
+            </header>
+
+            <div class="main-cont-back">
+                <div class="main-line">
+                    <div class="main-inner">
+                        <div class="archive-heading"><h2 class="section-title">전체 글 목록</h2><span class="archive-count" id="archive-count">00 ENTRIES</span></div>
+                    </div>
+                    <div class="post-list-container" id="post-container"></div>
+                </div>
+            </div>
+
+            <footer class="footer" data-random-footer>
+                <div class="footer-shell">
+                    <div class="footer-main">
+                        <div>
+                            <span class="footer-kicker">SWBLOG / FIELD NOTES</span>
+                            <h2 class="footer-statement">관찰하고, 만들고, 다시 기록합니다.</h2>
+                        </div>
+                        <nav class="footer-nav" aria-label="푸터 탐색">
+                            <span class="footer-nav-label">Explore</span>
+                            <a href="./index.html">전체 글</a>
+                            <a href="./info.html">소개</a>
+                            <a href="./editor.html">에디터</a>
+                        </nav>
+                    </div>
+                    <div class="footer-bottom">
+                        <strong class="footer-wordmark">KIMSUNGWOO</strong>
+                        <span class="footer-meta">SEOUL · © <span class="current-year">2026</span> SWBLOG</span>
+                    </div>
+                </div>
+            </footer>
+            <div class="pg-lode-box1"></div>
+            <div class="pg-lode-box2"></div>
+        </div>
+    </div>
+
+    <div class="post-panel" id="post-panel">
+        <div class="post-panel-placeholder" id="post-panel-placeholder"></div>
+
+        <div class="post-panel-viewer hidden" id="post-panel-viewer" aria-hidden="true" inert>
+            <div class="panel-post-layout">
+                <div class="panel-post-body" id="panel-post-body">
+                    <div class="panel-post-loading" id="panel-loading" aria-live="polite">불러오는 중...</div>
+                    <div class="post-viewer-header" id="panel-header" style="display:none;">
+                        <span class="post-viewer-category" id="panel-cat"></span>
+                        <h1 class="post-viewer-title" id="panel-title"></h1>
+                        <time class="post-viewer-date" id="panel-date"></time><span class="post-reading-meta" id="panel-reading-meta"></span>
+                    </div>
+                    <div class="post-viewer-content" id="panel-content"></div>
+                </div>
+                <section class="post-continuation" id="panel-continuation" aria-labelledby="panel-continuation-label">
+                    <div class="post-continuation-inner">
+                        <span class="post-continuation-label" id="panel-continuation-label">Read more / 최신 포스트</span>
+                        <a class="post-continuation-link" id="panel-continuation-link" href="./index.html">
+                            <span class="post-continuation-media">
+                                <img id="panel-continuation-image" src="" alt="" loading="lazy" hidden>
+                            </span>
+                            <span class="post-continuation-copy">
+                                <span class="post-continuation-meta" id="panel-continuation-meta">SWBLOG ARCHIVE</span>
+                                <span class="post-continuation-title" id="panel-continuation-title">더 많은 포스트 보기</span>
+                            </span>
+                        </a>
+                    </div>
+                </section>
+                <footer class="post-page-footer" data-random-footer>
+                    <div class="footer-shell">
+                        <div class="footer-main">
+                            <div>
+                                <span class="footer-kicker">SWBLOG / FIELD NOTES</span>
+                                <h2 class="footer-statement">좋은 질문은 다음 글로 이어집니다.</h2>
+                            </div>
+                            <nav class="footer-nav" aria-label="푸터 탐색">
+                                <span class="footer-nav-label">Explore</span>
+                                <a href="./index.html">전체 글</a>
+                                <a href="./info.html">소개</a>
+                                <a href="./editor.html">에디터</a>
+                            </nav>
+                        </div>
+                        <div class="footer-bottom">
+                            <strong class="footer-wordmark">SWBLOG</strong>
+                            <span class="footer-meta">SEOUL · © <span class="current-year">2026</span> KIMSUNGWOO</span>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+</div>
+
+<button type="button" class="panel-close-btn" aria-label="글 목록으로 돌아가기" hidden inert>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+</button>
+
+<aside class="post-viewer-toc-sidebar" id="post-toc-sidebar" aria-label="글 목차" hidden>
+    <div class="toc-title">IN THIS NOTE <span>목차</span></div>
+    <div class="toc-current" id="toc-current" aria-live="polite">읽는 중인 꼭지</div>
+    <ul class="toc-list" id="toc-list"></ul>
+    <div class="toc-progress-meta">
+        <span>READING PROGRESS</span><strong id="toc-progress-text">0%</strong>
+    </div>
+    <div class="toc-reading-progress" aria-hidden="true">
+        <div class="toc-reading-bar" id="toc-reading-bar"></div>
+    </div>
+</aside>
+
+<div id="fullscreen-viewer" class="fullscreen-viewer" role="dialog" aria-modal="true" aria-label="확대 이미지" aria-hidden="true" inert>
+    <div class="fullscreen-bg" onclick="closeFullscreen()"></div>
+    <img id="fullscreen-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="Zoomed image">
+    <button id="fullscreen-close" class="fullscreen-close-btn" onclick="closeFullscreen()" aria-label="Close fullscreen image">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+</div>
+
+<div class="page-transition" id="page-transition" aria-hidden="true">
+    <div class="page-transition-mark">
+        <img src="./mainPage_img/Frame 2.png" alt="">
+        <span>KIMSUNGWOO</span>
+    </div>
+</div>
+
+<script src="./js/publication2026.js?v=2026-1"></script>
+<script>
+    function isMobileLayout() {
+        return window.matchMedia('(max-width: 1180px)').matches;
+    }
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    class JSSmoothScroll {
+        constructor(element) {
+            this.el = element;
+            this.targetY = this.el.scrollTop;
+            this.currentY = this.el.scrollTop;
+            this.isAnimating = false;
+            this.rafId = null;
+            this.onWheelBound = this.onWheel.bind(this);
+            this.updateBound = this.update.bind(this);
+            this.el.addEventListener('wheel', this.onWheelBound, { passive: false });
+        }
+        
+        onWheel(e) {
+            if (typeof isLanding !== 'undefined' && isLanding) return; 
+            if (e.target.closest('.story-images') || e.target.closest('pre')) return;
+            e.preventDefault();
+            
+            if (!this.isAnimating) {
+                this.targetY = this.el.scrollTop;
+                this.currentY = this.el.scrollTop;
+            }
+            
+            const deltaScale = e.deltaMode === WheelEvent.DOM_DELTA_LINE ? 16 : (e.deltaMode === WheelEvent.DOM_DELTA_PAGE ? this.el.clientHeight : 1);
+            this.targetY += e.deltaY * deltaScale;
+            this.targetY = Math.max(0, Math.min(this.targetY, this.el.scrollHeight - this.el.clientHeight));
+            
+            if (!this.isAnimating) {
+                this.isAnimating = true;
+                this.rafId = requestAnimationFrame(this.updateBound);
+            }
+        }
+        
+        update(timestamp) {
+            if (typeof isLanding !== 'undefined' && isLanding) { this.stop(); return; }
+            if (!this.lastTimestamp) this.lastTimestamp = timestamp;
+            const frameFactor = Math.min((timestamp - this.lastTimestamp) / (1000 / 60), 2);
+            this.lastTimestamp = timestamp;
+            
+            // 60/120Hz에서 동일한 감속감을 유지하는 시간 기반 보간입니다.
+            const easing = 1 - Math.pow(1 - 0.095, frameFactor);
+            this.currentY += (this.targetY - this.currentY) * easing;
+            this.el.scrollTop = this.currentY;
+            
+            if (Math.abs(this.targetY - this.currentY) > 0.4) {
+                this.rafId = requestAnimationFrame(this.updateBound);
+            } else {
+                this.el.scrollTop = this.targetY;
+                this.stop();
+            }
+        }
+
+        stop() {
+            if (this.rafId) cancelAnimationFrame(this.rafId);
+            this.rafId = null;
+            this.lastTimestamp = 0;
+            this.isAnimating = false;
+        }
+
+        destroy() {
+            this.stop();
+            this.el.removeEventListener('wheel', this.onWheelBound);
+        }
+    }
+
+    let smoothScrollInstances = [];
+    const desktopScrollQuery = window.matchMedia('(min-width: 1181px)');
+
+    function syncSmoothScroll() {
+        smoothScrollInstances.forEach(instance => instance.destroy());
+        smoothScrollInstances = [];
+        if (!desktopScrollQuery.matches || reducedMotionQuery.matches) return;
+        ['.index-panel', '.post-panel'].forEach(selector => {
+            const panel = document.querySelector(selector);
+            if (panel) smoothScrollInstances.push(new JSSmoothScroll(panel));
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        syncSmoothScroll();
+
+        const helloDots = document.querySelectorAll('.hello-dot');
+        const dotColors = ['cat_b.png', 'cat_y.png', 'cat_r.png'];
+        const shuffledColors = [...dotColors].sort(() => 0.5 - Math.random());
+        
+        helloDots.forEach((dot, index) => {
+            const randomColor = shuffledColors[index % shuffledColors.length];
+            dot.src = `./mainPage_img/${randomColor}`;
+
+            let currentRot = 0;
+            let speed = 0;
+            let isHovered = false;
+            let rafId = null;
+
+            const rotateDot = () => {
+                if (isHovered) {
+                    speed += (3.5 - speed) * 0.08;
+                } else {
+                    speed *= 0.95;
+                }
+                
+                currentRot += speed;
+                dot.style.transform = `rotate(${currentRot}deg)`;
+                
+                if (!isHovered && Math.abs(speed) < 0.01) {
+                    speed = 0;
+                    dot.style.transform = `rotate(${currentRot}deg)`;
+                    cancelAnimationFrame(rafId);
+                    rafId = null;
+                    return;
+                }
+                rafId = requestAnimationFrame(rotateDot);
+            };
+
+            dot.addSpin = (amount) => {
+                speed += amount;
+                if (!rafId) rafId = requestAnimationFrame(rotateDot);
+            };
+
+            dot.addEventListener('mouseenter', () => {
+                isHovered = true;
+                if (!rafId) rafId = requestAnimationFrame(rotateDot);
+            });
+            dot.addEventListener('mouseleave', () => {
+                isHovered = false;
+            });
+        });
+
+        window.addEventListener('wheel', (e) => {
+            if (reducedMotionQuery.matches) return;
+            document.querySelectorAll('.hello-dot').forEach(dot => {
+                if (dot.addSpin) dot.addSpin(e.deltaY * 0.03);
+            });
+        }, { passive: true });
+
+        let dotTouchY = 0;
+        window.addEventListener('touchstart', (e) => { 
+            if (e.touches && e.touches[0]) dotTouchY = e.touches[0].clientY; 
+        }, { passive: true });
+        
+        window.addEventListener('touchmove', (e) => {
+            if (reducedMotionQuery.matches) return;
+            if (!e.touches || !e.touches[0]) return;
+            const deltaY = dotTouchY - e.touches[0].clientY;
+            dotTouchY = e.touches[0].clientY;
+            document.querySelectorAll('.hello-dot').forEach(dot => {
+                if (dot.addSpin) dot.addSpin(deltaY * 0.06); 
+            });
+        }, { passive: true });
+    });
+
+    desktopScrollQuery.addEventListener('change', syncSmoothScroll);
+    reducedMotionQuery.addEventListener('change', syncSmoothScroll);
+
+    let isLanding = !isMobileLayout();
+    window.isLayoutTransitioning = false;
+    window.layoutTransitionTarget = 'center';
+    let landingTransitionActive = false;
+    document.body.classList.toggle('landing-state', isLanding);
+
+    const waitForLandingMotion = (duration) => new Promise(resolve => window.setTimeout(resolve, duration));
+function syncLandingChromeAlignment(force = false) {
+        if (!isLanding || (landingTransitionActive && force !== true) || isMobileLayout()) return;
+        const title = document.querySelector('.hello-content-box h1');
+        const logo = document.querySelector('.logo');
+        const menu = document.querySelector('.hamburger-btn');
+        if (!title || !logo || !menu) return;
+
+        const titleRect = title.getBoundingClientRect();
+        const logoWidth = logo.getBoundingClientRect().width || 72;
+        const menuWidth = menu.getBoundingClientRect().width || 44;
+        const viewportEdge = Math.max(16, Math.min(window.innerWidth * 0.02, 32));
+        const logoLeft = Math.max(viewportEdge, titleRect.left);
+        const menuRight = Math.max(viewportEdge, window.innerWidth - titleRect.right);
+
+        document.documentElement.style.setProperty('--landing-logo-left', `${logoLeft}px`);
+        document.documentElement.style.setProperty('--landing-menu-right', `${menuRight}px`);
+    }
+
+    function clearLandingInlineMotion() {
+        const helloBox = document.querySelector('.hello-content-box');
+        const helloHeader = document.querySelector('.hello-header');
+        const pageEl = document.querySelector('.index-panel .page');
+        if (helloBox) {
+            helloBox.style.transform = '';
+            helloBox.style.transition = '';
+        }
+        if (helloHeader) {
+            helloHeader.style.transform = '';
+            helloHeader.style.transition = '';
+        }
+        if (pageEl) {
+            pageEl.style.transform = '';
+            pageEl.style.opacity = '';
+        }
+    }
+
+    function resetLandingControls() {
+        const progressContainer = document.getElementById('scroll-progress-container');
+        const progressBar = document.getElementById('scroll-progress-bar');
+        const scrollDownBtn = document.querySelector('.scroll-down-btn');
+        [progressContainer, scrollDownBtn].forEach(element => {
+            if (!element) return;
+            element.style.transition = '';
+            element.style.transform = '';
+            element.style.opacity = '';
+        });
+        if (progressBar) progressBar.style.transform = 'scaleY(0)';
+    }
+
+    function mountReadingPlaceholder() {
+        window.globalPlaceholderScene?.destroy();
+        window.globalPlaceholderScene=null;
+        const placeholder=document.getElementById('post-panel-placeholder');
+        placeholder.replaceChildren();
+        window.globalAsciiScene?.destroy();
+        window.globalAsciiScene=new AsciiArtScene('post-panel-placeholder');
+        window.globalAsciiScene.setActive(!document.getElementById('post-panel-viewer').classList.contains('active-state'));
+    }
+    function exploreContent() {
+        if(isMobileLayout()) {
+            document.querySelector('.main-cont-back')?.scrollIntoView({behavior:reducedMotionQuery.matches?'auto':'smooth',block:'start'});
+        } else exitLandingState();
+    }
+    window.exploreContent=exploreContent;
+
+    async function transitionArchive(toLanding,immediate=false) {
+        if(landingTransitionActive || isLanding===toLanding) return;
+        const animate=!immediate && !reducedMotionQuery.matches;
+        const title=document.querySelector('.hello-content-box h1');
+        const content=document.querySelector('.main-cont-back');
+        const meta=document.querySelector('.hello-p');
+        const panel=document.getElementById('post-panel');
+        const motions=[];
+        const ease='cubic-bezier(.22,.68,0,1)';
+        const move=(element,frames,options={})=> {
+            if(!element || !animate) return;
+            const motion=element.animate(frames,{duration:820,easing:ease,fill:'both',...options});
+            motions.push(motion);
+            return motion;
+        };
+        landingTransitionActive=true; window.isLayoutTransitioning=true;
+        document.body.classList.add('landing-transition-active');
+        // Let the outgoing content begin moving while the real heading stays in place.
+        if(animate) {
+            if(!toLanding) window.globalPlaceholderScene?.triggerExit();
+            else {
+                move(content,[{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(24px)'}],{duration:180});
+                move(meta,[{opacity:1},{opacity:0}],{duration:180});
+                move(panel,[{opacity:1},{opacity:0}],{duration:180});
+            }
+            await waitForLandingMotion(180);
+        }
+        // Capture the visible position, including any wheel-driven ancestor motion.
+        const from=title.getBoundingClientRect();
+        const chrome=[...document.querySelectorAll('.logo,.hamburger-btn')].map(element=>({element,from:element.getBoundingClientRect()}));
+        if(!toLanding && animate && window.globalPlaceholderScene) {
+            const exitingScene=window.globalPlaceholderScene;
+            const exitLayer=document.createElement('div');
+            exitLayer.className='landing-card-exit';exitLayer.setAttribute('aria-hidden','true');
+            Object.assign(exitLayer.style,{position:'fixed',inset:'0',zIndex:'5',pointerEvents:'none',overflow:'hidden'});
+            exitLayer.append(exitingScene.sceneContainer);document.body.append(exitLayer);
+            window.globalPlaceholderScene=null;
+            setTimeout(()=>{exitingScene.destroy();exitLayer.remove();},160);
+        }
+        motions.splice(0).forEach(m=>m.cancel());
+        isLanding=toLanding;
+        document.body.classList.add('landing-layout-snap');
+        document.body.classList.toggle('landing-state',toLanding);
+        document.body.classList.remove('list-footer-stage');
+        clearLandingInlineMotion(); resetLandingControls();
+        if(toLanding) {
+            window.globalAsciiScene?.destroy(); window.globalAsciiScene=null;
+            document.getElementById('post-panel-placeholder').replaceChildren();
+            window.globalPlaceholderScene=new PlaceholderScene('post-panel-placeholder');
+            if(allPosts.length) window.globalPlaceholderScene.updateCards(allPosts);
+            if(animate) window.globalPlaceholderScene.triggerEnter();
+            document.querySelector('.index-panel').scrollTop=0;
+        } else mountReadingPlaceholder();
+        syncLandingChromeAlignment(true);
+        // FLIP the existing h1 in its original parent before the next paint.
+        // No cloned heading, hidden original, or final DOM hand-off.
+        const to=title.getBoundingClientRect();
+        const scale=from.width/to.width;
+        move(title,[
+            {transform:'translate3d('+(from.left-to.left)+'px,'+(from.top-to.top)+'px,0) scale('+scale+')'},
+            {transform:'translate3d(0,0,0) scale(1)'}
+        ]);
+        chrome.forEach(({element,from:origin})=> {
+            const target=element.getBoundingClientRect();
+            const base=getComputedStyle(element).transform;
+            move(element,[{transform:'translate('+(origin.left-target.left)+'px,'+(origin.top-target.top)+'px) '+(base==='none'?'':base)},{transform:base}]);
+        });
+        const paper=getComputedStyle(document.body).getPropertyValue('--bg').trim();
+        document.querySelectorAll('.index-panel,.index-panel .page,.masthead').forEach(element=> {
+            move(element,[{backgroundColor:toLanding?paper:'transparent'},{backgroundColor:toLanding?'transparent':paper}],{duration:640});
+        });
+        if(!toLanding) {
+            move(content,[{opacity:0,transform:'translateY(28px)'},{opacity:1,transform:'translateY(0)'}],{duration:620,delay:140});
+            move(meta,[{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'translateY(0)'}],{duration:330,delay:560});
+            move(panel,[{opacity:0,transform:'translate3d(32px,0,0)'},{opacity:1,transform:'translate3d(0,0,0)'}],{duration:620,delay:270});
+        } else {
+            move(content,[{opacity:0},{opacity:1}],{duration:600,delay:220});
+        }
+        await Promise.allSettled(motions.map(m=>m.finished));
+        motions.forEach(m=>m.cancel());
+        document.body.classList.remove('landing-layout-snap','landing-transition-active');
+        landingTransitionActive=false; window.isLayoutTransitioning=false;
+        targetScrollDown=currentScrollDown=targetScrollUp=currentScrollUp=0;
+        window.globalAsciiScene?.onResize(); window.globalPlaceholderScene?.onWindowResize();
+        syncLandingChromeAlignment(true); requestJellyFrame();
+    }
+    const exitLandingState=({immediate=false}={})=>transitionArchive(false,immediate);
+    const enterLandingState=()=>{if(!isMobileLayout())return transitionArchive(true);};
+
+    requestAnimationFrame(syncLandingChromeAlignment);
+    document.fonts?.ready.then(syncLandingChromeAlignment);
+    window.addEventListener('index-intro-complete', syncLandingChromeAlignment, { once: true });
+    let landingChromeResizeTimer = null;
+    window.addEventListener('resize', () => {
+        requestAnimationFrame(syncLandingChromeAlignment);
+        window.clearTimeout(landingChromeResizeTimer);
+        landingChromeResizeTimer = window.setTimeout(syncLandingChromeAlignment, 1100);
+    }, { passive: true });
+
+    const landingTitle = document.querySelector('.hello-content-box h1');
+    if (landingTitle && 'ResizeObserver' in window) {
+        let landingChromeResizeFrame = null;
+        const landingChromeResizeObserver = new ResizeObserver(() => {
+            if (landingChromeResizeFrame !== null) cancelAnimationFrame(landingChromeResizeFrame);
+            landingChromeResizeFrame = requestAnimationFrame(() => {
+                landingChromeResizeFrame = null;
+                syncLandingChromeAlignment();
+            });
+        });
+        landingChromeResizeObserver.observe(landingTitle);
+    }
+
+    desktopScrollQuery.addEventListener('change', (event) => {
+        if (event.matches || !isLanding) return;
+        isLanding = false;
+        document.body.classList.remove('landing-state');
+        document.querySelector('.index-panel .page')?.removeAttribute('style');
+        document.querySelector('.hello-content-box')?.removeAttribute('style');
+        document.querySelector('.hello-header')?.removeAttribute('style');
+        mountReadingPlaceholder();
+    });
+
+    let targetScrollDown = 0;
+    let currentScrollDown = 0;
+    let targetScrollUp = 0;
+    let currentScrollUp = 0;
+    let scrollResetTimer = null;
+    const SCROLL_THRESHOLD = 800;
+    const PLACEHOLDER_EXIT_SPEED = 70;
+    let placeholderExitTimer = null;
+    let jellyRafId = null;
+
+    // 입력이 있거나 상태가 실제로 움직일 때만 프레임을 예약합니다.
+    function requestJellyFrame() {
+        if (!jellyRafId && !document.hidden) jellyRafId = requestAnimationFrame(renderJellyEffect);
+    }
+
+    function isFromPostPanelPlaceholder(target) {
+        if (!(target instanceof Element)) return false;
+        return !!target.closest('#post-panel-placeholder, .post-panel-placeholder, .post-panel');
+    }
+
+    function handlePlaceholderLandingScroll(deltaY) {
+        if (!isLanding || deltaY <= 0) return;
+        if (reducedMotionQuery.matches) {
+            exitLandingState();
+            return;
+        }
+
+        const speed = Math.abs(deltaY);
+        targetScrollDown = Math.min(SCROLL_THRESHOLD, targetScrollDown + speed * 2.4);
+        if (speed >= PLACEHOLDER_EXIT_SPEED) targetScrollDown = SCROLL_THRESHOLD;
+        requestJellyFrame();
+
+        clearTimeout(scrollResetTimer);
+        scrollResetTimer = setTimeout(() => {
+            if (!placeholderExitTimer) {
+                targetScrollDown = 0;
+                requestJellyFrame();
+            }
+        }, 260);
+
+        if (targetScrollDown >= SCROLL_THRESHOLD && !placeholderExitTimer) {
+            placeholderExitTimer = setTimeout(() => {
+                placeholderExitTimer = null;
+                exitLandingState();
+                targetScrollDown = 0;
+                currentScrollDown = 0;
+                targetScrollUp = 0;
+            }, 220);
+        }
+    }
+    window.handlePlaceholderLandingScroll = handlePlaceholderLandingScroll;
+
+    function renderJellyEffect() {
+        jellyRafId = null;
+        const helloBox = document.querySelector('.hello-content-box');
+        
+        if (landingTransitionActive) return;
+
+        currentScrollDown += (targetScrollDown - currentScrollDown) * 0.095;
+        currentScrollUp += (targetScrollUp - currentScrollUp) * 0.095;
+
+        const pageEl = document.querySelector('.index-panel .page');
+        const helloHeader = document.querySelector('.hello-header');
+        const progressContainer = document.getElementById('scroll-progress-container');
+        const progressBar = document.getElementById('scroll-progress-bar');
+
+        if (isLanding) {
+            if (currentScrollDown > 0.5) {
+                if (pageEl) {
+                    const shrink = Math.max(1 - (currentScrollDown * 0.000015), 0.99); 
+                    const rotateX = Math.min(currentScrollDown * 0.001, 0.5);
+                    const slideY = Math.min(currentScrollDown * 0.018, 16);
+                    const fade = Math.max(1 - currentScrollDown * 0.00012, 0.92);
+                    pageEl.style.transformOrigin = 'top center';
+                    pageEl.style.transform = `perspective(1200px) scale(${shrink}) rotateX(${rotateX}deg) translate3d(0, -${slideY}px, 0)`;
+                    pageEl.style.opacity = String(fade);
+                }
+                if (helloBox) {
+                    const scrollProgress = Math.min(currentScrollDown / SCROLL_THRESHOLD, 1);
+                    const pullUp = 36 * (1 - Math.pow(1 - scrollProgress, 3));
+                    helloBox.style.transform = `translate3d(0, -${pullUp}px, 0)`;
+                    helloBox.style.transition = 'none';
+                }
+                if (helloHeader) {
+                    const pullUp = currentScrollDown * 0.05;
+                    helloHeader.style.transform = `translate3d(0, -${pullUp}px, 0)`;
+                    helloHeader.style.transition = 'none';
+                }
+                if (progressContainer && progressBar) {
+                    progressContainer.style.opacity = '1';
+                    progressContainer.style.flexDirection = 'column';
+                    progressBar.style.transformOrigin = 'top';
+                    progressBar.style.transform = `scaleY(${Math.min(currentScrollDown / SCROLL_THRESHOLD, 1)})`;
+                }
+                if (window.globalPlaceholderScene?.applyScrollReaction) {
+                    window.globalPlaceholderScene.applyScrollReaction(Math.min(currentScrollDown / SCROLL_THRESHOLD, 1));
+                }
+            } else {
+                if (pageEl) {
+                    pageEl.style.transform = '';
+                    pageEl.style.opacity = '';
+                }
+                if (helloBox) {
+                    helloBox.style.transform = '';
+                    helloBox.style.transition = '';
+                }
+                if (helloHeader) {
+                    helloHeader.style.transform = '';
+                    helloHeader.style.transition = '';
+                }
+                if (progressContainer) progressContainer.style.opacity = '0';
+                if (window.globalPlaceholderScene?.applyScrollReaction) {
+                    window.globalPlaceholderScene.applyScrollReaction(0);
+                }
+            }
+        } else {
+            if (currentScrollUp > 0.5 && pageEl) {
+                const shrink = Math.max(1 - (currentScrollUp * 0.000015), 0.99);
+                const rotateX = -(Math.min(currentScrollUp * 0.001, 0.5));
+                const slideY = Math.min(currentScrollUp * 0.018, 16);
+                const fade = Math.max(1 - currentScrollUp * 0.00012, 0.92);
+                pageEl.style.transformOrigin = 'top center';
+                pageEl.style.transform = `perspective(1200px) scale(${shrink}) rotateX(${rotateX}deg) translate3d(0, ${slideY}px, 0)`;
+                pageEl.style.opacity = String(fade);
+                if (helloBox) {
+                    const pullDown = currentScrollUp * 0.15;
+                    helloBox.style.transform = `translate3d(0, calc(10px + ${pullDown}px), 0)`;
+                    helloBox.style.transition = 'none';
+                }
+                if (helloHeader) {
+                    const pullDown = currentScrollUp * 0.05;
+                    helloHeader.style.transform = `translate3d(0, ${pullDown}px, 0)`;
+                    helloHeader.style.transition = 'none';
+                }
+                if (progressContainer && progressBar) {
+                    progressContainer.style.opacity = '1';
+                    progressContainer.style.flexDirection = 'column-reverse';
+                    progressBar.style.transformOrigin = 'bottom';
+                    progressBar.style.transform = `scaleY(${Math.min(currentScrollUp / 400, 1)})`;
+                }
+            } else if (pageEl && targetScrollUp === 0 && currentScrollUp < 1) {
+                pageEl.style.transform = '';
+                pageEl.style.opacity = '';
+                if (helloBox) {
+                    helloBox.style.transform = '';
+                    helloBox.style.transition = '';
+                }
+                if (helloHeader) {
+                    helloHeader.style.transform = '';
+                    helloHeader.style.transition = '';
+                }
+                if (progressContainer) progressContainer.style.opacity = '0';
+            }
+        }
+        if (Math.abs(targetScrollDown - currentScrollDown) > 0.35 || Math.abs(targetScrollUp - currentScrollUp) > 0.35) {
+            requestJellyFrame();
+        }
+    }
+
+    document.addEventListener('wheel', (e) => {
+        if (landingTransitionActive) return;
+        if (isFromPostPanelPlaceholder(e.target)) return;
+        const isPostOpen = document.querySelector('.post-panel-viewer.active-state') !== null;
+        if (reducedMotionQuery.matches) {
+            if (isLanding && e.deltaY > 0) exitLandingState();
+            else if (!isLanding && !isPostOpen && e.deltaY < 0 && document.querySelector('.index-panel')?.scrollTop <= 0) enterLandingState();
+            return;
+        }
+        requestJellyFrame();
+
+        if (isLanding && e.deltaY > 0) {
+            targetScrollDown += e.deltaY;
+            if (targetScrollDown > 100) {
+                const progressContainer = document.getElementById('scroll-progress-container');
+                const scrollDownBtn = document.querySelector('.scroll-down-btn');
+                if (progressContainer) {
+                    progressContainer.style.transition = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+                    progressContainer.style.opacity = '0';
+                    progressContainer.style.transform = 'translateX(150%)';
+                }
+                if (scrollDownBtn) {
+                    scrollDownBtn.style.transition = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+                    scrollDownBtn.style.opacity = '0';
+                    scrollDownBtn.style.transform = 'translateX(150%)';
+                }
+            }
+            if (targetScrollDown > SCROLL_THRESHOLD) {
+                exitLandingState();
+                targetScrollDown = 0;
+                currentScrollDown = 0;
+                targetScrollUp = 0;
+            } else {
+                clearTimeout(scrollResetTimer);
+                scrollResetTimer = setTimeout(() => { targetScrollDown = 0; }, 150);
+            }
+        } else if (!isLanding && e.deltaY < 0) {
+            if (isPostOpen) { targetScrollUp = 0; return; }
+            const indexPanel = document.querySelector('.index-panel');
+            if (indexPanel && indexPanel.scrollTop <= 0) {
+                targetScrollUp += Math.abs(e.deltaY);
+                if (targetScrollUp > 400) {
+                    enterLandingState();
+                    targetScrollUp = 0;
+                    currentScrollUp = 0;
+                    targetScrollDown = 0;
+                } else {
+                    clearTimeout(scrollResetTimer);
+                    scrollResetTimer = setTimeout(() => { targetScrollUp = 0; }, 150);
+                }
+            }
+        } else {
+            if (e.deltaY < 0) targetScrollDown = 0;
+            if (e.deltaY > 0) targetScrollUp = 0;
+        }
+    }, { passive: true });
+
+    let landingTouchY = 0;
+    document.addEventListener('touchstart', (e) => { 
+        if (e.touches && e.touches[0]) landingTouchY = e.touches[0].clientY; 
+    }, { passive: true });
+    
+    document.addEventListener('touchmove', (e) => {
+        if (landingTransitionActive) return;
+        if (!e.touches || !e.touches[0]) return;
+        const isPostOpen = document.querySelector('.post-panel-viewer.active-state') !== null;
+        const deltaY = landingTouchY - e.touches[0].clientY;
+        landingTouchY = e.touches[0].clientY;
+        if (isFromPostPanelPlaceholder(e.target) && isLanding && deltaY > 0) {
+            handlePlaceholderLandingScroll(deltaY * 2.5);
+            return;
+        }
+        if (reducedMotionQuery.matches) {
+            if (isLanding && deltaY > 0) exitLandingState();
+            else if (!isLanding && !isPostOpen && deltaY < 0 && document.querySelector('.index-panel')?.scrollTop <= 0) enterLandingState();
+            return;
+        }
+        requestJellyFrame();
+
+        if (isLanding && deltaY > 0) {
+            targetScrollDown += Math.abs(deltaY) * 2.5;
+            if (targetScrollDown > 350) {
+                exitLandingState();
+                targetScrollDown = 0;
+                currentScrollDown = 0;
+            }
+        } else if (!isLanding && deltaY < 0) {
+            if (isPostOpen) { targetScrollUp = 0; return; }
+            const indexPanel = document.querySelector('.index-panel');
+            if (indexPanel && indexPanel.scrollTop <= 0) {
+                targetScrollUp += Math.abs(deltaY) * 2.5;
+                if (targetScrollUp > 350) {
+                    enterLandingState();
+                    targetScrollUp = 0;
+                    currentScrollUp = 0;
+                }
+            }
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchend', () => {
+        if (isLanding) targetScrollDown = 0;
+        else targetScrollUp = 0;
+    });
+
+    const S_URL = 'https://dwyoitvmforukvdikzqo.supabase.co';
+    const S_KEY = 'sb_publishable_c5y0L6D5oRgoEV_MzedQQQ_nCJfKHb0';
+    const supabaseClient = window.supabase ? window.supabase.createClient(S_URL, S_KEY) : null;
+
+    let allPosts = [];
+    const displayLimit = 50;
+    let currentRenderId = 0;
+
+    function renderPanelContinuation(currentPostId) {
+        const link = document.getElementById('panel-continuation-link');
+        const title = document.getElementById('panel-continuation-title');
+        const meta = document.getElementById('panel-continuation-meta');
+        const image = document.getElementById('panel-continuation-image');
+        if (!link || !title || !meta || !image) return;
+
+        const currentPost = allPosts.find(post => String(post.id) === String(currentPostId));
+        const candidates = allPosts.filter(post => String(post.id) !== String(currentPostId));
+        const nextPost = candidates.find(post => post.category === currentPost?.category) || candidates[0];
+        if (!nextPost) {
+            link.href = './index.html';
+            delete link.dataset.postId;
+            title.textContent = '더 많은 포스트 보기';
+            meta.textContent = 'SWBLOG ARCHIVE';
+            image.hidden = true;
+            image.removeAttribute('src');
+            image.alt = '';
+            return;
+        }
+
+        const date = nextPost.created_at
+            ? new Date(nextPost.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' })
+            : '';
+        const url = new URL(window.location.href);
+        url.searchParams.set('post', nextPost.id);
+        link.href = url.toString();
+        link.dataset.postId = String(nextPost.id);
+        title.textContent = nextPost.title || '최신 포스트 보기';
+        meta.textContent = [nextPost.category || 'POST', date].filter(Boolean).join(' · ');
+        const thumbnail = getFirstImage(nextPost.content);
+        if (thumbnail) {
+            image.src = thumbnail;
+            image.alt = `${nextPost.title || '최신 포스트'} 썸네일`;
+            image.hidden = false;
+        } else {
+            image.hidden = true;
+            image.removeAttribute('src');
+            image.alt = '';
+        }
+    }
+
+    function setupStickyStages() {
+        const indexPanel = document.querySelector('.index-panel');
+        const listFooter = document.querySelector('.index-panel .footer');
+        const postPanel = document.getElementById('post-panel');
+        const continuation = document.getElementById('panel-continuation');
+        const viewer = document.getElementById('post-panel-viewer');
+
+        if (indexPanel && listFooter) {
+            const listFooterObserver = new IntersectionObserver(([entry]) => {
+                const postOpen = viewer?.classList.contains('active-state');
+                const footerStageActive = entry.isIntersecting && !postOpen;
+                document.body.classList.toggle('list-footer-stage', footerStageActive);
+                window.globalAsciiScene?.setActive(!footerStageActive);
+            }, { root: indexPanel, threshold: 0.04 });
+            listFooterObserver.observe(listFooter);
+        }
+
+        // The reader ending is tracked by readingExperience.js through the footer.
+    }
+
+    function escapeHtml(str) {
+        if (str == null) return '';
+        return String(str)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function isMobile() {
+        return window.matchMedia('(max-width: 1180px)').matches;
+    }
+
+    function getFirstImage(content) {
+        if (!content) return null;
+        const mdMatch = content.match(/!\[.*?\]\(([^)]+)\)/);
+        if (mdMatch) return mdMatch[1];
+        const htmlMatch = content.match(/<img[^>]+src=['"]([^'"]+)['"]/i);
+        if (htmlMatch) return htmlMatch[1];
+        return null;
+    }
+
+    let postRevealObserver = null;
+    const narrowPostListQuery = window.matchMedia('(max-width: 820px)');
+
+    function setupPostReveal(container) {
+        postRevealObserver?.disconnect();
+        const items = container.querySelectorAll('.post-list-item');
+        items.forEach(item => item.classList.add('revealed'));
+        if (reducedMotionQuery.matches) return;
+        postRevealObserver = new IntersectionObserver((entries, observer) => {
+            let order = 0;
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                observer.unobserve(entry.target);
+                if (document.getElementById('post-panel-viewer').classList.contains('active-state')) return;
+                entry.target.querySelector('.post-list-content.main')?.animate([
+                    { clipPath:'inset(0 0 100% 0)', transform:'translateY(28px)' },
+                    { clipPath:'inset(0 0 0 0)', transform:'translateY(0)' }
+                ], { duration:750, delay:order++*75, easing:'cubic-bezier(.16,1,.3,1)', fill:'backwards' });
+            });
+        }, { root:isMobileLayout() ? null : document.querySelector('.index-panel'), threshold:.05 });
+        items.forEach(item => postRevealObserver.observe(item));
+    }
+
+    narrowPostListQuery.addEventListener('change', () => {
+        postRevealObserver?.disconnect();
+        postRevealObserver = null;
+        document.querySelectorAll('.post-list-item').forEach(item => item.classList.add('revealed'));
+    });
+
+    async function fetchPosts() {
+        if (!supabaseClient) {
+            allPosts = [];
+            renderPosts(allPosts);
+            syncPostStateFromUrl();
+            return;
+        }
+
+        const { data } = await supabaseClient
+            .from('posts').select('*')
+            .order('created_at', { ascending: false });
+            
+        allPosts = data || [];
+        
+        renderPosts(allPosts);
+        syncPostStateFromUrl();
+
+        if (window.globalPlaceholderScene && typeof window.globalPlaceholderScene.updateCards === 'function') {
+            window.globalPlaceholderScene.updateCards(allPosts);
+        }
+    }
+
+    function renderPosts(posts, query = '') {
+        const container = document.getElementById('post-container');
+        if (!container) return;
+        container.innerHTML = '';
+
+        if (posts.length === 0) {
+            container.innerHTML = '<p style="text-align:center; padding:4rem; color:var(--color-text-muted); width:100%; font-size:1.1rem;">검색 결과가 없습니다.</p>';
+            return;
+        }
+
+        const highlightText = (text, search) => {
+            const safe = escapeHtml(text);
+            if (!search || !safe) return safe;
+            const needle = escapeHtml(search);
+            const regex = new RegExp(`(${needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return safe.replace(regex, '<span class="search-highlight">$1</span>');
+        };
+
+        const makeWaveText = (htmlStr) => {
+            const temp = document.createElement('div');
+            temp.innerHTML = htmlStr;
+            let idx = 0;
+            
+            const walk = (node) => {
+                if (node.nodeType === 3) {
+                    const chars = node.nodeValue.split('');
+                    const frag = document.createDocumentFragment();
+                    chars.forEach(c => {
+                        if (c.trim() === '') {
+                            frag.appendChild(document.createTextNode(c));
+                        } else {
+                            const span = document.createElement('span');
+                            span.className = 'wave-char';
+                            span.style.setProperty('--i', idx++);
+                            span.textContent = c;
+                            frag.appendChild(span);
+                        }
+                    });
+                    node.parentNode.replaceChild(frag, node);
+                } else if (node.nodeType === 1) {
+                    Array.from(node.childNodes).forEach(walk);
+                }
+            };
+            Array.from(temp.childNodes).forEach(walk);
+            return temp.innerHTML;
+        };
+
+        const isSearching = query !== '';
+        const postsToShow = isSearching ? posts : posts.slice(0, displayLimit);
+
+        // 문자열을 한 번만 파싱해 반복적인 DOM 재구성과 레이아웃 무효화를 방지합니다.
+        const postMarkup = postsToShow.map((post, index) => {
+            const date = new Date(post.created_at).toISOString().split('T')[0];
+            const padIdx = String(index + 1).padStart(2, '0');
+
+            let dotColor = 'cat_b.png';
+            if (post.category === 'DESIGN') dotColor = 'cat_y.png';
+            else if (post.category === 'LIFE') dotColor = 'cat_r.png';
+
+            const postIdEnc = encodeURIComponent(post.id);
+            const postIdSafe = escapeHtml(String(post.id));
+            const firstImg = getFirstImage(post.content);
+            const imgDataAttr = firstImg ? `data-preview-img="${escapeHtml(firstImg)}"` : '';
+            const randomRot = (Math.random() * 16 - 8).toFixed(2);
+            const titleHtml = makeWaveText(highlightText(post.title, query));
+
+            const contentHtml = `
+                <img class="post-list-dot" src="./mainPage_img/${dotColor}" alt="${escapeHtml(post.category)}">
+                <div class="post-list-text-wrap">
+                    <span class="post-list-category">${highlightText(post.category, query)}</span>
+                    <h3 class="post-list-title">${titleHtml}</h3>
+                </div>
+                <time datetime="${escapeHtml(post.created_at)}" class="post-list-date">${date}</time>
+            `;
+
+            return `
+            <a href="?post=${postIdEnc}"
+               class="post-list-item"
+               data-post-id="${postIdSafe}"
+               data-category="${escapeHtml(post.category || '')}"
+               ${imgDataAttr}
+               style="--i: ${index};" 
+               data-base-rot="${randomRot}"
+               aria-label="${escapeHtml(post.title)}">
+                <div class="flap-line"></div>
+                <div class="post-list-num" style="color: #00081c">${padIdx}</div>
+                <div class="post-list-content main">
+                    ${contentHtml}
+                </div>
+                <div class="post-list-content clone" aria-hidden="true">
+                    ${contentHtml}
+                </div>
+            </a>`;
+        }).join('');
+        container.innerHTML = postMarkup;
+        window.Publication2026?.refreshIndex();
+        document.getElementById('archive-count').textContent = String(posts.length).padStart(2, '0') + ' ENTRIES';
+
+        setupPostReveal(container);
+
+        window.recalculateMarquee = () => {
+            const postContainer = document.getElementById('post-container');
+            if (!postContainer) return;
+            postContainer.querySelectorAll('.post-list-title').forEach(title => {
+                const textWrap = title.closest('.post-list-text-wrap');
+                if (!textWrap) return;
+                title.classList.remove('marquee');
+                textWrap.classList.remove('has-marquee');
+                
+                if (title.scrollWidth > textWrap.clientWidth) {
+                    title.classList.add('marquee');
+                    textWrap.classList.add('has-marquee');
+                    const moveX = title.scrollWidth - textWrap.clientWidth + 20;
+                    title.style.setProperty('--move-x', `-${moveX}px`);
+                    const duration = Math.max(3, moveX / 40);
+                    title.style.setProperty('--anim-duration', `${duration}s`);
+                }
+            });
+        };
+
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(() => setTimeout(window.recalculateMarquee, 50));
+        } else {
+            setTimeout(window.recalculateMarquee, 300);
+        }
+    }
+
+    function generateTOC(contentEl) {
+        const viewer = document.getElementById('post-panel-viewer');
+        const tocSidebar = document.getElementById('post-toc-sidebar');
+        const tocList = document.getElementById('toc-list');
+        const postPanel = document.getElementById('post-panel');
+        const currentLabel = document.getElementById('toc-current');
+        const progressText = document.getElementById('toc-progress-text');
+        const progressBar = document.getElementById('toc-reading-bar');
+
+        // h2 태그를 기준으로 목차 생성
+        const headings = Array.from(contentEl.querySelectorAll('h1:not([hidden]), h2:not([hidden])'));
+        const characters = contentEl.textContent.replace(/\s/g, '').length;
+        document.getElementById('panel-reading-meta').textContent = '약 ' + Math.max(1, Math.ceil(characters / 500)) + '분 읽기';
+        
+        tocList.innerHTML = '';
+
+        // 헤딩이 2개 미만이면 목차를 숨김
+        if (headings.length < 2) {
+            viewer.classList.remove('has-toc');
+            if (tocSidebar) tocSidebar.hidden = true;
+            if (postPanel._tocScrollListener) {
+                postPanel.removeEventListener('scroll', postPanel._tocScrollListener);
+                postPanel._tocScrollListener = null;
+            }
+            if (postPanel._tocResizeObserver) postPanel._tocResizeObserver.disconnect();
+            return;
+        }
+
+        viewer.classList.add('has-toc');
+        if (tocSidebar) tocSidebar.hidden = false;
+
+        const tocItems = [];
+
+        headings.forEach((heading, idx) => {
+            const id = `toc-heading-${idx}`;
+            heading.id = id;
+
+            const li = document.createElement('li');
+            li.textContent = heading.textContent;
+            li.setAttribute('role', 'button');
+            li.setAttribute('aria-label', `목차: ${heading.textContent}`);
+            li.tabIndex = 0;
+            
+            li.onclick = () => {
+                const targetElement = document.getElementById(id);
+                if (targetElement) {
+                    const postPanelTop = postPanel.getBoundingClientRect().top;
+                    const targetElementTop = targetElement.getBoundingClientRect().top;
+                    const desiredScrollTop = postPanel.scrollTop + (targetElementTop - postPanelTop) - 60; // 상단 여백 60px
+
+                    postPanel.scrollTo({
+                        top: desiredScrollTop,
+                        behavior: reducedMotionQuery.matches ? 'auto' : 'smooth'
+                    });
+                }
+            };
+            li.onkeydown = (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    li.click();
+                }
+            };
+            tocList.appendChild(li);
+            tocItems.push({ heading, li });
+        });
+
+        // 기존 스크롤 리스너 제거
+        if (postPanel._tocScrollListener) {
+            postPanel.removeEventListener('scroll', postPanel._tocScrollListener);
+        }
+        if (postPanel._tocResizeObserver) postPanel._tocResizeObserver.disconnect();
+
+        let headingPositions = [];
+        let tocTicking = false;
+        let lastActiveIndex = -1;
+
+        const refreshHeadingPositions = () => {
+            const panelTop = postPanel.getBoundingClientRect().top;
+            headingPositions = tocItems.map(({ heading }) => heading.getBoundingClientRect().top - panelTop + postPanel.scrollTop);
+        };
+
+        const updateToc = () => {
+            tocTicking = false;
+            const bodyBottom = contentEl.getBoundingClientRect().bottom - postPanel.getBoundingClientRect().top + postPanel.scrollTop;
+            const scrollableHeight = bodyBottom - postPanel.clientHeight;
+            const progress = scrollableHeight > 0 ? Math.min(100, (postPanel.scrollTop / scrollableHeight) * 100) : 100;
+            const roundedProgress = Math.round(progress);
+            if (progressBar) progressBar.style.transform = `scaleX(${progress / 100})`;
+            if (progressText) progressText.textContent = `${roundedProgress}%`;
+
+            let activeIndex = -1;
+            const scrollOffset = postPanel.scrollTop + 80;
+            for (let i = headingPositions.length - 1; i >= 0; i--) {
+                if (headingPositions[i] < scrollOffset) {
+                    activeIndex = i;
+                    break;
+                }
+            }
+            if (activeIndex !== lastActiveIndex) {
+                tocItems.forEach((item, index) => {
+                    item.li.classList.toggle('active', index === activeIndex);
+                    if (index === activeIndex) item.li.setAttribute('aria-current','location');
+                    else item.li.removeAttribute('aria-current');
+                });
+                if (currentLabel) currentLabel.textContent = activeIndex >= 0 ? tocItems[activeIndex].heading.textContent : headings[0].textContent;
+                lastActiveIndex = activeIndex;
+            }
+        };
+
+        const tocScrollListener = () => {
+            if (!tocTicking) {
+                tocTicking = true;
+                requestAnimationFrame(updateToc);
+            }
+        };
+
+        postPanel.addEventListener('scroll', tocScrollListener);
+        postPanel._tocScrollListener = tocScrollListener;
+        if (postPanel._tocResizeObserver) postPanel._tocResizeObserver.disconnect();
+        postPanel._tocResizeObserver = new ResizeObserver(() => {
+            refreshHeadingPositions();
+            tocScrollListener();
+        });
+        postPanel._tocResizeObserver.observe(contentEl);
+        refreshHeadingPositions();
+        tocScrollListener();
+    }
+
+    async function loadPanelPost(postId) {
+        const renderId = ++currentRenderId;
+        const resolution = window.Publication2026?.begin(postId);
+        document.body.classList.remove('post-end-stage', 'archive-pinned');
+        const archiveToggle = document.querySelector('.archive-toggle');
+        archiveToggle?.setAttribute('aria-expanded', 'false');
+        archiveToggle?.setAttribute('aria-label', '글 목록 펼치기');
+        const viewer      = document.getElementById('post-panel-viewer');
+        const placeholder = document.getElementById('post-panel-placeholder');
+        const loading     = document.getElementById('panel-loading');
+        const header      = document.getElementById('panel-header');
+        const content     = document.getElementById('panel-content');
+        const panelBody   = document.getElementById('panel-post-body');
+        const panel       = document.getElementById('post-panel');
+        const closeButton = document.querySelector('.panel-close-btn');
+        viewer.removeAttribute('inert');
+        viewer.setAttribute('aria-hidden', 'false');
+        if (closeButton) {
+            closeButton.hidden = false;
+            closeButton.removeAttribute('inert');
+        }
+        setMobilePostBackgroundInert(isMobile());
+
+        if (window.globalAsciiScene) {
+            window.globalAsciiScene.setActive(false);
+        }
+
+        const isAlreadyOpen = viewer.classList.contains('active-state');
+
+        if (!isAlreadyOpen) {
+            panelBody.style.transition = 'none';
+            panelBody.style.opacity = '0';
+            panelBody.style.transform = 'translate3d(0, 10px, 0)';
+            viewer.classList.remove('hidden');
+            void viewer.offsetWidth;
+            
+            viewer.style.willChange = 'transform, opacity';
+            placeholder.style.willChange = 'opacity';
+            
+            requestAnimationFrame(() => {
+                viewer.classList.add('active-state');
+                placeholder.classList.add('hidden-state');
+            });
+            
+            await new Promise(resolve => setTimeout(resolve, 250));
+            closeButton?.focus({ preventScroll: true });
+        } else {
+            panelBody.style.transition = 'opacity var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out)';
+            panelBody.style.opacity = '0';
+            panelBody.style.transform = 'translate3d(0, 8px, 0)';
+            await new Promise(resolve => setTimeout(resolve, 150));
+        }
+        
+        if (renderId !== currentRenderId) return;
+
+        loading.style.display = '';
+        closeButton?.focus({ preventScroll: true });
+        header.style.display  = 'none';
+        content.innerHTML = ''; 
+        panel.scrollTop = 0;
+
+        let data, error;
+        if (!supabaseClient) {
+            data = null;
+            error = { message: 'supabase client unavailable' };
+        } else {
+            try {
+                const res = await supabaseClient.from('posts').select('*').eq('id', postId).single();
+                data = res.data; error = res.error;
+            } catch (failure) { error = failure; }
+        }
+        
+        if (renderId !== currentRenderId) return;
+
+        loading.style.display = 'none';
+
+        if (error || !data) {
+            window.Publication2026?.resolve(resolution, false);
+            content.innerHTML = '<p style="color:var(--color-text-muted);padding:2rem 0;">글을 불러올 수 없습니다.</p>';
+            requestAnimationFrame(() => {
+                if (renderId !== currentRenderId) return;
+                panelBody.style.transition = 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+                panelBody.style.opacity = '1';
+                panelBody.style.transform = 'translate3d(0, 0, 0)';
+            });
+        } else {
+            document.getElementById('panel-cat').textContent   = data.category || '';
+            document.getElementById('panel-title').textContent = data.title    || '';
+            document.getElementById('panel-date').textContent  =
+                new Date(data.created_at).toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' });
+            header.style.display = '';
+            renderPanelContinuation(data.id);
+
+            const rawContent = data.content || '';
+            const parseAndRender = () => {
+                if (renderId !== currentRenderId) return;
+                
+                const rawHtml = window.PostContent
+                    ? PostContent.toRenderableHtml(rawContent, window.marked)
+                    : (window.marked ? marked.parse(rawContent) : rawContent);
+                const safeHtml = window.DOMPurify ? DOMPurify.sanitize(rawHtml, {
+                    ADD_TAGS: ['svg', 'polyline', 'circle', 'line', 'path', 'blockquote', 'button', 'table', 'tr', 'td', 'tbody', 'thead'],
+                    ADD_ATTR: ['stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'fill', 'viewBox', 'points', 'cx', 'cy', 'r', 'x1', 'y1', 'x2', 'y2', 'id', 'class', 'data-layout', 'd', 'data-initialized', 'contenteditable', 'style', 'alt', 'datetime']
+                }) : rawHtml;
+                
+                content.innerHTML = safeHtml;
+                
+                requestAnimationFrame(() => {
+                    if (renderId !== currentRenderId) return;
+                    panelBody.style.transition = 'opacity var(--motion-base) var(--ease-out), transform var(--motion-base) var(--ease-out)';
+                    panelBody.style.opacity = '1';
+                    panelBody.style.transform = 'translate3d(0, 0, 0)';
+                    window.PostContent?.enhanceEditorialLayout?.(content, { title: data.title || '' });
+                    processImageSliders(content);
+                    setupGlobalImageZoom(content);
+                    generateTOC(content);
+                    window.Publication2026?.enhance(content, data);
+                    window.Publication2026?.resolve(resolution);
+                });
+            };
+            
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(parseAndRender, { timeout: 200 });
+            } else {
+                setTimeout(parseAndRender, 50);
+            }
+        }
+    }
+
+    function closePanelPost({ syncHistory = true } = {}) {
+        const currentUrl = new URL(window.location.href);
+        if (syncHistory && currentUrl.searchParams.has('post')) {
+            if (history.state?.swblogPost) {
+                history.back();
+                return;
+            }
+            currentUrl.searchParams.delete('post');
+            history.replaceState({ swblogBase: true }, '', currentUrl);
+        }
+
+        currentRenderId++;
+        window.Publication2026?.cancel();
+        document.body.classList.remove('contents-open');
+        document.body.classList.remove('post-end-stage');
+        const viewer = document.getElementById('post-panel-viewer');
+        const placeholder = document.getElementById('post-panel-placeholder');
+        const panelBody = document.getElementById('panel-post-body');
+        const panel = document.getElementById('post-panel');
+        const closeButton = document.querySelector('.panel-close-btn');
+        const tocSidebar = document.getElementById('post-toc-sidebar');
+
+        // 1. 포스트 내용 부드럽게 페이드아웃
+        panelBody.style.transition = 'opacity var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out)';
+        panelBody.style.opacity = '0';
+        panelBody.style.transform = 'translate3d(0, 10px, 0)';
+
+        document.querySelectorAll('.post-list-item').forEach(el => el.classList.remove('active'));
+
+        // 2. 패널 너비 복원 및 ASCII 씬 활성화
+        viewer.classList.remove('active-state');
+        viewer.setAttribute('aria-hidden', 'true');
+        viewer.setAttribute('inert', '');
+        if (closeButton) {
+            closeButton.hidden = true;
+            closeButton.setAttribute('inert', '');
+        }
+        if (tocSidebar) tocSidebar.hidden = true;
+        placeholder.classList.remove('hidden-state');
+        setMobilePostBackgroundInert(false);
+
+        // TOC 관련 정리
+        viewer.classList.remove('has-toc');
+        if (panel._tocScrollListener) {
+            panel.removeEventListener('scroll', panel._tocScrollListener);
+            panel._tocScrollListener = null;
+        }
+        if (panel._tocResizeObserver) {
+            panel._tocResizeObserver.disconnect();
+            panel._tocResizeObserver = null;
+        }
+
+        if (window.globalAsciiScene) {
+            window.globalAsciiScene.setActive(true);
+            window.globalAsciiScene.onResize();
+        }
+
+        document.body.classList.remove('archive-pinned');
+        if (panelReturnFocus instanceof HTMLElement) panelReturnFocus.focus({ preventScroll: true });
+        panelReturnFocus = null;
+
+        // 3. 트랜지션 완료 후 뒷정리
+        setTimeout(() => {
+            if (viewer.classList.contains('active-state')) return;
+            viewer.classList.add('hidden');
+            panel.scrollTop = 0;
+            document.getElementById('panel-content').innerHTML = ''; 
+            viewer.style.willChange = 'auto';
+            placeholder.style.willChange = 'auto';
+        }, 750); 
+    }
+
+    function returnToPostList() {
+        const returnTarget = panelReturnFocus;
+        const currentUrl = new URL(window.location.href);
+        const canGoBackToList = Boolean(history.state?.swblogPost);
+
+        closePanelPost({ syncHistory: false });
+
+        if (currentUrl.searchParams.has('post')) {
+            if (canGoBackToList) {
+                history.back();
+            } else {
+                currentUrl.searchParams.delete('post');
+                history.replaceState({ swblogBase: true }, '', currentUrl);
+            }
+        }
+
+        requestAnimationFrame(() => {
+            if (returnTarget instanceof HTMLElement) {
+                returnTarget.scrollIntoView({
+                    behavior: reducedMotionQuery.matches ? 'auto' : 'smooth',
+                    block: 'center'
+                });
+            } else {
+                document.querySelector('.main-cont-back')?.scrollIntoView({
+                    behavior: reducedMotionQuery.matches ? 'auto' : 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    }
+    window.returnToPostList = returnToPostList;
+    document.querySelector('.panel-close-btn')?.addEventListener('click', returnToPostList);
+
+    function processImageSliders(contentElement) {
+        const pTags = contentElement.querySelectorAll('p');
+        pTags.forEach(p => {
+            const images = Array.from(p.querySelectorAll('img'));
+            if (images.length > 1 && !p.closest('.story-slider')) {
+                const slider = document.createElement('div');
+                slider.className = 'story-slider';
+
+                const progressContainer = document.createElement('div');
+                progressContainer.className = 'story-progress';
+
+                const imgContainer = document.createElement('div');
+                imgContainer.className = 'story-images';
+
+                const controls = document.createElement('div');
+                controls.className = 'story-controls';
+
+                const prevBtn = document.createElement('button');
+                prevBtn.className = 'story-btn story-prev';
+                prevBtn.type = 'button';
+                prevBtn.setAttribute('aria-label', '이전 이미지');
+                prevBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'story-btn story-next';
+                nextBtn.type = 'button';
+                nextBtn.setAttribute('aria-label', '다음 이미지');
+                nextBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+
+                const zoomBtn = document.createElement('button');
+                zoomBtn.className = 'story-btn story-zoom';
+                zoomBtn.type = 'button';
+                zoomBtn.setAttribute('aria-label', '현재 이미지 확대');
+                zoomBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>';
+
+                images.forEach((img, idx) => {
+                    const segment = document.createElement('div');
+                    segment.className = 'story-segment' + (idx === 0 ? ' active' : '');
+                    const fill = document.createElement('div');
+                    fill.className = 'story-segment-fill';
+                    segment.appendChild(fill);
+                    progressContainer.appendChild(segment);
+
+                    const imgClone = img.cloneNode(true);
+                    imgClone.className = 'story-img';
+                    imgContainer.appendChild(imgClone);
+                });
+
+                controls.appendChild(prevBtn);
+                controls.appendChild(zoomBtn);
+                controls.appendChild(nextBtn);
+
+                slider.appendChild(progressContainer);
+                slider.appendChild(imgContainer);
+                slider.appendChild(controls);
+
+                const textOnly = p.textContent.replace(/\s/g, '');
+                if (textOnly.length === 0) {
+                    p.replaceWith(slider);
+                } else {
+                    p.insertBefore(slider, images[0]);
+                    images.forEach(img => img.remove());
+                }
+            }
+        });
+
+        const sliders = contentElement.querySelectorAll('.story-slider');
+        sliders.forEach(slider => initStorySlider(slider));
+    }
+
+    function initStorySlider(slider) {
+        if (slider._isStoryInitialized) return;
+        slider._isStoryInitialized = true;
+
+        const imgContainer = slider.querySelector('.story-images');
+        const segments = slider.querySelectorAll('.story-segment');
+        const prevBtn = slider.querySelector('.story-prev');
+        const nextBtn = slider.querySelector('.story-next');
+        const zoomBtn = slider.querySelector('.story-zoom');
+        const controls = slider.querySelector('.story-controls');
+        const images = slider.querySelectorAll('.story-img');
+        
+        if (!imgContainer || images.length === 0) return;
+
+        if (prevBtn) {
+            prevBtn.type = 'button';
+            prevBtn.setAttribute('aria-label', '이전 이미지');
+        }
+        if (nextBtn) {
+            nextBtn.type = 'button';
+            nextBtn.setAttribute('aria-label', '다음 이미지');
+        }
+        if (zoomBtn) {
+            zoomBtn.type = 'button';
+            zoomBtn.setAttribute('aria-label', '현재 이미지 확대');
+        }
+
+        let pauseBtn = slider.querySelector('.story-pause');
+        if (!pauseBtn && controls) {
+            pauseBtn = document.createElement('button');
+            pauseBtn.type = 'button';
+            pauseBtn.className = 'story-btn story-pause';
+            controls.insertBefore(pauseBtn, nextBtn || null);
+        }
+
+        let currentIndex = 0;
+        let progress = 0;
+        let isProgrammaticScroll = false;
+        let scrollTimeout = null;
+        let lastTime = null;
+        const DURATION = 4000;
+        const autoplayEnabled = true;
+        let interactionPaused = false;
+        let userPaused = false;
+        const canAutoplay = () => autoplayEnabled && !interactionPaused && !userPaused && !reducedMotionQuery.matches;
+
+        const updatePauseButton = () => {
+            if (!pauseBtn) return;
+            pauseBtn.setAttribute('aria-label', userPaused ? '이미지 자동 재생 시작' : '이미지 자동 재생 일시정지');
+            pauseBtn.setAttribute('aria-pressed', String(userPaused));
+            pauseBtn.innerHTML = userPaused
+                ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>'
+                : '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"></path></svg>';
+        };
+        updatePauseButton();
+
+        segments.forEach(seg => {
+            let fill = seg.querySelector('.story-segment-fill');
+            if (!fill) {
+                fill = document.createElement('div');
+                fill.className = 'story-segment-fill';
+                seg.appendChild(fill);
+            }
+            fill.style.transition = 'none';
+            fill.style.transform = 'scaleX(0)';
+        });
+
+        const updateUI = (updateStates = true) => {
+            segments.forEach((seg, idx) => {
+                const fill = seg.querySelector('.story-segment-fill');
+                if (!fill) return;
+
+                if (idx < currentIndex) {
+                    if (updateStates) seg.className = 'story-segment viewed';
+                    if (updateStates) fill.style.transform = 'scaleX(1)';
+                } else if (idx === currentIndex) {
+                    if (updateStates) seg.className = 'story-segment active';
+                    fill.style.transform = `scaleX(${progress / 100})`;
+                } else {
+                    if (updateStates) seg.className = 'story-segment';
+                    if (updateStates) fill.style.transform = 'scaleX(0)';
+                }
+            });
+        };
+
+        const updateContainerHeight = () => {
+            const targetImg = images[currentIndex];
+            if (targetImg && targetImg.clientHeight > 0) {
+                imgContainer.style.height = `${targetImg.clientHeight}px`;
+            }
+        };
+
+        const goToSlide = (index) => {
+            if (index < 0) index = images.length - 1;
+            if (index >= images.length) index = 0;
+
+            currentIndex = index;
+            progress = 0;
+            updateUI();
+            updateContainerHeight();
+
+            const targetImg = images[currentIndex];
+            if (targetImg) {
+                isProgrammaticScroll = true;
+                clearTimeout(scrollTimeout);
+                const scrollLeft = targetImg.offsetLeft - imgContainer.offsetLeft;
+                imgContainer.style.scrollSnapType = 'none';
+                imgContainer.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+                scrollTimeout = setTimeout(() => { 
+                    imgContainer.style.scrollSnapType = 'x mandatory';
+                    isProgrammaticScroll = false; 
+                }, 600);
+            }
+        };
+
+        let isVisible = false;
+        let animationFrameId = null;
+
+        const animate = (timestamp) => {
+            animationFrameId = null;
+            if (!lastTime) lastTime = timestamp;
+            const dt = timestamp - lastTime;
+            lastTime = timestamp;
+
+            if (!document.body.contains(slider)) {
+                visibilityObserver.disconnect();
+                resizeObserver.disconnect();
+                return;
+            }
+
+            if (isVisible && canAutoplay()) {
+                progress += (dt / DURATION) * 100;
+                if (progress >= 100) {
+                    goToSlide(currentIndex + 1);
+                } else {
+                    updateUI(false);
+                }
+                animationFrameId = requestAnimationFrame(animate);
+            }
+        };
+
+        if (prevBtn) prevBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); goToSlide(currentIndex - 1); });
+        if (nextBtn) nextBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); goToSlide(currentIndex + 1); });
+        if (zoomBtn) zoomBtn.addEventListener('click', (e) => {
+            e.preventDefault(); e.stopPropagation();
+            if (images[currentIndex]) openFullscreen(images[currentIndex].src);
+        });
+        if (pauseBtn) pauseBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            userPaused = !userPaused;
+            updatePauseButton();
+            lastTime = performance.now();
+            if (!userPaused && isVisible && canAutoplay() && !animationFrameId) {
+                animationFrameId = requestAnimationFrame(animate);
+            }
+        });
+
+        const pauseForInteraction = () => {
+            interactionPaused = true;
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+            lastTime = null;
+        };
+        const resumeAfterInteraction = () => {
+            interactionPaused = false;
+            lastTime = performance.now();
+            if (isVisible && canAutoplay() && !animationFrameId) animationFrameId = requestAnimationFrame(animate);
+        };
+        slider.addEventListener('mouseenter', pauseForInteraction);
+        slider.addEventListener('mouseleave', resumeAfterInteraction);
+        slider.addEventListener('focusin', pauseForInteraction);
+        slider.addEventListener('focusout', (event) => {
+            if (!slider.contains(event.relatedTarget)) resumeAfterInteraction();
+        });
+
+        imgContainer.addEventListener('click', (e) => {
+            if (e.target.closest('.story-controls')) return;
+            const rect = imgContainer.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            if (clickX < rect.width * 0.3) goToSlide(currentIndex - 1);
+            else if (clickX > rect.width * 0.7) goToSlide(currentIndex + 1);
+        });
+
+        imgContainer.addEventListener('scroll', () => {
+            if (isProgrammaticScroll) return;
+            const width = imgContainer.clientWidth;
+            if (width === 0) return;
+            const newIndex = Math.round(imgContainer.scrollLeft / width);
+            if (newIndex !== currentIndex && newIndex >= 0 && newIndex < images.length) {
+                currentIndex = newIndex;
+                progress = 0;
+                updateUI();
+                updateContainerHeight();
+            }
+        }, { passive: true });
+
+        let heightFrameId = null;
+        const resizeObserver = new ResizeObserver(() => {
+            if (!heightFrameId) heightFrameId = requestAnimationFrame(() => {
+                heightFrameId = null;
+                updateContainerHeight();
+            });
+        });
+        images.forEach(img => resizeObserver.observe(img));
+
+        const visibilityObserver = new IntersectionObserver(([entry]) => {
+            isVisible = entry.isIntersecting;
+            lastTime = performance.now();
+            if (isVisible && canAutoplay() && !animationFrameId) animationFrameId = requestAnimationFrame(animate);
+        }, { threshold: 0.01 });
+        visibilityObserver.observe(slider);
+
+        updateUI();
+    }
+
+    function setupGlobalImageZoom(contentElement) {
+        const images = contentElement.querySelectorAll('img:not(.story-img):not(.hidden-thumbnail)');
+        images.forEach(img => {
+            if (img.parentElement.classList.contains('img-zoom-wrapper')) return;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'img-zoom-wrapper';
+            
+            img.classList.forEach(cls => {
+                if (['big', 'side-l', 'side-r', 'mini', 'frame-soft', 'frame-polaroid', 'frame-glow'].includes(cls)) {
+                    wrapper.classList.add(cls);
+                }
+            });
+
+            img.parentNode.insertBefore(wrapper, img);
+            wrapper.appendChild(img);
+
+            const zoomBtn = document.createElement('button');
+            zoomBtn.className = 'global-zoom-btn';
+            zoomBtn.type = 'button';
+            zoomBtn.setAttribute('aria-label', img.alt ? `${img.alt} 이미지 확대` : '이미지 확대');
+            zoomBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>';
+            zoomBtn.addEventListener('click', (e) => {
+                e.preventDefault(); e.stopPropagation();
+                openFullscreen(img.src);
+            });
+            wrapper.appendChild(zoomBtn);
+        });
+    }
+
+    let fullscreenReturnFocus = null;
+    function openFullscreen(imgSrc) {
+        const viewer = document.getElementById('fullscreen-viewer');
+        const img = document.getElementById('fullscreen-img');
+        if (viewer && img) {
+            fullscreenReturnFocus = document.activeElement;
+            img.src = imgSrc;
+            viewer.classList.add('visible');
+            viewer.removeAttribute('inert');
+            viewer.setAttribute('aria-hidden', 'false');
+            requestAnimationFrame(() => document.getElementById('fullscreen-close')?.focus({ preventScroll: true }));
+        }
+    }
+
+    function closeFullscreen() {
+        const viewer = document.getElementById('fullscreen-viewer');
+        if (viewer) {
+            viewer.classList.remove('visible');
+            viewer.setAttribute('aria-hidden', 'true');
+            viewer.setAttribute('inert', '');
+            if (fullscreenReturnFocus instanceof HTMLElement) fullscreenReturnFocus.focus({ preventScroll: true });
+            fullscreenReturnFocus = null;
+        }
+    }
+
+    let panelReturnFocus = null;
+    const postBackgroundElements = [
+        document.querySelector('.index-panel'),
+        document.querySelector('.scroll-down-btn'),
+        document.querySelector('.scroll-progress-container')
+    ].filter(Boolean);
+
+    function setMobilePostBackgroundInert(active) {
+        postBackgroundElements.forEach(element => {
+            if (active && !element.hasAttribute('inert')) {
+                element.setAttribute('inert', '');
+                element.dataset.postInert = 'true';
+            } else if (!active && element.dataset.postInert === 'true') {
+                element.removeAttribute('inert');
+                delete element.dataset.postInert;
+            }
+        });
+    }
+
+    function updatePostUrl(postId, mode = 'push') {
+        const url = new URL(window.location.href);
+        url.searchParams.set('post', postId);
+        const state = { swblogPost: true, postId: String(postId) };
+        if (mode === 'replace') history.replaceState(state, '', url);
+        else if (mode === 'push') history.pushState(state, '', url);
+    }
+
+    function openPanelPost(postId, item = null, historyMode = 'none') {
+        if (!postId) return;
+        item = item || Array.from(document.querySelectorAll('.post-list-item')).find(row => String(row.dataset.postId) === String(postId)) || null;
+        document.body.classList.remove('list-footer-stage');
+        panelReturnFocus = item || panelReturnFocus;
+
+        const indexPanel = document.querySelector('.index-panel');
+        if (indexPanel) {
+            indexPanel.classList.add('disable-hover');
+            setTimeout(() => { indexPanel.classList.remove('disable-hover'); }, 1000); 
+        }
+
+        document.querySelectorAll('.post-list-item').forEach(el => el.classList.remove('active'));
+        if (item) item.classList.add('active');
+
+        if (isLanding && typeof exitLandingState === 'function') {
+            exitLandingState({ immediate: true });
+        }
+        if (historyMode !== 'none') updatePostUrl(postId, historyMode);
+        loadPanelPost(postId);
+
+        setTimeout(() => {
+            if (indexPanel && item) {
+                const panelRect = indexPanel.getBoundingClientRect();
+                const itemRect = item.getBoundingClientRect();
+                const scrollTop = indexPanel.scrollTop;
+                const targetScroll = scrollTop + (itemRect.top - panelRect.top) - (panelRect.height / 2) + (itemRect.height / 2);
+                indexPanel.scrollTo({ top: targetScroll, behavior: 'smooth' });
+            }
+        }, 150);
+    }
+
+    function syncPostStateFromUrl() {
+        const postId = new URL(window.location.href).searchParams.get('post');
+        const viewer = document.getElementById('post-panel-viewer');
+        if (postId) {
+            const item = Array.from(document.querySelectorAll('.post-list-item'))
+                .find(candidate => candidate.dataset.postId === postId);
+            openPanelPost(postId, item || null, 'none');
+        } else if (viewer?.classList.contains('active-state')) {
+            closePanelPost({ syncHistory: false });
+        }
+    }
+
+    window.addEventListener('popstate', syncPostStateFromUrl);
+    window.addEventListener('resize', () => {
+        const viewer = document.getElementById('post-panel-viewer');
+        setMobilePostBackgroundInert(Boolean(viewer?.classList.contains('active-state') && isMobile()));
+    });
+
+    document.getElementById('post-container').addEventListener('click', function (e) {
+        const item = e.target.closest('.post-list-item');
+        if (!item) return;
+        e.preventDefault();
+        openPanelPost(item.dataset.postId, item, 'push');
+    });
+
+    document.getElementById('panel-continuation-link')?.addEventListener('click', function (event) {
+        const postId = this.dataset.postId;
+        if (!postId) return;
+        event.preventDefault();
+        openPanelPost(postId, null, 'push');
+    });
+
+    class AsciiArtScene extends window.AsciiVolumeScene {}
+    class PlaceholderScene {
+        constructor(containerId) {
+            this.container = document.getElementById(containerId);
+            if (!this.container) return;
+            this.container.placeholderScene = this;
+            this.container.classList.add('rail-placeholder');
+
+            this.scrollProgress = 0;
+            this.velocity = 0;
+            this.isDragging = false;
+            this.dragDistance = 0;
+            this.lastMouseX = 0;
+            this.cards = [];
+            this.currentActiveTitleCard = null;
+            this.transitionState = 'idle';
+            this.rafId = null;
+
+            this.init();
+            
+            this.resizeObserver = new ResizeObserver(() => this.onWindowResize());
+            this.resizeObserver.observe(this.container);
+
+            this.onPointerDownBound = this.onPointerDown.bind(this);
+            this.onPointerMoveBound = this.onPointerMove.bind(this);
+            this.onPointerUpBound = this.onPointerUp.bind(this);
+            this.onWheelBound = this.onWheel.bind(this);
+            this.container.addEventListener('pointerdown', this.onPointerDownBound);
+            window.addEventListener('pointermove', this.onPointerMoveBound);
+            window.addEventListener('pointerup', this.onPointerUpBound);
+            window.addEventListener('pointercancel', this.onPointerUpBound);
+            this.container.addEventListener('wheel', this.onWheelBound, { passive: true });
+
+            this.lastTime = performance.now();
+            this.animate = this.animate.bind(this);
+            this.rafId = requestAnimationFrame(this.animate);
+            this.onVisibilityChange = () => {
+                if (!document.hidden && isLanding && !this.rafId) {
+                    this.lastTime = performance.now();
+                    this.rafId = requestAnimationFrame(this.animate);
+                }
+            };
+            document.addEventListener('visibilitychange', this.onVisibilityChange);
+        }
+
+        init() {
+            this.container.style.touchAction = 'pan-y';
+            this.container.style.backgroundColor = 'var(--color-bg-rail-light)';
+
+            if (!document.getElementById('rail-card-styles')) {
+                const style = document.createElement('style');
+                style.id = 'rail-card-styles';
+                style.innerHTML = `
+                    .rail-card { cursor: grab; -webkit-backface-visibility: hidden; backface-visibility: hidden; transform-style: preserve-3d; }
+                    .rail-card:active { cursor: grabbing; }
+                    .rail-card img { transition: filter 0.4s ease; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+                    @keyframes rail-marquee {
+                        0%, 15% { transform: translateX(0); }
+                        85%, 100% { transform: translateX(var(--move-x)); }
+                    }
+                    .rail-marquee-active { animation: rail-marquee var(--anim-duration, 2s) ease-in-out infinite alternate; }
+                    @keyframes rail-spin-dot { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                    .rail-card-meta { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px; text-shadow: 0 2px 8px rgba(255,255,255,0.9); }
+                    .rail-card-dot { width: 26px; height: 26px; object-fit: contain; filter: invert(1); animation: rail-spin-dot 4s linear infinite; }
+                    .rail-card-cat { font-size: 1.4rem; font-weight: 800; color: #888; letter-spacing: 0.05em; }
+                    .rail-card-date { font-size: 1.3rem; color: #888; opacity: 0.8; letter-spacing: 0.05em; }
+                    .rail-card-title-mask { width: 100%; overflow: hidden; white-space: nowrap; -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent); mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent); }
+                    .rail-card-title-inner { display: inline-block; font-size: 2.3rem; color: var(--color-text-heading); text-shadow: var(--shadow-text-rail); }
+                    .rail-card-side { background-color: var(--color-bg-rail-side); font-weight: 700; }
+                `;
+                document.head.appendChild(style);
+            }
+
+            this.sceneContainer = document.createElement('div');
+            this.sceneContainer.style.position = 'absolute';
+            this.sceneContainer.style.top = '0';
+            this.sceneContainer.style.left = '0';
+            this.sceneContainer.style.width = '100%';
+            this.sceneContainer.style.height = '100%';
+            this.sceneContainer.style.overflow = 'hidden';
+            this.sceneContainer.style.perspective = '2000px';
+            this.sceneContainer.style.transformStyle = 'preserve-3d';
+            this.sceneContainer.style.zIndex = '1';
+            
+            this.cameraWrap = document.createElement('div');
+            this.cameraWrap.style.position = 'absolute';
+            this.cameraWrap.style.top = '50%';
+            this.cameraWrap.style.left = '50%';
+            this.cameraWrap.style.width = '0';
+            this.cameraWrap.style.height = '0';
+            this.cameraWrap.style.perspective = 'none';
+            this.cameraWrap.style.transformStyle = 'preserve-3d';
+            
+            this.sceneContainer.appendChild(this.cameraWrap);
+            this.container.appendChild(this.sceneContainer);
+        }
+
+        onWindowResize() {
+            if (!this.container || this.container.classList.contains('hidden-state')) return;
+            this.width = this.container.clientWidth;
+        }
+
+        updateCards(posts) {
+            this.cards.forEach(c => {
+                if (c.el && c.el.parentNode) c.el.parentNode.removeChild(c.el);
+            });
+            this.cards = [];
+            this.currentActiveTitleCard = null;
+            if (!posts || posts.length === 0) return;
+
+            const validPosts = posts.filter(post => getFirstImage(post.content));
+            if (validPosts.length === 0) return;
+
+            let displayPosts = [...validPosts];
+            while (displayPosts.length < 8) {
+                displayPosts = [...displayPosts, ...validPosts];
+            }
+
+            displayPosts.forEach((post, i) => {
+                const imgSrc = getFirstImage(post.content);
+                const isMobileView = window.innerWidth <= 1180;
+                const randomWidth = isMobileView ? 180 : 300;
+                
+                const el = document.createElement('div');
+                el.className = 'rail-card';
+                el.tabIndex = 0;
+                el.setAttribute('role', 'link');
+                el.setAttribute('aria-label', post.title || '글 읽기');
+                el.addEventListener('keydown', event => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        openPanelPost(post.id, null, 'push');
+                    }
+                });
+                el.style.position = 'absolute';
+                el.style.top = '0';
+                el.style.left = '0';
+                el.style.width = `${randomWidth}px`;
+                el.style.transformStyle = 'preserve-3d';
+                
+                const titleWrap = document.createElement('div');
+                titleWrap.className = 'rail-card-title-wrap';
+                titleWrap.style.position = 'absolute';
+                titleWrap.style.bottom = '100%';
+                titleWrap.style.left = '50%';
+                titleWrap.style.transformOrigin = 'bottom center';
+                titleWrap.style.transform = 'translate3d(-50%, 20px, 0) scale(0.5)';
+                titleWrap.style.width = '260%';
+                titleWrap.style.marginBottom = '12px';
+                titleWrap.style.textAlign = 'center';
+                titleWrap.style.pointerEvents = 'none';
+                titleWrap.style.opacity = '0';
+                titleWrap.style.transition = 'opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+                
+                const dateStr = new Date(post.created_at).toISOString().split('T')[0];
+                let dotColor = 'cat_b.png';
+                if (post.category === 'DESIGN') dotColor = 'cat_y.png';
+                if (post.category === 'LIFE')   dotColor = 'cat_r.png';
+                
+                titleWrap.innerHTML = `
+                    <div class="rail-card-meta">
+                        <img src="./mainPage_img/${dotColor}" alt="${escapeHtml(post.category)}" class="rail-card-dot">
+                        <span class="rail-card-cat">${escapeHtml(post.category)}</span>
+                        <span class="rail-card-date">${escapeHtml(dateStr)}</span>
+                    </div>
+                    <div class="rail-card-title-mask">
+                        <div class="rail-card-title-inner">${escapeHtml(post.title)}</div>
+                    </div>
+                `;
+                
+                const titleInner = titleWrap.querySelector('.rail-card-title-inner');
+                
+                const img = document.createElement('img');
+                img.src = imgSrc;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                img.style.display = 'block';
+                img.style.pointerEvents = 'none';
+                img.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease';
+                img.style.transform = 'scale(1.05)';
+                
+                const imgWrap = document.createElement('div');
+                imgWrap.style.position = 'relative';
+                imgWrap.style.width = '130%';
+                imgWrap.style.left = '50%';
+                imgWrap.style.aspectRatio = '1920 / 1080';
+                imgWrap.style.overflow = 'hidden';
+                imgWrap.style.transform = 'translateX(-50%) translateZ(calc(var(--box-depth) / 2))';
+                imgWrap.style.zIndex = '1';
+
+                const innerWrap = document.createElement('div');
+                innerWrap.className = 'rail-card-inner';
+                innerWrap.style.width = '100%';
+                innerWrap.style.height = '100%';
+                innerWrap.style.transformStyle = 'preserve-3d';
+                innerWrap.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.4s ease';
+                innerWrap.style.setProperty('--box-depth', '20px');
+                innerWrap.style.borderRadius = '8px';
+                
+                let isHovered = false;
+                const tilt={x:0,y:0,tx:0,ty:0};
+                el._tilt=tilt;el._innerWrap=innerWrap;
+                el.addEventListener('mouseenter', () => {
+                    isHovered = true;
+                    img.style.transform = 'scale(1.0)';
+                    innerWrap.style.backgroundColor = 'rgba(0, 0, 0, 0.04)';
+                });
+                el.addEventListener('mouseleave', () => {
+                    isHovered = false;
+                    tilt.tx=0;tilt.ty=0;
+                    img.style.transform = 'scale(1.05)';
+                    innerWrap.style.backgroundColor = 'transparent';
+                });
+
+                el.addEventListener('mousemove', (e) => {
+                    if (!isHovered) return;
+                    const rect = el.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateY = (x - centerX) * 0.06;
+                    const rotateX = (y - centerY) * -0.09;
+                    tilt.tx=Math.max(-9,Math.min(9,rotateX));tilt.ty=Math.max(-9,Math.min(9,rotateY));
+                });
+
+                el.addEventListener('pointerup', () => {
+                    if (this.dragDistance < 5) {
+                        if (typeof loadPanelPost === 'function') {
+                            if (typeof exitLandingState === 'function') exitLandingState({ immediate: true });
+                            document.querySelectorAll('.post-list-item').forEach(li => li.classList.remove('active'));
+                            const listItem = document.querySelector(`.post-list-item[data-post-id="${post.id}"]`);
+                            if (listItem) listItem.classList.add('active');
+                            openPanelPost(post.id, listItem, 'push');
+                        }
+                    }
+                });
+
+                const sides = ['back', 'top', 'bottom', 'left', 'right'];
+                sides.forEach(side => {
+                    const sideEl = document.createElement('div');
+                    sideEl.className = `rail-card-side rail-card-${side}`;
+                    sideEl.style.position = 'absolute';
+                    if (side === 'left' || side === 'right') {
+                        sideEl.style.width = 'var(--box-depth)';
+                        sideEl.style.height = '100%';
+                    } else {
+                        sideEl.style.width = '130%';
+                        sideEl.style.height = side === 'back' ? '100%' : 'var(--box-depth)';
+                        sideEl.style.left = '-15%';
+                    }
+                    
+                    let transform = '';
+                    if (side === 'back')   transform = 'rotateY(180deg) translateZ(calc(var(--box-depth) / 2))';
+                    if (side === 'right')  transform = 'rotateY(90deg) translateZ(calc(130% / 2))';
+                    if (side === 'left')   transform = 'rotateY(-90deg) translateZ(calc(130% / 2))';
+                    if (side === 'top')    transform = 'rotateX(90deg) translateZ(calc(100% / 2))';
+                    if (side === 'bottom') transform = 'rotateX(-90deg) translateZ(calc(100% / 2))';
+                    sideEl.style.transform = transform;
+                    innerWrap.appendChild(sideEl);
+                });
+
+                imgWrap.appendChild(img);
+                innerWrap.appendChild(titleWrap);
+                innerWrap.appendChild(imgWrap);
+                el.appendChild(innerWrap);
+                this.cameraWrap.appendChild(el);
+
+                this.cards.push({
+                    postId: post.id,
+                    title: post.title,
+                    el: el,
+                    image: img,
+                    base_t: i / displayPosts.length,
+                    noiseOffset: Math.random() * Math.PI * 2,
+                    exitYOffset: 0,
+                    exitSpeed: 20 + (Math.random() * 30),
+                    get isHovered() { return isHovered; }
+                });
+
+                setTimeout(() => {
+                    const wrapWidth = titleWrap.clientWidth || 780;
+                    const innerWidth = titleInner.scrollWidth;
+                    if (innerWidth > wrapWidth) {
+                        titleWrap.style.textAlign = 'left';
+                        const moveX = innerWidth - wrapWidth + 32;
+                        titleInner.style.setProperty('--move-x', `-${moveX}px`);
+                        titleInner.style.setProperty('--anim-duration', `${Math.max(3, moveX / 60)}s`);
+                        titleInner.classList.add('rail-marquee-active');
+                    } else {
+                        titleWrap.style.textAlign = 'center';
+                    }
+                }, 150);
+            });
+        }
+
+        triggerExit() {
+            this.transitionState = 'exiting';
+            this.exitStart = performance.now();
+            this.cards.forEach(card => { card.exitOrigin = card.exitYOffset; });
+        }
+
+        triggerEnter() {
+            this.transitionState = 'entering';
+            this.cards.forEach(card => {
+                card.exitYOffset = -(window.innerHeight + 800 + Math.random() * 800);
+            });
+        }
+
+        applyScrollReaction(progress) {
+            if (!this.sceneContainer) return;
+            const eased = 1 - Math.pow(1 - Math.max(0, Math.min(progress, 1)), 3);
+            this.sceneContainer.style.transformOrigin = 'center top';
+            this.sceneContainer.style.transform = `perspective(1400px) translate3d(0, ${-28 * eased}px, 0) scale(${1 - 0.035 * eased}) rotateX(${2.8 * eased}deg)`;
+            this.sceneContainer.style.opacity = String(1 - 0.12 * eased);
+            this.container.style.setProperty('--landing-scroll-progress', String(eased));
+        }
+
+        onPointerDown(e) {
+            this.isDragging = true;
+            this.lastMouseX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+            this.dragDistance = 0;
+            this.container.style.cursor = 'grabbing';
+        }
+
+        onPointerMove(e) {
+            if (!this.isDragging) return;
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+            const dx = clientX - this.lastMouseX;
+            this.lastMouseX = clientX;
+            this.dragDistance += Math.abs(dx);
+            
+            const deltaProgress = (dx / (this.width || window.innerWidth)) * 0.3;
+            this.dragTarget = (this.dragTarget || 0) + deltaProgress;
+            this.velocity = deltaProgress * 2;
+        }
+
+        onPointerUp() {
+            this.isDragging = false;
+            this.container.style.cursor = 'grab';
+        }
+
+        onWheel(e) {
+            const deltaProgress = (-e.deltaY / 2000) * 0.02;
+            this.velocity += deltaProgress;
+            if (e.deltaY > 0 && typeof handlePlaceholderLandingScroll === 'function') {
+                handlePlaceholderLandingScroll(e.deltaY);
+            }
+        }
+
+        nudge(amount = -0.0026) {
+            if (!isLanding || document.hidden || reducedMotionQuery.matches) return;
+            this.velocity += amount;
+            this.container.dataset.introNudge = 'complete';
+            this.lastTime = performance.now();
+            if (!this.rafId) this.rafId = requestAnimationFrame(this.animate);
+        }
+
+        animate(time) {
+            this.rafId = null;
+            if ((!isLanding && this.transitionState !== 'exiting') || document.hidden || this.container.classList.contains('hidden-state')) return;
+
+            time = time || performance.now();
+            const dt = Math.min(time - this.lastTime || 0, 25);
+            this.lastTime = time;
+
+            this.velocity *= Math.pow(0.95, dt / 16.6);
+            if (Math.abs(this.velocity) < 0.00001) this.velocity = 0;
+
+            const autoScroll = this.isDragging ? 0 : 0.0001 * (dt / 16.6);
+            const dragStep = (this.dragTarget || 0) * .18;
+            this.dragTarget = (this.dragTarget || 0) - dragStep;
+            this.scrollProgress += dragStep + (this.isDragging ? 0 : this.velocity) + autoScroll;
+
+            let skewAmount = this.velocity * 4000;
+            skewAmount = Math.max(-8, Math.min(8, skewAmount));
+
+            let closestCard = null;
+            let minAbsDist = Infinity;
+
+            this.cards.forEach((card) => {
+                const tilt=card.el._tilt;
+                if(tilt&&!reducedMotionQuery.matches){tilt.x+=(tilt.tx-tilt.x)*.12;tilt.y+=(tilt.ty-tilt.y)*.12;card.el._innerWrap.style.transform=`rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`;}
+                let p = (card.base_t + this.scrollProgress) % 1.0;
+                if (p < 0) p += 1.0;
+                let dist = p - 0.5; 
+                let absDist = Math.abs(dist);
+
+                if (absDist < minAbsDist) {
+                    minAbsDist = absDist;
+                    closestCard = card;
+                }
+
+                if (this.transitionState === 'exiting') {
+                    const exitProgress = Math.min(1, (time - this.exitStart) / 300);
+                    card.exitYOffset = (card.exitOrigin || 0) - (innerHeight + 1000) * Math.pow(exitProgress, 1.7);
+                } else if (this.transitionState === 'entering') {
+                    card.exitYOffset += (0 - card.exitYOffset) * 0.08 * (dt / 16.6); 
+                    if (Math.abs(card.exitYOffset) < 1) card.exitYOffset = 0;
+                }
+
+                let cx = Math.sin(dist * Math.PI * 1.5) * this.width * 0.6;
+                let cy = Math.sin(dist * Math.PI * 3) * 120 + card.exitYOffset; 
+                let cz = Math.cos(dist * Math.PI * 2) * 900 - 450;
+                
+                if (absDist < 0.15) {
+                    let pop = Math.pow(1 - (absDist / 0.15), 2);
+                    cz += pop * 150;
+                }
+
+                let currentScale = 0.4 + (0.8 * Math.pow(Math.max(0, 1 - absDist * 2), 1.5));
+                const focusTarget = card.isHovered || absDist < .045 ? 1 : 0;
+                card.focus = (card.focus || 0) + (focusTarget - (card.focus || 0)) * .12;
+                currentScale *= 1 + card.focus * .03;
+                cz += card.focus * 28 - (1 - card.focus) * 16;
+                card.image.style.filter = `saturate(${.86 + card.focus * .14})`;
+                card.el.dataset.cardFocus = card.focus > .5 ? 'active' : 'side';
+                let rotY = Math.sin(-dist * Math.PI) * 0.55;
+                let rotZ = Math.sin(dist * Math.PI * 2) * 0.04;
+
+                card.el.style.display = 'block';
+                card.el.style.transform = `translate3d(calc(-50% + ${cx}px), calc(-50% + ${cy}px), ${cz}px) rotateY(${rotY}rad) rotateZ(${rotZ}rad) skewX(${skewAmount}deg) scale(${currentScale})`;
+                card.el.style.zIndex = Math.round((1 - absDist) * 100);
+            });
+
+            let targetTitleCard = null;
+            const hoveredCard = this.cards.find(c => c.isHovered);
+            if (hoveredCard) {
+                targetTitleCard = hoveredCard;
+            } else if (closestCard) {
+                targetTitleCard = closestCard;
+            }
+
+            if (this.currentActiveTitleCard && this.currentActiveTitleCard !== targetTitleCard) {
+                const titleWrap = this.currentActiveTitleCard.el.querySelector('.rail-card-title-wrap');
+                if (titleWrap) {
+                    const start = getComputedStyle(titleWrap);
+                    const from = {opacity:start.opacity,transform:start.transform};
+                    titleWrap.getAnimations().forEach(animation => animation.cancel());
+                    titleWrap.style.transition = 'none';
+                    titleWrap.style.opacity = '0';
+                    titleWrap.style.transform = 'translate3d(-50%, -12px, 0) scale(0.5)';
+                    if (!reducedMotionQuery.matches) titleWrap.animate([from,{opacity:0,transform:'translate3d(-50%, -12px, 0) scale(0.5)'}],{duration:400,easing:'cubic-bezier(.16,1,.3,1)'});
+                }
+            }
+
+            if (targetTitleCard && this.currentActiveTitleCard !== targetTitleCard) {
+                const titleWrap = targetTitleCard.el.querySelector('.rail-card-title-wrap');
+                if (titleWrap) {
+                    titleWrap.getAnimations().forEach(animation => animation.cancel());
+                    titleWrap.style.transition = 'none';
+                    titleWrap.style.opacity = '1';
+                    titleWrap.style.transform = 'translate3d(-50%, 0, 0) scale(0.5)';
+                    if (!reducedMotionQuery.matches) titleWrap.animate([{opacity:0,transform:'translate3d(-50%, 16px, 0) scale(0.5)'},{opacity:1,transform:'translate3d(-50%, 0, 0) scale(0.5)'}],{duration:400,easing:'cubic-bezier(.16,1,.3,1)'});
+                }
+            }
+
+            this.currentActiveTitleCard = targetTitleCard;
+            if (!reducedMotionQuery.matches) this.rafId = requestAnimationFrame(this.animate);
+        }
+
+        destroy() {
+            if (this.rafId) cancelAnimationFrame(this.rafId);
+            this.rafId = null;
+            if (this.resizeObserver) this.resizeObserver.disconnect();
+            this.container.removeEventListener('pointerdown', this.onPointerDownBound);
+            this.container.removeEventListener('wheel', this.onWheelBound);
+            window.removeEventListener('pointermove', this.onPointerMoveBound);
+            window.removeEventListener('pointerup', this.onPointerUpBound);
+            window.removeEventListener('pointercancel', this.onPointerUpBound);
+            document.removeEventListener('visibilitychange', this.onVisibilityChange);
+            delete this.container.placeholderScene;
+            this.container.classList.remove('rail-placeholder');
+            this.cards.length = 0;
+        }
+    }
+
+    fetchPosts();
+
+    window.addEventListener('pageshow', () => {
+        document.body.classList.add('loaded');
+        document.body.classList.remove('page-exit');
+    });
+
+    document.querySelectorAll('.current-year').forEach(el => {
+        el.textContent = new Date().getFullYear();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (isLanding) {
+            window.globalPlaceholderScene = new PlaceholderScene('post-panel-placeholder');
+            if (allPosts.length) window.globalPlaceholderScene.updateCards(allPosts);
+        } else mountReadingPlaceholder();
+        setupStickyStages();
+    });
+</script>
+<script src="./js/footerTheme.js?v=journal-2"></script>
+<script src="./js/readingExperience.js?v=journal-2"></script>
+</body>
+</html>

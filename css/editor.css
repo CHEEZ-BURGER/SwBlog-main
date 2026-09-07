@@ -1,0 +1,648 @@
+@import url('https://fonts.cdnfonts.com/css/helvetica-neue-5');
+
+@font-face {
+    font-family: 'Circular Std';
+    src: url('../font/FontsFree-Net-CircularStd-Bold.ttf') format('truetype');
+    font-weight: 700;
+}
+@font-face {
+    font-family: 'Circular Std';
+    src: url('../font/FontsFree-Net-CircularStd-Bold.ttf') format('truetype');
+    font-weight: 800;
+}
+
+/* 💡 index.html의 테마 색상과 완벽 동기화된 변수 설정 */
+:root {
+    --editor-accent: #0080ff;
+    --editor-bg: #f4f6f8;
+    --editor-surface: #ffffff;
+    --editor-border: #dfe3e8;
+    --editor-text: #222;
+    --editor-text-heading: #161616;
+    --editor-muted: #69707a;
+    --editor-bg-line: rgba(162, 162, 162, 0.15);
+    --editor-bg-alt: #f8f9fa;
+    --editor-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+body {
+    background-color: var(--editor-bg);
+    margin: 0;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+body.dark {
+    --editor-accent: #3ba0ff;
+    --editor-bg: #161616;
+    --editor-surface: #1f2023;
+    --editor-border: #2e2f32;
+    --editor-text: #f8f8f8;
+    --editor-text-heading: #f8f8f8;
+    --editor-muted: #a2a2a2;
+    --editor-bg-line: rgba(162, 162, 162, 0.15);
+    --editor-bg-alt: rgba(242, 242, 240, 0.05);
+    --editor-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+.login-box {
+    background: var(--editor-surface);
+    padding: 2.5rem;
+    border-radius: 1rem;
+    box-shadow: var(--editor-shadow);
+    width: 100%;
+    max-width: 24rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.login-box h2 {
+    margin: 0 0 1rem 0;
+    font-family: 'Circular Std', 'Helvetica Neue', 'Pretendard', sans-serif;
+    color: var(--editor-text);
+    text-align: center;
+}
+
+.admin-header {
+    background: rgba(255, 255, 255, 0.82);
+    border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+    backdrop-filter: blur(10px);
+    padding: 0.9rem 1.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.75rem;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+}
+body.dark .admin-header {
+    background: rgba(31, 32, 35, 0.82);
+    border-bottom-color: var(--editor-border);
+    color: var(--editor-text);
+}
+
+.admin-header h1 {
+    margin: 0;
+    font-family: 'Circular Std', 'Helvetica Neue', 'Pretendard', sans-serif;
+    font-size: clamp(1rem, 1.2rem + 0.5vw, 1.45rem);
+    font-weight: 700;
+    color: var(--editor-text);
+}
+
+.admin-tabs {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.admin-tabs button {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--editor-muted);
+    padding: 0.45rem 0.8rem;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: 'Circular Std', 'Helvetica Neue', 'Pretendard', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.admin-tabs button.active {
+    color: var(--editor-accent);
+    border-color: rgba(0, 128, 255, 0.35);
+    background: rgba(0, 128, 255, 0.08);
+}
+body.dark .admin-tabs button.active {
+    color: var(--editor-accent);
+    border-color: rgba(59, 160, 255, 0.35);
+    background: rgba(59, 160, 255, 0.1);
+}
+
+.admin-container {
+    height: calc(100vh - 4.3rem);
+    width: 100%;
+    overflow: hidden;
+}
+
+.admin-section {
+    display: none;
+    height: 100%;
+}
+
+.admin-section.active {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.admin-pane {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--editor-bg) !important; /* 배경을 회색 책상으로 변경 */
+    border: 1px solid var(--editor-border);
+    border-radius: 1rem;
+    box-shadow: var(--editor-shadow);
+    padding: 0; /* Sticky 툴바가 상단에 밀착되도록 패딩 제거 */
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+}
+
+/* 상단 고정 툴바 그룹 */
+.editor-sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--editor-surface);
+    padding: 1rem 1rem 0.5rem 1rem;
+    border-bottom: 1px solid var(--editor-border);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+body.dark .editor-sticky-header {
+    background: var(--editor-surface);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.toolbar-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.toolbar-group .admin-toolbar {
+    margin-bottom: 0;
+    flex-grow: 1;
+}
+
+.editor-document-area {
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.editor-document-area .drop-zone { width: 100%; max-width: 850px; }
+.editor-document-area .admin-submit {
+    max-width: 850px;
+}
+
+.admin-toolbar {
+    background: #f8fafc;
+    border: 1px solid var(--editor-border);
+    border-radius: 0.8rem;
+    margin-bottom: 0.9rem;
+    padding: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+body.dark .admin-toolbar {
+    background: #252629;
+    border-color: var(--editor-border);
+}
+
+.toolbar-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #69707a;
+    display: flex;
+    align-items: center;
+    margin-right: 0.5rem;
+    padding: 0 0.3rem;
+}
+
+.block-toolbar {
+    background: #e3f2fd;
+    border-color: #bbdefb;
+}
+body.dark .block-toolbar {
+    background: rgba(59, 160, 255, 0.1);
+    border-color: rgba(59, 160, 255, 0.2);
+}
+
+.block-toolbar .admin-btn {
+    background: #fff;
+    border-color: #90caf9;
+    color: #1565c0;
+}
+body.dark .block-toolbar .admin-btn {
+    background: #1f2023;
+    border-color: #3ba0ff;
+    color: #3ba0ff;
+}
+
+.block-toolbar .admin-btn:hover {
+    background: #1976d2;
+    color: #fff;
+}
+body.dark .block-toolbar .admin-btn:hover {
+    background: #3ba0ff;
+    color: #fff;
+}
+
+.structure-toolbar {
+    background: color-mix(in srgb, var(--editor-surface) 86%, var(--editor-accent) 14%);
+    border-color: color-mix(in srgb, var(--editor-border) 68%, var(--editor-accent) 32%);
+}
+
+.toolbar-divider {
+    width: 1px;
+    align-self: stretch;
+    background: var(--editor-border);
+    margin: 0 0.15rem;
+}
+
+.admin-btn {
+    border: 1px solid #ccd6e0;
+    background: #fff;
+    color: #3b4450;
+    border-radius: 0.55rem;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+body.dark .admin-btn {
+    background: #1f2023;
+    border-color: #3e3f42;
+    color: #e0e0e0;
+}
+
+.admin-btn:hover {
+    border-color: var(--editor-accent);
+    color: var(--editor-accent);
+}
+
+.admin-btn.is-command-active {
+    border-color: var(--editor-accent);
+    background: color-mix(in srgb, var(--editor-surface) 82%, var(--editor-accent) 18%);
+    color: var(--editor-accent);
+}
+
+.admin-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.38;
+    filter: grayscale(0.7);
+}
+
+.structure-delete-btn:not(:disabled) {
+    color: #c63c3c;
+    border-color: color-mix(in srgb, #c63c3c 48%, var(--editor-border));
+}
+body.dark .admin-btn:hover {
+    border-color: var(--editor-accent);
+    color: var(--editor-accent);
+}
+
+.btn-clear-format {
+    margin-left: auto;
+    color: #ff4d4f !important;
+    border-color: #ffccc7 !important;
+}
+body.dark .btn-clear-format {
+    color: #ff7875 !important;
+    border-color: #5c2025 !important;
+    background-color: #2a1215 !important;
+}
+.btn-clear-format:hover {
+    background-color: #ff4d4f !important;
+    color: #fff !important;
+    border-color: #ff4d4f !important;
+}
+
+.admin-input,
+.admin-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.7rem;
+    padding: 0.85rem;
+    font-family: 'Helvetica Neue', 'Pretendard', sans-serif;
+    margin-bottom: 0.9rem;
+}
+body.dark .admin-input, 
+body.dark .admin-textarea {
+    background: #161616;
+    border-color: #3e3f42;
+    color: #f8f8f8;
+}
+
+.drop-zone {
+    width: 100%;
+    border: 2px dashed var(--editor-accent);
+    border-radius: 0.7rem;
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--editor-muted);
+    font-family: 'Helvetica Neue', 'Pretendard', sans-serif;
+    margin-bottom: 0.9rem;
+    box-sizing: border-box;
+    transition: background-color 0.3s, border-color 0.3s;
+    cursor: pointer;
+}
+.drop-zone.dragover {
+    background-color: rgba(0, 128, 255, 0.08);
+    border-color: #005bb5;
+}
+
+/* 📄 MS Word (HWP) 스타일 에디터 종이 디자인 */
+.admin-editor {
+    flex: none; /* 내용만큼 늘어나게 */
+    width: 100%;
+    max-width: 850px; /* A4 용지 비율 */
+    min-height: 1100px;
+    margin: 1.5rem auto 3rem auto; /* 중앙 정렬 */
+    border: 1px solid #e0e4e8;
+    border-radius: 4px;
+    padding: 80px 90px; /* 문서 수준의 넉넉한 내부 여백 */
+    font-family: 'Helvetica Neue', 'Pretendard', sans-serif;
+    margin-bottom: 0.9rem;
+    background: #fff;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05), 0 3px 10px rgba(0, 0, 0, 0.04); /* 종이가 떠있는 입체 그림자 */
+    overflow-y: visible; /* 부모 패널에서 스크롤 되도록 */
+    outline: none;
+    transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+body.dark .admin-editor {
+    background: #111111; /* 완전히 어두운 다크 종이 */
+    border-color: #222326;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+.admin-editor:empty:before {
+    content: attr(data-placeholder);
+    color: #adb5bd;
+    pointer-events: none;
+}
+
+/* 💡 WYSIWYG 에디터 동기화 스타일 (index.html 완벽 재현) */
+.admin-editor {
+    color: var(--editor-text);
+    line-height: 1.9;
+    overflow-wrap: break-word;
+    font-family: 'Helvetica Neue', 'Pretendard', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+}
+.admin-editor h1, .admin-editor h2, .admin-editor h3, .admin-editor h4 {
+    color: var(--editor-text-heading);
+    margin: 2rem 0 0.75rem;
+    line-height: 1.3;
+    font-family: 'Circular Std', 'Helvetica Neue', 'Pretendard', sans-serif;
+}
+.admin-editor h1 { font-size: 1.75rem; font-weight: 700; }
+.admin-editor h2 { font-size: 1.4rem; font-weight: 600; }
+.admin-editor h3 { font-size: 1.15rem; font-weight: 600; }
+.admin-editor p { margin: 0 0 1.1rem; }
+.admin-editor a { color: var(--editor-accent); text-decoration: none; }
+.admin-editor img { max-width: 100%; border-radius: 0.5rem; margin: 1.25rem 0; display: block; }
+.admin-editor code { background: var(--editor-bg-line); color: #e83e8c; padding: 0.2rem 0.4rem; border-radius: 0.3rem; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.9em; font-weight: 500; }
+.admin-editor pre { background: #282c34; color: #abb2bf; border-radius: 0.6rem; padding: 1.25rem; overflow-x: auto; margin: 1.5rem 0; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.95em; line-height: 1.6; box-shadow: 0 8px 24px rgba(0,0,0,0.1); position: relative; tab-size: 4; }
+.admin-editor pre::before { content: ''; display: block; margin-bottom: 1rem; height: 12px; width: 12px; border-radius: 50%; background: #fc625d; box-shadow: 20px 0 0 #fdbc40, 40px 0 0 #35cd4b; }
+.admin-editor pre code { background: none; padding: 0; color: inherit; font-family: inherit; font-size: 1em; font-weight: 400; }
+.admin-editor blockquote, .admin-editor .quote-box { border-left: 4px solid var(--editor-accent); margin: 1.5rem 0; padding: 0.5rem 1rem 0.5rem 1.25rem; background: var(--editor-bg-alt); border-radius: 0 8px 8px 0; color: var(--editor-muted); display: block; }
+.admin-editor b, .admin-editor strong { font-weight: 800; font-family: 'Circular Std', 'Helvetica', 'Pretendard', sans-serif; color: var(--editor-text-heading); }
+.admin-editor hr, .admin-editor hr.line { border: 0; height: 1px; background: var(--editor-border); margin: 2.5rem 0; }
+.admin-editor ul, .admin-editor ol { padding-left: 1.5rem; margin: 0.75rem 0 1rem; }
+.admin-editor li { margin: 0.3rem 0; }
+
+/* 구조형 본문 블록: 실제 포스트 뷰어와 같은 레이아웃을 사용합니다. */
+.admin-editor .post-split-section {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(10.5rem, 0.78fr) minmax(0, 2.22fr);
+    align-items: start;
+    column-gap: clamp(2.5rem, 7vw, 5.5rem);
+    margin: 5rem 0;
+    padding: 0.4rem 0;
+    border-radius: 0.25rem;
+}
+
+.admin-editor .post-split-section > h2 {
+    margin: 0;
+    font-size: clamp(1.65rem, 2.6vw, 2rem);
+    font-weight: 700;
+    line-height: 1.22;
+    word-break: keep-all;
+}
+
+.admin-editor .post-split-content {
+    min-width: 0;
+}
+
+.admin-editor .post-split-content > :first-child {
+    margin-top: 0;
+}
+
+.admin-editor .post-split-content > :last-child {
+    margin-bottom: 0;
+}
+
+.admin-editor .post-principles {
+    counter-reset: post-principle;
+    display: grid;
+    gap: 2.75rem;
+    list-style: none;
+    margin: 3rem 0 0;
+    padding: 0;
+}
+
+.admin-editor .post-principles > li {
+    counter-increment: post-principle;
+    display: grid;
+    grid-template-columns: 1.65rem minmax(0, 1fr);
+    align-items: start;
+    gap: 0.75rem;
+    margin: 0;
+}
+
+.admin-editor .post-principles > li::before {
+    content: counter(post-principle);
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-top: 0.06rem;
+    border-radius: 50%;
+    background: var(--editor-text-heading);
+    color: var(--editor-surface);
+    font-family: 'Circular Std', 'Helvetica Neue', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.admin-editor .principle-copy {
+    min-width: 0;
+}
+
+.admin-editor .principle-copy > :last-child {
+    margin-bottom: 0;
+}
+
+.admin-editor .principle-title {
+    margin: 0 0 0.45rem;
+    line-height: 1.55;
+}
+
+.admin-editor :is(.post-split-section, .post-principles).is-selected-block {
+    box-shadow: 0 0 0 2px var(--editor-accent), 0 0 0 7px color-mix(in srgb, var(--editor-accent) 11%, transparent);
+}
+
+.admin-editor :is(.post-split-section, .post-principles).is-selected-block::after {
+    content: attr(data-editor-block);
+    position: absolute;
+    top: -1.65rem;
+    right: 0;
+    color: var(--editor-accent);
+    font-family: 'Circular Std', 'Helvetica Neue', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.admin-editor .post-principles {
+    position: relative;
+}
+
+/* 💡 인라인 커스텀 스타일 */
+.admin-editor .high { 
+    display: inline;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    background-color: transparent;
+    padding: 0;
+    background-image: linear-gradient(to top, transparent 10%, rgba(255, 235, 59, 0.6) 10%, rgba(255, 235, 59, 0.6) 45%, transparent 45%);
+}
+.admin-editor .lead-text { font-size: 1.15rem; color: var(--editor-text-heading); font-weight: 600; }
+.admin-editor .muted-text { color: var(--editor-muted); font-size: 0.95rem; }
+.admin-editor .chip-blue { 
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--editor-bg-alt); 
+    color: var(--editor-text-heading); 
+    padding: 0.4rem 0.65rem;    
+    border-radius: 9999px; 
+    font-size: 0.85em; 
+    font-weight: 500; 
+    border: 1px solid var(--editor-border);
+    vertical-align: text-bottom;
+    line-height: 1.2;
+    margin: 0 0.15rem;
+}
+.admin-editor .note-box { background: #fff3cd; padding: 1rem; border-radius: 8px; color: #856404; margin: 1rem 0; border: 1px solid #ffeeba; display: block; }
+.admin-editor .caption { text-align: center; color: var(--editor-muted); font-size: 0.85rem; margin-top: 0.5rem; }
+
+.admin-editor .image-grid { display: grid; gap: 1rem; margin: 1rem 0; }
+.admin-editor .image-grid-2 { grid-template-columns: 1fr 1fr; }
+.admin-editor .image-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+.admin-editor .image-grid img { width: 100%; height: auto; border-radius: 8px; object-fit: cover; border: 1px solid var(--editor-border); margin: 0; }
+.admin-editor img.big { width: 100%; border-radius: 12px; margin: 1rem 0; border: 1px solid var(--editor-border); }
+.admin-editor img.mini { width: 100%; border-radius: 8px; }
+
+/* 💡 명시적으로 지정된 대표 썸네일은 에디터 본문에 보이지 않도록 숨김 처리 */
+.hidden-thumbnail { display: none !important; }
+
+/* 다크모드 인라인 매핑 */
+body.dark .admin-editor .high { background-image: linear-gradient(to top, transparent 1%, var(--editor-accent) 1%, var(--editor-accent) 30%, transparent 30%); color: #fff; }
+body.dark .admin-editor .chip-blue { background-color: var(--editor-bg); border-color: rgba(255, 255, 255, 0.3); color: var(--editor-text-heading); }
+body.dark .admin-editor .note-box { background: rgba(133, 100, 4, 0.2); border-color: rgba(255, 213, 79, 0.3); color: #ffd54f; }
+
+.upload-loading { background: #f1f3f5; padding: 1rem; text-align: center; border-radius: 8px; color: #495057; font-weight: 500; border: 1px dashed #adb5bd; margin: 1rem 0; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+/* 에디터 내부 미디어 드롭존 블록 */
+.in-editor-dropzone { border: 2px dashed var(--editor-accent); background: rgba(0, 128, 255, 0.05); color: var(--editor-accent); padding: 2rem; text-align: center; border-radius: 12px; margin: 1.5rem 0; font-weight: 600; transition: all 0.3s ease; cursor: pointer; display: block; }
+.in-editor-dropzone.dragover { background: #cce5ff; border-color: #005bb5; transform: scale(1.02); }
+.in-editor-dropzone.uploading { border-color: #ff9800; background: #fff3e0; color: #ff9800; animation: pulse 1.5s infinite; }
+
+/* 스토리 슬라이더 에디터 내장 스타일 */
+.story-slider { position: relative; width: 100%; margin: 2rem 0; border-radius: 12px; overflow: hidden; background: #111; box-shadow: 0 8px 24px rgba(0,0,0,0.1); display: block; }
+.story-progress { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; gap: 6px; z-index: 5; }
+.story-segment { flex: 1; height: 3px; background: rgba(255, 255, 255, 0.35); border-radius: 3px; overflow: hidden; position: relative; }
+.story-segment.viewed, .story-segment.active { background: rgba(255, 255, 255, 0.35); }
+.story-segment-fill { height: 100%; width: 0%; background: #fff; border-radius: 3px; }
+.story-segment.viewed .story-segment-fill { width: 100%; }
+.story-segment.active .story-segment-fill { box-shadow: 0 0 6px rgba(0,0,0,0.4); }
+.story-images { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; align-items: flex-start; transition: height 0.4s ease-out; }
+.story-images::-webkit-scrollbar { display: none; }
+.story-img { flex: 0 0 100%; width: 100%; max-height: 70vh; object-fit: contain; scroll-snap-align: center; margin: 0 !important; border-radius: 0 !important; display: block; }
+.story-controls { position: absolute; bottom: 1.25rem; right: 1.25rem; display: flex; gap: 0.6rem; z-index: 20; opacity: 0; transform: translateY(15px); pointer-events: none; transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+.story-slider:hover .story-controls { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.story-btn { pointer-events: auto; background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.05); color: #222; border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); opacity: 0.8; padding: 0; z-index: 10; }
+.story-btn:hover { background: #fff; transform: scale(1.1) translateY(-3px) !important; box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2); }
+
+.admin-submit {
+    width: 100%;
+    border: none;
+    border-radius: 0.75rem;
+    background: var(--editor-accent);
+    color: #fff;
+    padding: 0.85rem;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 38rem;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 0.85rem;
+    border-bottom: 1px solid #eceff4;
+    text-align: left;
+}
+
+.table-scroll {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.delete-btn {
+    border: none;
+    border-radius: 0.45rem;
+    cursor: pointer;
+    background: #ff4d4f;
+    color: #fff;
+    padding: 0.35rem 0.6rem;
+}
+
+@media (max-width: 960px) {
+    .admin-section.active {
+        flex-direction: column;
+    }
+
+    .admin-container {
+        height: auto;
+        min-height: calc(100vh - 4.3rem);
+        overflow: auto;
+    }
+
+    .admin-editor {
+        min-height: 70vh;
+        padding: clamp(2rem, 7vw, 4rem) clamp(1.25rem, 7vw, 3.5rem);
+    }
+
+    .admin-editor .post-split-section {
+        grid-template-columns: 1fr;
+        row-gap: 1.5rem;
+        margin: 3.5rem 0;
+    }
+
+    .toolbar-divider {
+        display: none;
+    }
+}

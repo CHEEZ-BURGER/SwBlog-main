@@ -1,0 +1,11 @@
+dist/
+.design-backup/
+.vscode/
+node_modules/
+desktop.ini
+*.bak
+site-source.zip
+/git
+.env
+.env.*
+!.env.example

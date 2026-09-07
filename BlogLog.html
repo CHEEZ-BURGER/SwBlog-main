@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlogLog</title>
+
+<!--stylesheet-->
+    <link rel="stylesheet" href="./css/blogLog.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reset-css@5.0.1/reset.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<!--js-->
+<script src="./BlogLog.js"></script>
+</head>
+    <body>
+        <p class="cat-name">블로그 제작로그</p>
+        <p class="cat-desc">블로그를 만드는중 마주친 문제들과 해결방법,<br>블로그의 구조를 이곳에 기록합니다.</p>
+        <div class="fixed">
+            <img class="main-back-img" src="">
+        </div>
+        <div class="nfixed-back">
+            <div class="main-inner">
+                <h1 id="margin_100px">시작</h1>
+                <h2>제작로그를 만든이유</h2>
+                <p>이 블로그는 네이버 블로그, 티스토리 등의 서비스형 블로그와 달리<br>
+                제가 직접 만들었기 때문에 당연하게도 여러 가지 문제들과 마주쳤습니다,<br>
+                블로그 제작 로그를 작성함으로써 마주친 문제들에 대한 오답 노트가 만들어지게 되고<br>
+                따라서 같은 실수를 반복하지 않을 것을 기대할 수 있습니다.
+                </p>
+                <h1 id="margin_50px">블로그를 직접 만든 이유</h1>
+                <p>인터넷에 블로그 만들기를 검색하면 여러가지 블로그 서비스가 있습니다<br>
+                하지만 제가 굳이 블로그사이트를 직접 만든 이유는...
+                <ul>
+                    <li>원하는 기능들을 내마음대로 넣을수있다.</li>
+                    <li>코딩연습을 할 수 있다<span class="tiny-note">(중요)</span>.</li>
+                    <li>블로그서비스 운영경험을 해볼수 있다.</li>
+                </ul>
+                등이 있겠습니다.</p>
+                <hr>
+                <h1 id="margin_50px">최적화 할 수 있을까?</h1>
+                <h2>백드롭필터</h2>
+                <p>사이트의 메인페이지와 카테고리별 글 선택페이지에는<br>
+                모서리가 둥근 링크 박스가 있습니다, 이박스들에는 블러 효과가 적용되어 있습니다<br>
+                그런데 메인페이지의 박스들과는 다르게 카테고리별 글 선택페이지의 박스들은<br>
+                블러처리 범위가 넓어서 그런지 <span class="high">성능에 큰 악영향을</span> 미치는 것을 발견했습니다.<br>
+                <img src="./b_log_img/ex_01.png" class="side-l" alt="박스구조 사진">
+                카테고리 페이지의 박스는 맨 하단의 <span class="bold">img_box</span>, 블러 처리 역할의 <span class="bold">blur_box</span>, 최상단의 <span class="bold">text_box</span><br>
+                로 이루어져 있는데요, 중간의 <span class="high">blur_box의 backdrop-filter</span>가 이 문제의 범인인것을 확인했습니다.
+                </p>
+                <h2 id="margin_50px">해결</h2>
+                <img src="./b_log_img/ex_02.png" class="side-l" alt="수정한 박스구조 사진">
+                <p>이 문제를 해결한 방법은 blur_box의 backdrop-filter대신<br>
+                    img_box에다가 <span class="bold">filter</span>를 적용하여 이미지를 블러처리하고<br>
+                    삐져나온 img_box를 blur_box의 <span class="bold">overflow: hidden</span> 으로 잘라내어<br>
+                    성능에 끼치는 영향은 줄이고 <span class="high">모양새는 큰 차이가 없게</span> 만들었습니다.
+                </p>
+                <h2 id="margin_50px">수정전 HTML코드</h2>
+                <div class="colorscripter-code" style="margin: 20px 0 20px 0; color:#010101;font-family:Consolas, 'Liberation Mono', Menlo, Courier, monospace !important; position:relative !important;overflow:auto"><table class="colorscripter-code-table" style="margin:0;padding:0;border:none;background-color:#fafafa;border-radius:4px;" cellspacing="0" cellpadding="0"><tr><td style="padding:6px;border-right:2px solid #e5e5e5"><div style="margin:0;padding:0;word-break:normal;text-align:right;color:#666;font-family:Consolas, 'Liberation Mono', Menlo, Courier, monospace !important;line-height:130%"><div style="line-height:130%">1</div><div style="line-height:130%">2</div><div style="line-height:130%">3</div><div style="line-height:130%">4</div><div style="line-height:130%">5</div><div style="line-height:130%">6</div></div></td><td style="padding:6px 0;text-align:left"><div style="margin:0;padding:0;color:#010101;font-family:Consolas, 'Liberation Mono', Menlo, Courier, monospace !important;line-height:130%"><div style="padding:0 6px; white-space:pre; line-height:130%"><span style="color:#010101">&lt;</span><span style="color:#066de2">a</span>&nbsp;<span style="color:#0a9989">href</span>=<span style="color:#df5000">"#"</span><span style="color:#0a9989"></span>&nbsp;<span style="color:#0a9989">class</span>=<span style="color:#df5000">"box-blur"</span><span style="color:#0a9989"></span><span style="color:#010101">&gt;</span></div><div style="padding:0 6px; white-space:pre; line-height:130%">&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#010101">&lt;</span><span style="color:#066de2">h1</span><span style="color:#010101">&gt;</span>웹코딩<span style="color:#010101">&lt;</span><span style="color:#066de2">br</span><span style="color:#010101">&gt;</span>시작하기<span style="color:#010101">&lt;</span><span style="color:#010101">/</span><span style="color:#066de2">h1</span><span style="color:#010101">&gt;</span></div><div style="padding:0 6px; white-space:pre; line-height:130%">&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#010101">&lt;</span><span style="color:#066de2">p</span><span style="color:#010101">&gt;</span>이곳에다가<span style="color:#010101">&lt;</span><span style="color:#066de2">br</span><span style="color:#010101">&gt;</span>2줄정도의&nbsp;짧은&nbsp;설명&nbsp;들어감.<span style="color:#010101">&lt;</span><span style="color:#010101">/</span><span style="color:#066de2">p</span><span style="color:#010101">&gt;</span></div><div style="padding:0 6px; white-space:pre; line-height:130%">&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#010101">&lt;</span><span style="color:#066de2">time</span>&nbsp;<span style="color:#0a9989">datetime</span>=<span style="color:#df5000">"2021-12-21T00:00:00.000Z"</span><span style="color:#0a9989"></span>&nbsp;<span style="color:#0a9989">class</span>=<span style="color:#df5000">"year"</span><span style="color:#0a9989"></span><span style="color:#010101">&gt;</span>2021-12-21<span style="color:#010101">&lt;</span><span style="color:#010101">/</span><span style="color:#066de2">time</span><span style="color:#010101">&gt;</span></div><div style="padding:0 6px; white-space:pre; line-height:130%"><span style="color:#010101">&lt;</span><span style="color:#010101">/</span><span style="color:#066de2">a</span><span style="color:#010101">&gt;</span></div><div style="padding:0 6px; white-space:pre; line-height:130%"><span style="color:#010101">&lt;</span><span style="color:#066de2">div</span>&nbsp;<span style="color:#0a9989">class</span>=<span style="color:#df5000">"box-img"</span><span style="color:#0a9989"></span><span style="color:#010101">&gt;</span><span style="color:#010101">&lt;</span><span style="color:#010101">/</span><span style="color:#066de2">div</span><span style="color:#010101">&gt;</span></div></div><div style="text-align:right;margin-top:-13px;margin-right:5px;font-size:9px;font-style:italic"><a href="http://colorscripter.com/info#e" target="_blank" style="color:#e5e5e5"></a></div></td><td style="vertical-align:bottom;padding:0 2px 4px 0"><a href="http://colorscripter.com/info#e" target="_blank" style="text-decoration:none;color:white"><span style="font-size:9px;word-break:normal;background-color:#e5e5e5;color:white;border-radius:10px;padding:1px">cs</span></a></td></tr></table></div>
+                <p>img_box 가 blur_box 밖에서 백드롭필터의 영향을 받습니다.</p>
+                <h2 id="margin_50px">수정후 HTML코드</h2>
+                <div class="colorscripter-code" style="margin: 20px 0 20px 0; color:#010101;font-family:Consolas, 'Liberation Mono', Menlo, Courier, monospace !important; position:relative !important;overflow:auto"><table class="colorscripter-code-table" style="margin:0;padding:0;border:none;background-color:#fafafa;border-radius:4px;" cellspacing="0" cellpadding="0"><tr><td style="padding:6px;border-right:2px solid #e5e5e5"><div style="margin:0;padding:0;word-break:normal;text-align:right;color:#666;font-family:Consolas, 'Liberation Mono', Menlo, Courier, monospace !important;line-height:130%"><div style="line-height:130%">1</div><div style="line-height:130%">2</div><div style="line-height:130%">3</div><div style="line-height:130%">4</div><div style="line-height:130%">5</div><div style="line-height:130%">6</div></div></td><td style="padding:6px 0;text-align:left"><div style="margin:0;padding:0;color:#010101;font-family:Consolas, 'Liberation Mono', Menlo, Courier, monospace !important;line-height:130%"><div style="padding:0 6px; white-space:pre; line-height:130%"><span style="color:#010101">&lt;</span><span style="color:#066de2">a</span>&nbsp;<span style="color:#0a9989">href</span>=<span style="color:#df5000">"#"</span><span style="color:#0a9989"></span>&nbsp;<span style="color:#0a9989">class</span>=<span style="color:#df5000">"box-blur"</span><span style="color:#0a9989"></span><span style="color:#010101">&gt;</span></div><div style="padding:0 6px; white-space:pre; line-height:130%">&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#010101">&lt;</span><span style="color:#066de2">h1</span><span style="color:#010101">&gt;</span>웹코딩<span style="color:#010101">&lt;</span><span style="color:#066de2">br</span><span style="color:#010101">&gt;</span>시작하기<span style="color:#010101">&lt;</span><span style="color:#010101">/</span><span style="color:#066de2">h1</span><span style="color:#010101">&gt;</span></div><div style="padding:0 6px; white-space:pre; line-height:130%">&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#010101">&lt;</span><span style="color:#066de2">p</span><span style="color:#010101">&gt;</span>이곳에다가<span style="color:#010101">&lt;</span><span style="color:#066de2">br</span><span style="color:#010101">&gt;</span>2줄정도의&nbsp;짧은&nbsp;설명&nbsp;들어감.<span style="color:#010101">&lt;</span><span style="color:#010101">/</span><span style="color:#066de2">p</span><span style="color:#010101">&gt;</span></div><div style="padding:0 6px; white-space:pre; line-height:130%">&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#010101">&lt;</span><span style="color:#066de2">time</span>&nbsp;<span style="color:#0a9989">datetime</span>=<span style="color:#df5000">"2021-12-21T00:00:00.000Z"</span><span style="color:#0a9989"></span>&nbsp;<span style="color:#0a9989">class</span>=<span style="color:#df5000">"year"</span><span style="color:#0a9989"></span><span style="color:#010101">&gt;</span>2021-12-21<span style="color:#010101">&lt;</span><span style="color:#010101">/</span><span style="color:#066de2">time</span><span style="color:#010101">&gt;</span></div><div style="padding:0 6px; white-space:pre; line-height:130%">&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#010101">&lt;</span><span style="color:#066de2">div</span>&nbsp;<span style="color:#0a9989">class</span>=<span style="color:#df5000">"box-img"</span><span style="color:#0a9989"></span><span style="color:#010101">&gt;</span><span style="color:#010101">&lt;</span><span style="color:#010101">/</span><span style="color:#066de2">div</span><span style="color:#010101">&gt;</span></div><div style="padding:0 6px; white-space:pre; line-height:130%"><span style="color:#010101">&lt;</span><span style="color:#010101">/</span><span style="color:#066de2">a</span><span style="color:#010101">&gt;</span></div></div><div style="text-align:right;margin-top:-13px;margin-right:5px;font-size:9px;font-style:italic"><a href="http://colorscripter.com/info#e" target="_blank" style="color:#e5e5e5"></a></div></td><td style="vertical-align:bottom;padding:0 2px 4px 0"><a href="http://colorscripter.com/info#e" target="_blank" style="text-decoration:none;color:white"><span style="font-size:9px;word-break:normal;background-color:#e5e5e5;color:white;border-radius:10px;padding:1px">cs</span></a></td></tr></table></div>
+                <p>img_box 가 blur_box 안에서 overflow: hidden 에 의해 blur_box의 모양으로 잘립니다.</p>
+                <p>이번의 방법말고도 다른 해결방법이 있는지 생각 해봐야 겠습니다.</p>
+                <hr>
+                <h1 id="margin_50px">다크모드?</h1>
+                <h2>만드는 방법은?</h2>
+                <p>원래의 SWBlog제작 계획엔 다크모드가 없었습니다,<br>
+                그러나 블로그를 만들면서 다크모드가 없으니 눈이 아프기 때문에<br>
+                다크모드의 구현을 고려해보게 되었습니다.</p>
+                <h2 id="margin_50px">#1_다크모드의 개념</h2>
+                <p>다크모드란 하얀 바탕에 검은 글씨 대신,<br>
+                    <span class="high">검은 바탕에 하얀 글씨</span>를 나타내는 테마입니다.<br>
+                    다크모드를 사용함으로서 얻는 장단점으로는
+                </p>
+                <ul>장점
+                    <li>눈의 피로가 줄어든다.</li>
+                    <li>OLED패널에서 전력소모를 줄인다.</li>
+                    <li>시인성을 강화할 수 있다.</li>
+                </ul>
+                <ul>단점
+                    <li>가독성이 저하된다.</li>
+                    <li>LCD패널에서 빛샘 현상이 나타날수 있다.</li>
+                </ul>
+                <p>현재 거의 대부분의 프로그램, 사이트 에서 다크모드를<br>
+                 지원하고 있기때문에 다크모드는 거의 필수인듯 합니다.</p>
+                <h2 id="margin_50px">#2_다크모드 구현</h2>
+                <p>다크모드 구현을 위해 라이트모드의css, 다크모드의 css<br>
+                    를 따로 구성한뒤 버튼이나 시스템 기본설정을 읽어와서<br>
+                    유동적으로 스타일을 바꿔야 합니다.<br></p>
+                    <p>
+                      이 외에도 여러가지 방법으로 다크모드를 구현할수 있겠지만<br>
+                    저는 초보 개발자 이기 때문에 <span class="high">모든 엘리먼트의 css</span>를 수정했습니다.<br>  
+                    </p>
+                <img class="side-l" src="./b_log_img/ex_02 – 1.png" alt="이해를 돕는 이미지">
+                <p>디폴트상태(라이트모드) 의 css선택자에다가<br>
+                .dark를 덧붙여서 <span id="blue">다크모드 실행</span> >>> <span id="blue">.dark 클래스 추가</span><br>
+                의 방식으로 다크모드를 구현할 수 있었습니다.<br>
+                이 방식의 <span class="high">치명적인 단점</span>이라면 새로운 클래스를 만들었다 하면<br>
+                일일히 다크모드를 적용 해줘야 하기 때문에<br>
+                상당히 번거롭습니다</p>
+                <h2 id="margin_50px">#3_다크모드 실행조건</h2>
+                <p>저는 다크모드 실행 조건을</p>
+                <ul>
+                    <li>시스템 테마가 다크모드인가?</li>
+                    <li>다크모드 실행 버튼을 클릭했나?</li>
+                </ul>
+                <p>로 정했습니다.<br>
+                    첫번째 <span class="bold">"시스템 테마가 다크모드인가?"</span> 는<br>
+                    아주 간단하게 구현할 수 있었습니다<br>
+                    새로 추가된 미디어쿼리인 <span class="bold">"prefers-color-scheme"</span>를<br>
+                    사용합니다.
+                </p>
+                <div id="margin_20px" class="colorscripter-code" style="color:#010101;font-family:Consolas, 'Liberation Mono', Menlo, Courier, monospace !important; position:relative !important;overflow:auto"><table class="colorscripter-code-table" style="margin:0;padding:0;border:none;background-color:#fafafa;border-radius:4px;" cellspacing="0" cellpadding="0"><tr><td style="padding:6px;border-right:2px solid #e5e5e5"><div style="margin:0;padding:0;word-break:normal;text-align:right;color:#666;font-family:Consolas, 'Liberation Mono', Menlo, Courier, monospace !important;line-height:130%"><div style="line-height:130%">1</div><div style="line-height:130%">2</div><div style="line-height:130%">3</div><div style="line-height:130%">4</div><div style="line-height:130%">5</div><div style="line-height:130%">6</div><div style="line-height:130%">7</div><div style="line-height:130%">8</div></div></td><td style="padding:6px 0;text-align:left"><div style="margin:0;padding:0;color:#010101;font-family:Consolas, 'Liberation Mono', Menlo, Courier, monospace !important;line-height:130%"><div style="padding:0 6px; white-space:pre; line-height:130%"><span style="color:#a71d5d">if</span>&nbsp;(<span style="color:#066de2">window</span>.matchMedia(<span style="color:#63a35c">"(prefers-color-scheme:&nbsp;dark)"</span>).matches)&nbsp;{</div><div style="padding:0 6px; white-space:pre; line-height:130%">&nbsp;&nbsp;&nbsp;<span style="color:#066de2">console</span>.log(<span style="color:#63a35c">"DarkMode_prefer!"</span>)</div><div style="padding:0 6px; white-space:pre; line-height:130%">&nbsp;&nbsp;&nbsp;<span style="color:#a71d5d">var</span>&nbsp;sections&nbsp;<span style="color:#ff3399"></span><span style="color:#a71d5d">=</span>&nbsp;<span style="color:#066de2">document</span>.querySelectorAll(<span style="color:#63a35c">"css&nbsp;선택자"</span>);&nbsp;</div><div style="padding:0 6px; white-space:pre; line-height:130%">&nbsp;&nbsp;&nbsp;<span style="color:#a71d5d">for</span>(&nbsp;<span style="color:#a71d5d">var</span>&nbsp;i&nbsp;<span style="color:#ff3399"></span><span style="color:#a71d5d">=</span>&nbsp;<span style="color:#0099cc">0</span>;&nbsp;i&nbsp;<span style="color:#ff3399"></span><span style="color:#a71d5d">&lt;</span>&nbsp;sections.<span style="color:#066de2">length</span>;&nbsp;i<span style="color:#ff3399"></span><span style="color:#a71d5d">+</span><span style="color:#ff3399"></span><span style="color:#a71d5d">+</span>&nbsp;){</div><div style="padding:0 6px; white-space:pre; line-height:130%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#a71d5d">var</span>&nbsp;item&nbsp;<span style="color:#ff3399"></span><span style="color:#a71d5d">=</span>&nbsp;sections.item(i);&nbsp;</div><div style="padding:0 6px; white-space:pre; line-height:130%">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;item.classList.toggle(<span style="color:#63a35c">"dark"</span>);</div><div style="padding:0 6px; white-space:pre; line-height:130%">&nbsp;&nbsp;&nbsp;}</div><div style="padding:0 6px; white-space:pre; line-height:130%">}</div></div><div style="text-align:right;margin-top:-13px;margin-right:5px;font-size:9px;font-style:italic"><a href="http://colorscripter.com/info#e" target="_blank" style="color:#e5e5e5"></a></div></td><td style="vertical-align:bottom;padding:0 2px 4px 0"><a href="http://colorscripter.com/info#e" target="_blank" style="text-decoration:none;color:white"><span style="font-size:9px;word-break:normal;background-color:#e5e5e5;color:white;border-radius:10px;padding:1px">cs</span></a></td></tr></table></div>
+                <p>먼저 운영체제의 테마가 <span class="high">다크모드</span>인지 확인하고<br>
+                다크모드가 맞다면 <span class="bold">for문</span>을 이용해 모든 엘리먼트에<br>
+                <span class="bold">.dark클래스</span>를 추가하여 다크모드를 실행합니다.</p>
+                <p>자동으로 다크모드 실행을 구현했으니<br>
+                   다크모드 실행 버튼도 만들었습니다.<br><br>
+                다크모드 버튼의 구현은 훨신 간단했습니다, 위의 코드를 그대로 복사하여<br>
+                함수를 만들고, 버튼을 누를때마다 함수를 호출합니다.<br></p>
+                <div id="margin_20px" class="colorscripter-code" style="color:#010101;font-family:Consolas, 'Liberation Mono', Menlo, Courier, monospace !important; position:relative !important;overflow:auto"><table class="colorscripter-code-table" style="margin:0;padding:0;border:none;background-color:#fafafa;border-radius:4px;" cellspacing="0" cellpadding="0"><tr><td style="padding:6px;border-right:2px solid #e5e5e5"><div style="margin:0;padding:0;word-break:normal;text-align:right;color:#666;font-family:Consolas, 'Liberation Mono', Menlo, Courier, monospace !important;line-height:130%"><div style="line-height:130%">1</div></div></td><td style="padding:6px 0;text-align:left"><div style="margin:0;padding:0;color:#010101;font-family:Consolas, 'Liberation Mono', Menlo, Courier, monospace !important;line-height:130%"><div style="padding:0 6px; white-space:pre; line-height:130%"><span style="color:#010101">&lt;</span><span style="color:#066de2">div</span>&nbsp;<span style="color:#0a9989">onclick</span>=<span style="color:#df5000">"dark();"</span><span style="color:#0a9989"></span>&nbsp;<span style="color:#0a9989">class</span>=<span style="color:#df5000">"dark-box"</span><span style="color:#0a9989"></span><span style="color:#010101">&gt;</span></div></div></td><td style="vertical-align:bottom;padding:0 2px 4px 0"><a href="http://colorscripter.com/info#e" target="_blank" style="text-decoration:none;color:white"><span style="font-size:9px;word-break:normal;background-color:#e5e5e5;color:white;border-radius:10px;padding:1px">cs</span></a></td></tr></table></div>
+                <h2 id="margin_50px">#4_다크모드 버튼 애니메이션</h2>
+                <p>개인적으로 애니메이션은 <span id="blue">다다익선</span> 이라 생각하므로<br>
+                이 작은 다크모드 버튼에도 애니메이션을 넣기로 했습니다.<br><br>
+                먼저, 애니메이션을 구상하고 <span class="bold">에프터이펙트</span>에서 간단히
+                구현했습니다.</p>
+                <img class="side-b" src="./b_log_img/dark_btn_ex.gif" alt="다크모드 버튼 애니메이션 움짤">
+                <p>이 애니메이션을 웹에서 구현하기 위해<br>
+                이미지를 3개로 나누어 각각 <span class="high">transform</span>을 이용해<br>
+                애니메이션을 구현했습니다</p>
+                <img class="side-l" src="./b_log_img/ex_03.png" alt="다크모드 버튼 레이어_1">
+                <p><span class="high">라이트모드</span> 에서의 버튼 구조 입니다</p> 
+                <img class="side-l" src="./b_log_img/ex_04.png" alt="다크모드 버튼 레이어_2">
+                <p><span class="high">다크모드</span> 에서의 버튼 구조 입니다</p>
+                <p>다크모드,라이트모드 상태의 버튼을 각각<br>
+                만들어두고, <span class="bold">버튼을 누를때</span>마다 버튼의 스타일이<br>
+                변하게됩니다.</p>
+                <div class="mini-row">
+                    <img class="mini-rb mini-rb-bordered" onclick="dark();" src="./b_log_img/ex_sun.png">
+                    <img onclick="light();" class="mini-rb" src="./b_log_img/ex_moon.png">
+                </div>
+                <hr>
+                <h1 id="margin_50px">이미지,텍스트의 규격화</h1>
+                <h2>극강의 편안함!</h2>
+                <h2 id="margin_50px">#1_왜 만들었나?</h2>
+                <p>블로그를 만들면서 글을 쓸때마다<br>
+                    새로운 스타일을 적용하면 나중에 상당히 <span class="bold">복잡하고 어지러워질</span> 것이므로<br>
+                    특별한 경우가 아니라면 거의 비슷하게 쓰이는 이미지와<br>
+                    텍스트를 규격화하여 <span class="high">작성을 용이하게</span> 했습니다
+                </p>
+                <h2 id="margin_50px">#2_텍스트 스타일</h2>
+                <img class="big" src="./b_log_img/ex_5.png" alt="텍스트 스타일 예시">
+                <h2 id="left_100"><span class="high">#텍스트</span></h2>
+                <p id="left_100">텍스트의 스타일은 <span class="bold">h1, h2, h3, p, li</span>에
+                    각각의 스타일을 적용하여 html에서 태그를 사용하면<br>
+                    별도의 과정없이 바로 <span class="bold">폰트 크기,굵기</span>가 적용되게 만들었습니다. <br>
+                    또 밑줄, 볼드, 강조는 span속에 텍스트를 넣어서 <span class="bold">id를</span> 부여해 스타일을 적용 시켰습니다.</p>
+                    <h2 class="section-subtitle" id="left_100"><span class="high">#마진</span></h2>
+                    <p id="left_100">마진값 또한 따로 적용시키는것 대신 <span class="bold">id</span>를 부여해 바로 적용시킬수 있게 했습니다<br>
+                    <span class="high">총 4가지의 높이</span>를 만들었으며 적절한 상황에 사용합니다.</p>
+                    <h2 id="margin_50px">#3_이미지 스타일</h2>
+                    <img class="big" src="./b_log_img/ex_02 – 4.png" alt="이미지 스타일 예시">
+                    <h2 id="left_100"><span class="high">#이미지</span></h2>
+                    <p id="left_100">이미지의 스타일은 스타일 종류 4개중
+                    하나를 적절히 선택하여 <span class="high">이미지태그에 클래스</span>를 적용하여 사용합니다.<br>
+                    모든 이미지 스타일은 마우스를 호버했을때 <span class="bold">크기가 커지거나 모서리 원형률</span>이 줄여 <br>
+                    이미지를 더욱 보기 편하게 만들었습니다.</p>
+                    <h2 class="section-subtitle section-subtitle-pop" id="left_100"><span class="high">#BIG</span></h2>
+                    <p id="left_100">컨테이너의 width를 가득 채우는 가장 큰 이미지입니다,<br>
+                    <span class="bold">프로젝트의 목표</span> 비주얼 등을 배치합니다.</p>
+                    <h2 class="section-subtitle section-subtitle-pop" id="left_100"><span class="high">#SIDE</span></h2>
+                    <p id="left_100">컨테이너의 절반정도를 채우는 이미지입니다,<br>
+                        <span class="bold">설명,구조</span>를 설명하기위해 만들었습니다.</p>
+                    <h2 class="section-subtitle section-subtitle-pop" id="left_100"><span class="high">#TRANSITION</span></h2>
+                    <p id="left_100">비슷한 형태의 이미지3개를 가로로 나열합니다,<br>
+                        <span class="bold">콘텐츠의 변천</span>을 나타내기위해 만들었습니다.</p>
+                    <h2 class="section-subtitle section-subtitle-pop" id="left_100"><span class="high">#MINI</span></h2>
+                    <p id="left_100">트렌지션과 달리 <span class="bold">전혀다른 이미지3개</span>를 세로로 나열합니다.</p>
+                <div class="gongback"></div>
+            </div>
+        </div>
+
+        <div class="header">
+            <div class="main-inner">
+                <img class="header-logo" src="./b_log_img/logo_header.png" alt="SwLogo">
+                <div class="back-btn">
+                    <img src="./b_log_img/arrow_right.png">
+                    <a href="./index.html">돌아가기</a>
+                </div>
+                <div class="cat-btn-box">
+                    <a href="./cat_cod.html">CODING</a>
+                    <a href="#">DESIGN</a>
+                    <a href="#">LIFE</a>
+                </div>
+                
+            </div>
+        </div>
+        <script>
+            document.body.classList.add("reveal");
+            document.body.classList.remove("dark");
+            document.documentElement.style.colorScheme = 'light';
+        </script>
+    </body>
+</html>

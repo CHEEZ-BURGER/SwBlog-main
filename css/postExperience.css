@@ -1,0 +1,542 @@
+/* Shared editorial post language for the panel, standalone reader, and editor. */
+:root {
+    --editorial-paper: #f3eee8;
+    --editorial-ink: #141414;
+    --editorial-muted: #6f6b66;
+    --editorial-line: rgba(20, 20, 20, 0.16);
+    --editorial-blue: #569aff;
+    --editorial-serif: 'Instrument Serif', 'Times New Roman', 'Noto Serif KR', serif;
+    --editorial-sans: 'Helvetica Neue', 'Pretendard Variable', 'Pretendard', sans-serif;
+}
+
+body.dark {
+    --editorial-paper: #171717;
+    --editorial-ink: #f3eee8;
+    --editorial-muted: #aaa39b;
+    --editorial-line: rgba(243, 238, 232, 0.18);
+}
+
+/* The landing footer uses every available pixel instead of a centered inner box. */
+.footer .main-inner {
+    width: 100%;
+    max-width: none;
+    padding-inline: clamp(1.25rem, 4vw, 4rem);
+}
+
+/* Article opening: oversized editorial title with a deliberately asymmetric grid. */
+.post-article-header,
+.post-viewer-header {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    align-content: end;
+    column-gap: clamp(0.75rem, 2vw, 2rem);
+    min-height: clamp(31rem, 72vh, 48rem);
+    margin: 0;
+    padding: clamp(8rem, 15vh, 12rem) clamp(1.25rem, 6vw, 7rem) clamp(3rem, 7vw, 6rem);
+    overflow: hidden;
+    border: 0;
+    border-bottom: 1px solid var(--editorial-line);
+    background: var(--editorial-paper);
+    color: var(--editorial-ink);
+}
+
+.post-article-header::before,
+.post-viewer-header::before {
+    content: 'SWBLOG / POST';
+    position: absolute;
+    top: clamp(2rem, 5vw, 4.5rem);
+    left: clamp(1.25rem, 6vw, 7rem);
+    font-family: var(--editorial-sans);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+}
+
+.post-article-header::after,
+.post-viewer-header::after {
+    content: '\2197';
+    position: absolute;
+    top: clamp(1.4rem, 4vw, 3.75rem);
+    right: clamp(1.25rem, 6vw, 7rem);
+    font-family: var(--editorial-sans);
+    font-size: clamp(2.2rem, 4.5vw, 4.5rem);
+    font-weight: 300;
+    line-height: 1;
+}
+
+.post-category,
+.post-viewer-category {
+    grid-column: 1 / -1;
+    margin: 0 0 clamp(1.25rem, 3vw, 2.5rem);
+    color: var(--editorial-ink);
+    font-family: var(--editorial-sans);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.post-title,
+.post-viewer-title {
+    grid-column: 1 / span 8;
+    align-self: end;
+    margin: 0;
+    padding: 0;
+    color: var(--editorial-ink);
+    font-family: var(--editorial-serif);
+    font-size: clamp(3.4rem, 8.2vw, 8.6rem);
+    font-weight: 400;
+    letter-spacing: -0.055em;
+    line-height: 0.88;
+    text-wrap: balance;
+    word-break: keep-all;
+}
+
+.post-date,
+.post-viewer-date {
+    grid-column: 9 / -1;
+    align-self: end;
+    justify-self: stretch;
+    margin: 0;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--editorial-line);
+    color: var(--editorial-muted);
+    font-family: var(--editorial-sans);
+    font-size: clamp(0.86rem, 1.2vw, 1rem);
+    letter-spacing: 0.02em;
+}
+
+.post-article,
+.panel-post-layout,
+.panel-post-body {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+.post-body,
+.post-viewer-content {
+    width: min(100%, 90rem);
+    max-width: 90rem;
+    margin: 0 auto;
+    padding: clamp(5rem, 10vw, 10rem) clamp(1.25rem, 6vw, 7rem);
+    color: var(--editorial-ink);
+    font-family: var(--editorial-sans);
+    font-size: clamp(1.03rem, 1.15vw, 1.22rem);
+    line-height: 1.78;
+}
+
+.post-body > :is(p, ul, ol, blockquote, pre, table, h1, h2, h3, h4, hr),
+.post-viewer-content > :is(p, ul, ol, blockquote, pre, table, h1, h2, h3, h4, hr) {
+    width: min(100%, 47rem);
+    margin-right: 0;
+    margin-left: auto;
+}
+
+.post-body > :is(h1, h2),
+.post-viewer-content > :is(h1, h2) {
+    margin-top: clamp(5rem, 9vw, 8rem);
+    margin-bottom: 1.5rem;
+    color: var(--editorial-ink);
+    font-family: var(--editorial-serif);
+    font-size: clamp(2.8rem, 5.2vw, 5.6rem);
+    font-weight: 400;
+    letter-spacing: -0.045em;
+    line-height: 0.98;
+}
+
+.post-body > h3,
+.post-viewer-content > h3 {
+    margin-top: 3.5rem;
+    font-size: clamp(1.35rem, 2vw, 1.8rem);
+}
+
+.post-body p,
+.post-viewer-content p {
+    margin-bottom: 1.35rem;
+}
+
+.post-body img,
+.post-viewer-content img {
+    border-radius: 0;
+}
+
+.post-body > :is(img, .img-zoom-wrapper, .image-grid, .story-slider),
+.post-viewer-content > :is(img, .img-zoom-wrapper, .image-grid, .story-slider) {
+    width: 100%;
+    max-width: none;
+    margin: clamp(3rem, 6vw, 6rem) 0;
+}
+
+.post-body .post-split-section,
+.post-viewer-content .post-split-section {
+    display: grid;
+    grid-template-columns: minmax(10rem, 0.85fr) minmax(0, 1.35fr);
+    align-items: start;
+    gap: clamp(2rem, 8vw, 8rem);
+    margin: clamp(6rem, 12vw, 11rem) 0;
+}
+
+.post-body .post-split-section > h2,
+.post-viewer-content .post-split-section > h2 {
+    color: var(--editorial-ink);
+    font-family: var(--editorial-serif);
+    font-size: clamp(2.8rem, 5vw, 5.2rem);
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    line-height: 0.98;
+}
+
+.post-body .post-split-content,
+.post-viewer-content .post-split-content {
+    min-width: 0;
+}
+
+.post-body .post-split-content > :first-child,
+.post-viewer-content .post-split-content > :first-child {
+    margin-top: 0;
+}
+
+.post-body .post-principles,
+.post-viewer-content .post-principles {
+    counter-reset: post-principle;
+    display: grid;
+    gap: clamp(2.2rem, 4vw, 3.5rem);
+    margin: 3rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.post-body .post-principles > li,
+.post-viewer-content .post-principles > li {
+    counter-increment: post-principle;
+    display: grid;
+    grid-template-columns: 1.8rem minmax(0, 1fr);
+    align-items: start;
+    gap: 0.85rem;
+    margin: 0;
+}
+
+.post-body .post-principles > li::before,
+.post-viewer-content .post-principles > li::before {
+    content: counter(post-principle);
+    display: grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    margin-top: 0.08rem;
+    border-radius: 50%;
+    background: var(--editorial-ink);
+    color: var(--editorial-paper);
+    font: 700 0.72rem/1 var(--editorial-sans);
+}
+
+.post-body .principle-title,
+.post-viewer-content .principle-title {
+    margin: 0 0 0.45rem;
+    color: var(--editorial-ink);
+    font-weight: 700;
+}
+
+.post-body blockquote,
+.post-viewer-content blockquote {
+    border: 0;
+    border-top: 1px solid var(--editorial-line);
+    border-bottom: 1px solid var(--editorial-line);
+    border-radius: 0;
+    background: transparent;
+    padding: 1.5rem 0;
+    color: var(--editorial-muted);
+}
+
+/* Read-more area and footer shared by both reader surfaces. */
+.post-continuation {
+    width: 100%;
+    padding: clamp(4rem, 9vw, 8rem) clamp(1.25rem, 6vw, 7rem);
+    background: #141414;
+    color: #f3eee8;
+}
+
+.post-continuation-inner {
+    width: min(100%, 90rem);
+    margin: 0 auto;
+}
+
+.post-continuation-label {
+    display: block;
+    margin-bottom: clamp(2.5rem, 6vw, 5rem);
+    font: 700 0.72rem/1 var(--editorial-sans);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.post-continuation-link {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 2rem;
+    color: inherit;
+    text-decoration: none;
+}
+
+.post-continuation-copy {
+    min-width: 0;
+}
+
+.post-continuation-meta {
+    display: block;
+    margin-bottom: 1rem;
+    color: #a8a29b;
+    font: 600 0.78rem/1.4 var(--editorial-sans);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.post-continuation-title {
+    display: block;
+    max-width: 17ch;
+    font-family: var(--editorial-serif);
+    font-size: clamp(3rem, 7.5vw, 8rem);
+    font-weight: 400;
+    letter-spacing: -0.05em;
+    line-height: 0.9;
+    text-wrap: balance;
+    word-break: keep-all;
+}
+
+.post-continuation-arrow {
+    display: grid;
+    place-items: center;
+    width: clamp(4rem, 8vw, 7rem);
+    aspect-ratio: 1;
+    border: 1px solid rgba(243, 238, 232, 0.55);
+    border-radius: 50%;
+    font: 300 clamp(2rem, 4vw, 4rem)/1 var(--editorial-sans);
+    transition: background-color 0.25s ease, color 0.25s ease, transform 0.35s ease;
+}
+
+.post-continuation-link:hover .post-continuation-arrow,
+.post-continuation-link:focus-visible .post-continuation-arrow {
+    background: #f3eee8;
+    color: #141414;
+    transform: translate(0.35rem, -0.35rem);
+}
+
+.post-page-footer {
+    width: 100%;
+    min-height: clamp(15rem, 30vw, 25rem);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: clamp(2rem, 6vw, 5rem) clamp(1.25rem, 6vw, 7rem);
+    background: var(--editorial-blue);
+    color: #141414;
+    font-family: var(--editorial-sans);
+    font-size: clamp(1rem, 1.4vw, 1.3rem);
+    font-weight: 700;
+}
+
+.post-page-footer strong {
+    font-family: var(--editorial-serif);
+    font-size: clamp(3.5rem, 10vw, 10rem);
+    font-weight: 400;
+    letter-spacing: -0.055em;
+    line-height: 0.75;
+}
+
+/* Editor: the controls stay practical while the canvas mirrors the reader. */
+.editor-kicker {
+    display: block;
+    margin-bottom: 0.75rem;
+    color: var(--editor-muted);
+    font: 700 0.66rem/1 var(--editorial-sans);
+    letter-spacing: 0.16em;
+}
+
+.editor-meta-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 9rem auto;
+    align-items: end;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.editor-meta-row .admin-input {
+    margin: 0;
+}
+
+.editor-meta-row #post-title {
+    border: 0;
+    border-bottom: 1px solid var(--editor-border);
+    border-radius: 0;
+    background: transparent;
+    padding: 0.35rem 0;
+    color: var(--editor-text-heading);
+    font-family: var(--editorial-serif);
+    font-size: clamp(1.8rem, 3vw, 3.4rem);
+    letter-spacing: -0.035em;
+    line-height: 1;
+}
+
+.editor-meta-row #post-category {
+    border: 0;
+    border-bottom: 1px solid var(--editor-border);
+    border-radius: 0;
+    background: transparent;
+    padding-inline: 0;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.editor-sticky-header {
+    padding: 1.25rem clamp(1rem, 2.5vw, 2rem) 0.85rem;
+    box-shadow: none;
+}
+
+.admin-toolbar {
+    border: 0;
+    border-top: 1px solid var(--editor-border);
+    border-radius: 0;
+    background: transparent;
+    padding: 0.75rem 0 0;
+}
+
+.admin-pane {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #181818 !important;
+}
+
+.editor-document-area {
+    padding: clamp(2rem, 5vw, 5rem) clamp(1rem, 4vw, 4rem);
+}
+
+.admin-editor {
+    width: min(100%, 74rem);
+    max-width: 74rem;
+    min-height: 72rem;
+    margin: 0 auto 2rem;
+    border: 0;
+    border-radius: 0;
+    padding: clamp(5rem, 9vw, 9rem) clamp(1.5rem, 7vw, 7rem);
+    background: var(--editorial-paper);
+    box-shadow: none;
+    color: var(--editorial-ink);
+    font-family: var(--editorial-sans);
+    font-size: clamp(1rem, 1.1vw, 1.16rem);
+    line-height: 1.78;
+}
+
+body.dark .admin-editor {
+    background: var(--editorial-paper);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+}
+
+.admin-editor > :is(p, ul, ol, blockquote, pre, table, h1, h2, h3, h4, hr) {
+    width: min(100%, 43rem);
+    margin-right: 0;
+    margin-left: auto;
+}
+
+.admin-editor > :is(h1, h2) {
+    margin-top: 5rem;
+    color: var(--editorial-ink);
+    font-family: var(--editorial-serif);
+    font-size: clamp(2.5rem, 4.8vw, 4.8rem);
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    line-height: 0.98;
+}
+
+.admin-editor .post-split-section {
+    grid-template-columns: minmax(9rem, 0.85fr) minmax(0, 1.35fr);
+    gap: clamp(2rem, 7vw, 6rem);
+    margin: 7rem 0;
+}
+
+.admin-editor .post-split-section > h2 {
+    color: var(--editorial-ink);
+    font-family: var(--editorial-serif);
+    font-size: clamp(2.5rem, 4.6vw, 4.6rem);
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    line-height: 0.98;
+}
+
+@media (max-width: 820px) {
+    .post-article-header,
+    .post-viewer-header {
+        grid-template-columns: 1fr;
+        min-height: 38rem;
+        padding-top: 8rem;
+    }
+
+    .post-category,
+    .post-viewer-category,
+    .post-title,
+    .post-viewer-title,
+    .post-date,
+    .post-viewer-date {
+        grid-column: 1;
+    }
+
+    .post-title,
+    .post-viewer-title {
+        font-size: clamp(3.2rem, 15vw, 6rem);
+        line-height: 0.94;
+    }
+
+    .post-date,
+    .post-viewer-date {
+        margin-top: 2rem;
+    }
+
+    .post-body > :is(p, ul, ol, blockquote, pre, table, h1, h2, h3, h4, hr),
+    .post-viewer-content > :is(p, ul, ol, blockquote, pre, table, h1, h2, h3, h4, hr),
+    .admin-editor > :is(p, ul, ol, blockquote, pre, table, h1, h2, h3, h4, hr) {
+        width: 100%;
+    }
+
+    .post-body .post-split-section,
+    .post-viewer-content .post-split-section,
+    .admin-editor .post-split-section {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        margin: 5rem 0;
+    }
+
+    .post-continuation-link {
+        grid-template-columns: 1fr;
+    }
+
+    .post-continuation-arrow {
+        justify-self: end;
+    }
+
+    .post-page-footer {
+        min-height: 20rem;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-end;
+    }
+
+    .editor-meta-row {
+        grid-template-columns: 1fr;
+    }
+
+    .editor-meta-row #post-title {
+        font-size: 2rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .post-continuation-arrow {
+        transition: none;
+    }
+}

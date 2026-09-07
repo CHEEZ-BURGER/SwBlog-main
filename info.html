@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./mainPage_img/logo_pav.ico">
+    <title>Info — Kimsungwoo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reset-css@5.0.1/reset.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+    <link rel="stylesheet" href="./css/mainPage.css">
+    <link rel="stylesheet" href="./css/infoPage.css">
+    <script src="./js/infoPage.js" defer></script>
+</head>
+<body class="info-page">
+    <div class="page-transition is-covering" id="page-transition" aria-hidden="false">
+        <div class="page-transition-mark">
+            <img src="./mainPage_img/Frame 2.png" alt="">
+            <span>KIMSUNGWOO</span>
+        </div>
+    </div>
+
+    <div class="headerBtn-box info-header-controls">
+        <a class="info-home-logo" href="./index.html" data-page-transition aria-label="블로그 홈으로 이동">
+            <img src="./mainPage_img/Frame 2.png" alt="Kimsungwoo">
+        </a>
+        <div class="hamburger-btn">
+            <button type="button" class="btn-body" aria-label="메뉴 열기" aria-expanded="false" aria-controls="site-menu"></button>
+            <svg class="menu-arrow" viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="M6 20H33M22 9L33 20L22 31" /></svg>
+        </div>
+    </div>
+
+    <div class="header-hidden" id="site-menu" aria-hidden="true" inert>
+        <div class="header-hidden-inner">
+            <nav class="fullscreen-menu" aria-label="메인 카테고리">
+                <ul class="typography-list">
+                    <li style="--anim-delay: 0.1s;"><a href="./index.html" data-page-transition>HOME</a></li>
+                    <li style="--anim-delay: 0.2s;"><a href="#human" data-menu-anchor>HUMAN</a></li>
+                    <li style="--anim-delay: 0.3s;"><a href="#contact" data-menu-anchor>CONTACT</a></li>
+                    <li style="--anim-delay: 0.4s;"><a href="./cat_cod.html">DEVELOP</a></li>
+                </ul>
+            </nav>
+            <div class="header-hidden-footer" style="--anim-delay: 0.45s;">
+                <span class="info-menu-caption">A HUMAN BEHIND THE ARCHIVE — <span class="current-year">2026</span></span>
+            </div>
+        </div>
+    </div>
+    <div class="menu-index-scrim" id="menu-index-scrim" aria-hidden="true"></div>
+
+    <main>
+        <section class="info-hero" aria-labelledby="info-title">
+            <div class="info-hero-copy">
+                <span class="info-kicker">INFO / KIMSUNGWOO</span>
+                <h1 id="info-title">HELLO,<br>I'M KIM<br><i>Sungwoo.</i></h1>
+                <p class="info-lede">이곳은 작업을 설명하는 포트폴리오 페이지가 아니라,<br>그 작업들을 만들고 기록하는 사람을 남기는 곳입니다.</p>
+                <a class="info-scroll-cue" href="#human">
+                    <span>MEET THE HUMAN</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v15M6 13l6 6 6-6"/></svg>
+                </a>
+            </div>
+            <div class="info-identity-panel" aria-hidden="true">
+                <span class="identity-index">HUMAN / 01</span>
+                <div class="identity-orbit orbit-one"></div>
+                <div class="identity-orbit orbit-two"></div>
+                <img src="./mainPage_img/Frame 2.png" alt="">
+                <div class="identity-marquee"><span>THINK — MAKE — WRITE — LIVE — THINK — MAKE — WRITE — LIVE — </span></div>
+            </div>
+        </section>
+
+        <section class="human-section" id="human" aria-labelledby="human-title">
+            <header>
+                <span class="info-kicker">02 / PERSON</span>
+                <h2 id="human-title">A PERSON,<br><i>before a portfolio.</i></h2>
+            </header>
+            <div class="human-notes">
+                <article>
+                    <span>01 / ABOUT</span>
+                    <p>안녕하세요, 김성우입니다. 궁금한 것을 직접 만들고, 과정에서 알게 된 것들을 글로 남깁니다.</p>
+                </article>
+                <article>
+                    <span>02 / THIS PLACE</span>
+                    <p>이 사이트의 포스트 하나하나가 작업과 생각을 보여주는 케이스입니다. INFO에는 그 뒤에 있는 사람만 남겨둡니다.</p>
+                </article>
+                <article>
+                    <span>03 / OUTSIDE THE SCREEN</span>
+                    <p>화면 밖의 취향과 관심사, 더 개인적인 이야기는 앞으로 이 자리에 천천히 채워갈 수 있습니다.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="human-contact" id="contact" aria-labelledby="contact-title">
+            <span class="info-kicker">03 / CONTACT</span>
+            <h2 id="contact-title">SAY<br><i>Hello.</i></h2>
+            <p>작업, 대화 또는 흥미로운 제안이 있다면 편하게 연락해주세요.</p>
+            <span class="contact-placeholder">EMAIL ADDRESS — TO BE ADDED</span>
+            <div class="contact-footer">
+                <span>© <span class="current-year">2026</span> KIMSUNGWOO</span>
+                <a href="./index.html" data-page-transition>BACK TO ARCHIVE ↑</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

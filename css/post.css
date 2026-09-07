@@ -1,0 +1,282 @@
+@import url('https://fonts.cdnfonts.com/css/helvetica-neue-5');
+
+
+@font-face {
+    font-family: 'Circular Std';
+    src: url('../font/FontsFree-Net-CircularStd-Bold.ttf') format('truetype');
+    font-weight: 700;
+}
+@font-face {
+    font-family: 'Circular Std';
+    src: url('../font/FontsFree-Net-CircularStd-Bold.ttf') format('truetype');
+    font-weight: 800;
+}
+
+:root{
+    --post-bg: #f8f8f8;
+    --post-surface: #fff;
+    --post-accent: #0080ff;
+    --post-border: #eee;
+    --post-text: #333;
+    --post-text-heading: #222;
+    --post-muted: #888;
+}
+
+body.dark {
+    --post-bg: #161616;
+    --post-surface: #1f2023;
+    --post-accent: #3ba0ff;
+    --post-border: #2e2f32;
+    --post-text: #f2f2f0;
+    --post-text-heading: #f8f8f8;
+    --post-muted: #a2a2a2;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 10px;
+    transition: background-color 0.3s;
+}
+*:hover::-webkit-scrollbar-thumb {
+    background: rgba(150, 150, 150, 0.3);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(150, 150, 150, 0.6);
+}
+
+body {
+    font-family: 'Helvetica Neue', 'Pretendard', sans-serif;
+    padding: clamp(1rem, 3vw, 2.5rem);
+    background-color: var(--post-bg);
+    color: var(--post-text);
+    line-height: 1.6;
+    overflow-y: overlay;
+}
+
+body *{
+    transition: none;
+}
+
+.post-container {
+    max-width: 50rem;
+    margin: 0 auto;
+    background: var(--post-surface);
+    padding: clamp(1.2rem, 4vw, 3.1rem);
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.post-content{
+    width: 100%;
+    margin: 0;
+}
+
+.back-btn {
+    display: inline-block;
+    margin-bottom: 1.25rem;
+    color: var(--post-accent);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.back-btn:hover {
+    text-decoration: underline;
+}
+
+.category-badge {
+    display: inline-block;
+    padding: 0.3rem 0.75rem;
+    background: var(--post-border);
+    border-radius: 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--post-text-heading);
+    margin-bottom: 0.6rem;
+}
+
+#post-title {
+    font-size: clamp(1.6rem, 4vw, 2.25rem);
+    margin: 0.6rem 0;
+    color: var(--post-text-heading);
+}
+
+#post-date {
+    color: var(--post-muted);
+    font-size: 0.875rem;
+    margin-bottom: 2.5rem;
+    display: block;
+    border-bottom: 1px solid var(--post-border);
+    padding-bottom: 1.25rem;
+}
+
+#markdown-content h1,
+#markdown-content h2,
+#markdown-content h3,
+#markdown-content h4 {
+    color: var(--post-text-heading);
+    font-family: 'Circular Std', 'Helvetica Neue', 'Pretendard', sans-serif;
+}
+
+#markdown-content h1,
+#markdown-content h2 {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+#markdown-content .post-split-section {
+    display: grid;
+    grid-template-columns: minmax(10rem, 0.78fr) minmax(0, 2.22fr);
+    align-items: start;
+    column-gap: clamp(2.5rem, 7vw, 5.5rem);
+    margin: clamp(4rem, 8vw, 6.5rem) 0;
+}
+
+#markdown-content .post-split-section > h2 {
+    margin: 0;
+    font-size: clamp(1.65rem, 3vw, 2.1rem);
+    line-height: 1.2;
+    word-break: keep-all;
+}
+
+#markdown-content .post-split-content {
+    min-width: 0;
+}
+
+#markdown-content .post-split-content > :first-child { margin-top: 0; }
+#markdown-content .post-split-content > :last-child { margin-bottom: 0; }
+
+#markdown-content .post-principles {
+    counter-reset: post-principle;
+    display: grid;
+    gap: clamp(2.25rem, 4vw, 3.25rem);
+    list-style: none;
+    margin: 3rem 0 0;
+    padding: 0;
+}
+
+#markdown-content .post-principles > li {
+    counter-increment: post-principle;
+    display: grid;
+    grid-template-columns: 1.75rem minmax(0, 1fr);
+    align-items: start;
+    gap: 0.75rem;
+    margin: 0;
+}
+
+#markdown-content .post-principles > li::before {
+    content: counter(post-principle);
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-top: 0.12rem;
+    border-radius: 50%;
+    background: var(--post-text-heading);
+    color: var(--post-surface);
+    font-family: 'Circular Std', 'Helvetica Neue', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+#markdown-content .principle-copy { min-width: 0; }
+#markdown-content .principle-copy > :last-child { margin-bottom: 0; }
+#markdown-content .principle-title { margin: 0 0 0.45rem; line-height: 1.55; }
+
+#markdown-content img {
+    max-width: 100%;
+    border-radius: 0.5rem;
+    margin: 1.25rem 0;
+}
+
+#markdown-content code {
+    background: rgba(162, 162, 162, 0.15);
+    color: #e83e8c;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.3rem;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+#markdown-content pre {
+    background: #282c34;
+    color: #abb2bf;
+    border-radius: 0.6rem;
+    padding: 1.25rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.95em;
+    line-height: 1.6;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    position: relative;
+    tab-size: 4;
+}
+
+#markdown-content pre::before {
+    content: '';
+    display: block;
+    margin-bottom: 1rem;
+    height: 12px;
+    width: 12px;
+    border-radius: 50%;
+    background: #fc625d;
+    box-shadow: 20px 0 0 #fdbc40, 40px 0 0 #35cd4b;
+}
+
+#markdown-content pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+    font-family: inherit;
+    font-size: 1em;
+    font-weight: 400;
+}
+
+/* 💡 명시적으로 지정된 대표 썸네일 숨김 처리 */
+.hidden-thumbnail { display: none !important; }
+
+/* 💡 다크모드 강제 적용 안전장치 */
+body.dark #markdown-content h1,
+body.dark #markdown-content h2,
+body.dark #markdown-content h3,
+body.dark #markdown-content h4 {
+    color: var(--post-text-heading) !important;
+}
+
+@media (max-width: 768px){
+    .post-container{
+        border-radius: 0.8rem;
+    }
+
+    .post-content .side-box{
+        display: block;
+    }
+
+    .post-content .side-l,
+    .post-content .side-r{
+        width: 100%;
+        margin: 0.9rem 0;
+        left: 0;
+    }
+
+    #markdown-content .post-split-section {
+        grid-template-columns: 1fr;
+        row-gap: 1.35rem;
+        margin: 3.5rem 0;
+    }
+
+    #markdown-content .post-principles {
+        gap: 2.1rem;
+        margin-top: 2.15rem;
+    }
+}

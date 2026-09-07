@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SW Blog</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="./js/postContent.js?v=editorial-layout-3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reset-css@5.0.1/reset.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500&amp;display=swap">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+
+        :root {
+            --bg:       #ffffff;
+            --bg-alt:   #f8f9fa;
+            --text:     #1b1c1e;
+            --muted:    #75767b;
+            --heading:  #111111;
+            --accent:   #0080FF;
+            --border:   #e9ecef;
+            --code-bg:  #f1f3f5;
+            --filter:   0;
+        }
+
+        body.dark {
+            --bg:      #1b1c1e;
+            --bg-alt:  #1f2023;
+            --text:    #ffffff;
+            --muted:   #75767b;
+            --heading: #ffffff;
+            --border:  #2e2f32;
+            --code-bg: #2e2f32;
+            --filter:  110%;
+        }
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            opacity: 0;
+            transform: translateY(15px);
+            transition: background-color .3s, color .3s, opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        body.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        body.page-exit {
+            opacity: 0 !important;
+            transform: translateY(15px) !important; /* 다시 아래로 내려가며 퇴장 */
+        }
+
+        /* ── 상단 네비게이션 바 ── */
+        .post-nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.875rem 1.5rem;
+            background-color: var(--bg);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: background-color .3s, padding 0.3s;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            color: var(--muted);
+            text-decoration: none;
+            transition: all .2s;
+            background: var(--bg);
+            position: relative;
+            z-index: 2;
+        }
+        .back-link svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .back-link:hover {
+            transform: scale(1.05);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .nav-logo {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 32px;
+            width: auto;
+            filter: invert(var(--filter));
+        }
+
+        /* 다크모드 토글 */
+        .dark-toggle {
+            width: 32px;
+            height: 32px;
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+            z-index: 2;
+        }
+
+        .dark-toggle .icon {
+            position: absolute;
+            inset: 0;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            transition: opacity .4s, transform .4s;
+        }
+
+        .dark-toggle .icon-sun {
+            background-image: url('./mainPage_img/sun_blue.png');
+        }
+
+        .dark-toggle .icon-moon {
+            background-image: url('./mainPage_img/moon.png');
+            opacity: 0;
+            transform: rotate(-60deg);
+        }
+
+        body.dark .dark-toggle .icon-sun  { opacity: 0; transform: rotate(-200deg); }
+        body.dark .dark-toggle .icon-moon { opacity: 1; transform: rotate(0deg); }
+        body.dark .back-link { background: var(--bg-alt); border-color: var(--border); color: #fff; }
+
+        @media (max-width: 820px) {
+            .post-nav {
+                background: transparent;
+                border-bottom: none;
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+                padding: 1rem 1.25rem;
+            }
+            .dark-toggle {
+                display: none;
+            }
+            .back-link {
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                border: 1px solid rgba(0, 0, 0, 0.05);
+                color: var(--heading);
+            }
+            body.dark .back-link {
+                background: rgba(30, 30, 30, 0.85);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            }
+            .post-article { padding-top: 1.5rem; }
+        }
+
+        /* ── 아티클 레이아웃 ── */
+        .post-article {
+            max-width: 48rem;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem 6rem;
+        }
+
+        /* 로딩 */
+        .post-loading {
+            text-align: center;
+            padding: 4rem 1rem;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        /* 아티클 헤더 */
+        .post-article-header {
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .post-category {
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+        }
+
+        .post-title {
+            font-family: 'Pretendard', sans-serif;
+            font-size: clamp(1.6rem, 5vw, 2.4rem);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--heading);
+            margin: 0 0 0.6rem;
+            word-break: keep-all;
+        }
+
+        .post-date {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--muted);
+        }
+
+        /* 마크다운 본문 */
+        .post-body {
+            color: var(--text);
+            line-height: 1.95;
+            overflow-wrap: break-word;
+        }
+
+        .post-body h1, .post-body h2,
+        .post-body h3, .post-body h4 {
+            color: var(--heading);
+            margin: 2.25rem 0 0.75rem;
+            line-height: 1.3;
+            font-family: 'Pretendard', sans-serif;
+        }
+
+        .post-body h1 { font-size: clamp(1.5rem, 4vw, 1.9rem); font-weight: 700; }
+        .post-body h2 { font-size: clamp(1.25rem, 3vw, 1.5rem); font-weight: 600; }
+        .post-body h3 { font-size: 1.125rem; font-weight: 600; }
+
+        .post-body p  { margin: 0 0 1.1rem; }
+        .post-body a  { color: var(--accent); }
+
+        .post-body img {
+            max-width: 100%;
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+            display: block;
+        }
+
+        .post-body code {
+            background: var(--code-bg);
+            padding: 0.15rem 0.45rem;
+            border-radius: 0.3rem;
+            font-family: monospace;
+            font-size: 0.88em;
+        }
+
+        .post-body pre {
+            background: var(--code-bg);
+            border-radius: 0.6rem;
+            padding: 1.1rem 1.25rem;
+            overflow-x: auto;
+            margin: 1.25rem 0;
+        }
+
+        .post-body pre code { background: none; padding: 0; }
+
+        .post-body blockquote {
+            border-left: 3px solid var(--accent);
+            margin: 1.5rem 0;
+            padding: 0.5rem 1rem;
+            color: var(--muted);
+        }
+
+        .post-body ul, .post-body ol {
+            padding-left: 1.5rem;
+            margin: 0.75rem 0 1rem;
+        }
+
+        .post-body li { margin: 0.35rem 0; }
+
+        .post-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.25rem 0;
+            font-size: 0.9rem;
+        }
+
+        .post-body th, .post-body td {
+            border: 1px solid var(--border);
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+        }
+
+        .post-body th {
+            background: var(--bg-alt);
+            font-weight: 600;
+        }
+
+        /* ── Editor Style Mapping ── */
+        .post-body .high { 
+            display: inline;
+            background-image: linear-gradient(to top, transparent 10%, rgba(255, 235, 59, 0.6) 10%, rgba(255, 235, 59, 0.6) 45%, transparent 45%);
+            -webkit-box-decoration-break: clone;
+            box-decoration-break: clone;
+            background-color: transparent;
+            padding: 0;
+        }
+        .post-body .lead-text { font-size: 1.15rem; color: var(--heading); font-weight: 600; }
+        .post-body .muted-text { color: var(--muted); font-size: 0.95rem; }
+        .post-body .chip-blue { 
+            display: inline-flex;
+            align-items: center;
+            background-color: #e3f2fd; 
+            color: #1976d2; 
+            padding: 0.2rem 0.65rem; 
+            border-radius: 8px; 
+            font-size: 0.85em; 
+            font-weight: 700; 
+            border: 1px solid #bbdefb;
+            box-shadow: 0 2px 4px rgba(25, 118, 210, 0.1);
+            vertical-align: text-bottom;
+            line-height: 1.2;
+            margin: 0 0.15rem;
+        }
+        .post-body .note-box { background: #fff3cd; padding: 1rem; border-radius: 8px; color: #856404; margin: 1rem 0; border: 1px solid #ffeeba; display: block; }
+        .post-body .caption { text-align: center; color: #888; font-size: 0.85rem; margin-top: 0.5rem; }
+
+        .post-body .side-box { display: flex; gap: 1rem; align-items: center; margin: 1rem 0; background: var(--bg-alt); padding: 1rem; border-radius: 12px; border: 1px dashed var(--border); }
+        .post-body .side-box img { max-width: 50%; border-radius: 8px; object-fit: cover; margin: 0; }
+        .post-body .side-box p { flex: 1; margin: 0; }
+        .post-body .image-grid { display: grid; gap: 1rem; margin: 1rem 0; }
+        .post-body .image-grid-2 { grid-template-columns: 1fr 1fr; }
+        .post-body .image-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+        .post-body .image-grid img { width: 100%; height: auto; border-radius: 8px; object-fit: cover; border: 1px solid var(--border); margin: 0; }
+        .post-body img.big { width: 100%; border-radius: 12px; margin: 1rem 0; border: 1px solid var(--border); }
+        .post-body img.mini { width: 100%; border-radius: 8px; }
+
+        /* Dark mode Editor Style Mapping */
+        body.dark .post-body .high { background-image: linear-gradient(to top, transparent 10%, rgba(255, 235, 59, 0.3) 10%, rgba(255, 235, 59, 0.3) 45%, transparent 45%); color: #fff; }
+        body.dark .post-body .chip-blue { background-color: rgba(25, 118, 210, 0.15); border-color: rgba(25, 118, 210, 0.3); color: #90caf9; }
+        body.dark .post-body .note-box { background: rgba(133, 100, 4, 0.2); border-color: rgba(255, 213, 79, 0.3); color: #ffd54f; }
+        body.dark .post-body .side-box { background: #1f2023; border-color: #3e3f42; }
+        body.dark .post-body .image-grid img, body.dark .post-body img.big { border-color: #3e3f42; }
+
+        /* 💡 대표 썸네일 숨김 처리 */
+        .hidden-thumbnail { display: none !important; }
+
+        /* 💡 다크모드 강제 적용 안전장치 */
+        body.dark .post-body h1,
+        body.dark .post-body h2,
+        body.dark .post-body h3,
+        body.dark .post-body h4 {
+            color: var(--heading) !important;
+        }
+
+        /* ── 인스타그램 스토리 스타일 이미지 슬라이더 ── */
+        .story-slider { position: relative; width: 100%; margin: 2rem 0; border-radius: 12px; overflow: hidden; background: #111; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+        .story-progress { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; gap: 6px; z-index: 5; }
+        .story-segment { flex: 1; height: 3px; background: rgba(255, 255, 255, 0.35); border-radius: 3px; overflow: hidden; position: relative; }
+        .story-segment-fill { height: 100%; width: 0%; background: #fff; border-radius: 3px; }
+        .story-segment.viewed .story-segment-fill { width: 100%; transition: none; }
+        .story-segment.active .story-segment-fill { box-shadow: 0 0 6px rgba(0,0,0,0.4); }
+        .story-images { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; align-items: flex-start; transition: height 0.4s ease-out; }
+        .story-images::-webkit-scrollbar { display: none; }
+        .story-img { flex: 0 0 100%; width: 100%; max-height: 70vh; object-fit: contain; scroll-snap-align: center; margin: 0 !important; border-radius: 0 !important; display: block; }
+        .story-controls { position: absolute; bottom: 1.25rem; right: 1.25rem; display: flex; gap: 0.6rem; z-index: 20; opacity: 0; transform: translateY(15px); pointer-events: none; transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+        .story-slider:hover .story-controls { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .story-btn { background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.05); color: #222; border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); opacity: 0.8; padding: 0; z-index: 10; }
+        .story-btn:hover { background: #fff; transform: scale(1.1) translateY(-3px) !important; box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2); }
+        .story-btn:active { transform: scale(0.95) translateY(0); }
+
+        /* Global Image Zoom Button */
+        .img-zoom-wrapper { position: relative; display: block; width: fit-content; max-width: 100%; margin: 1.25rem 0; }
+        .img-zoom-wrapper img { margin: 0 !important; display: block; border-radius: 0.5rem; }
+        .global-zoom-btn { position: absolute; bottom: 1.25rem; left: 1.25rem; background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.05); color: #222; border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease, background-color 0.2s; opacity: 0; transform: translateY(15px); z-index: 5; padding: 0; pointer-events: auto; }
+        .img-zoom-wrapper:hover .global-zoom-btn { opacity: 0.8; transform: translateY(0) scale(1); }
+        .img-zoom-wrapper .global-zoom-btn:hover { opacity: 1; transform: translateY(0) scale(1.1); }
+        .global-zoom-btn:active { transform: translateY(0) scale(0.95); }
+
+        /* Fullscreen Image Viewer */
+        .fullscreen-viewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 2rem; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s; }
+        .fullscreen-viewer.visible { opacity: 1; visibility: visible; }
+        .fullscreen-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); cursor: zoom-out; }
+        #fullscreen-img { position: relative; max-width: 95vw; max-height: 95vh; object-fit: contain; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .fullscreen-close-btn { display: flex; align-items: center; justify-content: center; position: absolute; top: 2rem; right: 2rem; width: 44px; height: 44px; background: rgba(0, 0, 0, 0.5); color: white; border: 2px solid rgba(255,255,255,0.8); border-radius: 50%; font-size: 0; cursor: pointer; transition: all 0.3s ease; padding: 0; }
+        .fullscreen-close-btn:hover { background: rgba(0,0,0,0.8); transform: scale(1.1); }
+
+        /* --- 재밌는 버튼 호버 애니메이션 --- */
+        .fullscreen-close-btn svg line { stroke-dasharray: 24; stroke-dashoffset: 0; }
+        @keyframes draw-x-line { 0% { stroke-dashoffset: 0; } 50% { stroke-dashoffset: 24; } 100% { stroke-dashoffset: 0; } }
+        .fullscreen-close-btn:hover svg line { animation: draw-x-line 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        .fullscreen-close-btn:hover svg line:nth-child(2) { animation-delay: 0.1s; }
+
+        @keyframes bounce-zoom { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+        .global-zoom-btn:hover svg, .story-zoom:hover svg { animation: bounce-zoom 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
+
+        @keyframes bounce-left { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-4px); } }
+        @keyframes bounce-right { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
+        .story-prev:hover svg, .back-link:hover svg { animation: bounce-left 0.6s ease; }
+        .story-next:hover svg { animation: bounce-right 0.6s ease; }
+
+        @media (max-width: 820px) {
+            .story-controls { bottom: 10px; right: 10px; }
+            .story-btn { opacity: 1; transform: translateY(0); background: rgba(255, 255, 255, 0.85); width: 38px; height: 38px; }
+        }
+
+        /* 에러 */
+        .post-error {
+            text-align: center;
+            padding: 4rem 1rem;
+            color: var(--muted);
+        }
+    </style>
+    <link rel="stylesheet" href="./css/postExperience.css?v=editorial-post-1">
+    <link rel="stylesheet" href="./css/postRefinement.css?v=editorial-post-2">
+    <link rel="stylesheet" href="./css/lightRefinement.css?v=light-system-1">
+    <link rel="stylesheet" href="./css/editorial.css?v=journal-2">
+    <link rel="stylesheet" href="./css/exhibition.css?v=journal-2">
+<link rel="stylesheet" href="./css/publication2026.css?v=2026-1">
+<script src="./js/publication2026.js?v=2026-1" defer></script>
+</head>
+<body>
+
+<!-- ── 네비게이션 바 ── -->
+<nav class="post-nav">
+    <div class="post-nav-left">
+        <a class="back-link" href="./index.html" onclick="handleBack(event)" aria-label="목록으로 돌아가기">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </a>
+    </div>
+    <img class="nav-logo" src="./mainPage_img/Frame 2.png" alt="SW Blog">
+    <div class="post-nav-right">
+        <a class="post-nav-archive" href="./index.html">ARCHIVE</a>
+    </div>
+</nav>
+
+<!-- ── 아티클 ── -->
+<article class="post-article" id="post-article">
+    <p class="post-loading" id="post-loading">불러오는 중...</p>
+
+    <header class="post-article-header" id="post-article-header" style="display:none;">
+        <span class="post-category" id="post-cat"></span>
+        <h1 class="post-title" id="post-title-el"></h1>
+        <time class="post-date" id="post-date-el"></time><span class="post-reading-meta" id="post-reading-meta"></span>
+    </header>
+
+    <div class="post-body" id="post-body"></div>
+</article>
+
+<section class="post-continuation" id="post-continuation" aria-labelledby="post-continuation-label">
+    <div class="post-continuation-inner">
+        <span class="post-continuation-label" id="post-continuation-label">Read more / 최신 포스트</span>
+        <a class="post-continuation-link" id="post-continuation-link" href="./index.html">
+            <span class="post-continuation-media">
+                <img id="post-continuation-image" src="" alt="" loading="lazy" hidden>
+            </span>
+            <span class="post-continuation-copy">
+                <span class="post-continuation-meta" id="post-continuation-meta">SWBLOG ARCHIVE</span>
+                <span class="post-continuation-title" id="post-continuation-title">더 많은 포스트 보기</span>
+            </span>
+        </a>
+    </div>
+</section>
+
+<footer class="post-page-footer" data-random-footer>
+    <div class="footer-shell">
+        <div class="footer-main">
+            <div>
+                <span class="footer-kicker">SWBLOG / FIELD NOTES</span>
+                <h2 class="footer-statement">좋은 질문은 다음 글로 이어집니다.</h2>
+            </div>
+            <nav class="footer-nav" aria-label="푸터 탐색">
+                <span class="footer-nav-label">Explore</span>
+                <a href="./index.html">전체 글</a>
+                <a href="./info.html">소개</a>
+                <a href="./editor.html">에디터</a>
+            </nav>
+        </div>
+        <div class="footer-bottom">
+            <strong class="footer-wordmark">SWBLOG</strong>
+            <span class="footer-meta">SEOUL · © <span id="post-current-year">2026</span> KIMSUNGWOO</span>
+        </div>
+    </div>
+</footer>
+
+<!-- ── Fullscreen Image Viewer Modal ── -->
+<div id="fullscreen-viewer" class="fullscreen-viewer">
+    <div class="fullscreen-bg" onclick="closeFullscreen()"></div>
+    <img id="fullscreen-img" src="" alt="Zoomed image">
+    <button id="fullscreen-close" class="fullscreen-close-btn" onclick="closeFullscreen()" aria-label="Close fullscreen image">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+</div>
+
+
+<!-- ── 스크립트 ── -->
+<script>
+    // 이 사이트는 의도적으로 라이트 테마만 사용합니다.
+    document.body.classList.remove('dark');
+
+    const S_URL = 'https://dwyoitvmforukvdikzqo.supabase.co';
+    const S_KEY = 'sb_publishable_c5y0L6D5oRgoEV_MzedQQQ_nCJfKHb0';
+    const supabaseClient = window.supabase.createClient(S_URL, S_KEY);
+    document.getElementById('post-current-year').textContent = new Date().getFullYear();
+
+    function renderStandaloneContinuation(post) {
+        const link = document.getElementById('post-continuation-link');
+        const title = document.getElementById('post-continuation-title');
+        const meta = document.getElementById('post-continuation-meta');
+        const image = document.getElementById('post-continuation-image');
+        if (!link || !title || !meta || !image || !post) return;
+
+        const date = post.created_at
+            ? new Date(post.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' })
+            : '';
+        link.href = `./post.html?id=${encodeURIComponent(post.id)}`;
+        title.textContent = post.title || '최신 포스트 보기';
+        meta.textContent = [post.category || 'POST', date].filter(Boolean).join(' · ');
+        const thumbnail = getPostImage(post.content);
+        if (thumbnail) {
+            image.src = thumbnail;
+            image.alt = `${post.title || '최신 포스트'} 썸네일`;
+            image.hidden = false;
+        } else {
+            image.hidden = true;
+            image.removeAttribute('src');
+            image.alt = '';
+        }
+    }
+
+    function getPostImage(content) {
+        if (!content) return null;
+        const markdownImage = content.match(/!\[.*?\]\(([^)]+)\)/);
+        if (markdownImage) return markdownImage[1];
+        const htmlImage = content.match(/<img[^>]+src=['"]([^'"]+)['"]/i);
+        return htmlImage ? htmlImage[1] : null;
+    }
+
+    function escapeHtml(str) {
+        if (str == null) return '';
+        return String(str)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    async function loadPost() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId    = urlParams.get('id');
+
+        const loading = document.getElementById('post-loading');
+        const header  = document.getElementById('post-article-header');
+        const body    = document.getElementById('post-body');
+
+        if (!postId) {
+            loading.textContent = '잘못된 접근입니다.';
+            return;
+        }
+
+        const { data, error } = await supabaseClient
+            .from('posts').select('*')
+            .eq('id', postId).single();
+
+        loading.style.display = 'none';
+
+        if (error || !data) {
+            body.innerHTML = '<p class="post-error">글을 찾을 수 없습니다.</p>';
+            return;
+        }
+
+        // 제목 업데이트
+        document.title = `${data.title} – SW Blog`;
+
+        // 헤더 채우기
+        document.getElementById('post-cat').textContent     = data.category || '';
+        document.getElementById('post-title-el').textContent = data.title   || '';
+        document.getElementById('post-date-el').textContent  =
+            new Date(data.created_at).toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' });
+        header.style.display = '';
+
+        // 마크다운 → HTML
+        let rawContent = data.content || '';
+        rawContent = rawContent.replace(/^[ \t]+(<div[^>]*class="[^"]*story-[a-zA-Z0-9-]+"[^>]*>)/gm, '$1')
+                               .replace(/^[ \t]+(<img[^>]*class="[^"]*story-img"[^>]*>)/gm, '$1')
+                               .replace(/^[ \t]+(<button[^>]*class="[^"]*story-btn[^"]*"[^>]*>)/gm, '$1')
+                               .replace(/^[ \t]+(<\/div>|<\/button>)/gm, '$1')
+                               .replace(/^[ \t]+(<svg[^>]*>|<polyline[^>]*>|<path[^>]*>)/gm, '$1');
+
+        const rawHtml = window.PostContent
+            ? PostContent.toRenderableHtml(rawContent, window.marked)
+            : marked.parse(rawContent);
+        body.innerHTML = DOMPurify.sanitize(rawHtml, {
+            ADD_TAGS: ['svg', 'polyline', 'circle', 'line', 'path', 'blockquote', 'button'],
+            ADD_ATTR: ['stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'fill', 'viewBox', 'points', 'cx', 'cy', 'r', 'x1', 'y1', 'x2', 'y2', 'id', 'class', 'data-layout', 'd', 'data-initialized', 'contenteditable']
+        });
+
+        // 이미지 슬라이더 및 확대 기능 활성화
+        window.PostContent?.enhanceEditorialLayout?.(body, { title: data.title || '' });
+        document.getElementById('post-reading-meta').textContent = '약 ' + Math.max(1,Math.ceil(body.textContent.replace(/\s/g,'').length/500)) + '분 읽기';
+        processImageSliders(body);
+        setupGlobalImageZoom(body);
+
+        const { data: latestPosts } = await supabaseClient
+            .from('posts')
+            .select('id,title,category,created_at,content')
+            .neq('id', postId)
+            .order('created_at', { ascending: false })
+            .limit(1);
+        renderStandaloneContinuation(latestPosts?.[0]);
+        window.Publication2026?.enhance(body, data);
+    }
+
+    /* ─── 인스타그램 스토리 스타일 이미지 슬라이더 ─── */
+    function processImageSliders(contentElement) {
+        const pTags = contentElement.querySelectorAll('p');
+        pTags.forEach(p => {
+            const images = Array.from(p.querySelectorAll('img'));
+            if (images.length > 1 && !p.closest('.story-slider')) {
+                const slider = document.createElement('div');
+                slider.className = 'story-slider';
+                const progressContainer = document.createElement('div');
+                progressContainer.className = 'story-progress';
+                const imgContainer = document.createElement('div');
+                imgContainer.className = 'story-images';
+                const controls = document.createElement('div');
+                controls.className = 'story-controls';
+                const prevBtn = document.createElement('button');
+                prevBtn.className = 'story-btn story-prev';
+                prevBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'story-btn story-next';
+                nextBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+                const zoomBtn = document.createElement('button');
+                zoomBtn.className = 'story-btn story-zoom';
+                zoomBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>';
+
+                images.forEach((img, idx) => {
+                    const segment = document.createElement('div');
+                    segment.className = 'story-segment' + (idx === 0 ? ' active' : '');
+                    const fill = document.createElement('div');
+                    fill.className = 'story-segment-fill';
+                    segment.appendChild(fill);
+                    progressContainer.appendChild(segment);
+                    const imgClone = img.cloneNode(true);
+                    imgClone.className = 'story-img';
+                    imgContainer.appendChild(imgClone);
+                });
+
+                controls.appendChild(prevBtn);
+                controls.appendChild(zoomBtn);
+                controls.appendChild(nextBtn);
+                slider.appendChild(progressContainer);
+                slider.appendChild(imgContainer);
+                slider.appendChild(controls);
+
+                const textOnly = p.textContent.replace(/\s/g, '');
+                if (textOnly.length === 0) p.replaceWith(slider);
+                else { p.insertBefore(slider, images[0]); images.forEach(img => img.remove()); }
+            }
+        });
+        const sliders = contentElement.querySelectorAll('.story-slider');
+        sliders.forEach(slider => initStorySlider(slider));
+    }
+
+    function initStorySlider(slider) {
+        if (slider._isStoryInitialized) return;
+        slider._isStoryInitialized = true;
+
+        const imgContainer = slider.querySelector('.story-images');
+        const segments = slider.querySelectorAll('.story-segment');
+        const prevBtn = slider.querySelector('.story-prev');
+        const nextBtn = slider.querySelector('.story-next');
+        const zoomBtn = slider.querySelector('.story-zoom');
+        const images = slider.querySelectorAll('.story-img');
+        
+        if(!imgContainer || images.length === 0) return;
+
+        let currentIndex = 0, progress = 0, isPaused = false, isProgrammaticScroll = false, scrollTimeout = null, lastTime = null;
+        const DURATION = 3500;
+
+        segments.forEach(seg => {
+            if(!seg.querySelector('.story-segment-fill')) {
+                const fill = document.createElement('div');
+                fill.className = 'story-segment-fill';
+                seg.appendChild(fill);
+            }
+            seg.querySelector('.story-segment-fill').style.width = '0%';
+        });
+
+        const updateUI = () => {
+            segments.forEach((seg, idx) => {
+                const fill = seg.querySelector('.story-segment-fill');
+                if (!fill) return;
+                if (idx < currentIndex) { seg.className = 'story-segment viewed'; fill.style.width = '100%'; }
+                else if (idx === currentIndex) { seg.className = 'story-segment active'; fill.style.width = `${progress}%`; }
+                else { seg.className = 'story-segment'; fill.style.width = '0%'; }
+            });
+        };
+
+        const updateContainerHeight = () => {
+            const targetImg = images[currentIndex];
+            if (targetImg && targetImg.clientHeight > 0) imgContainer.style.height = `${targetImg.clientHeight}px`;
+        };
+
+        const goToSlide = (index) => {
+            if (index < 0) index = images.length - 1;
+            if (index >= images.length) index = 0;
+            currentIndex = index; progress = 0;
+            updateUI(); updateContainerHeight();
+            const targetImg = images[currentIndex];
+            if (targetImg) {
+                isProgrammaticScroll = true; clearTimeout(scrollTimeout);
+                imgContainer.style.scrollSnapType = 'none';
+                imgContainer.scrollTo({ left: targetImg.offsetLeft - imgContainer.offsetLeft, behavior: 'smooth' });
+                scrollTimeout = setTimeout(() => { imgContainer.style.scrollSnapType = 'x mandatory'; isProgrammaticScroll = false; }, 600);
+            }
+        };
+
+        const animate = (timestamp) => {
+            if (!lastTime) lastTime = timestamp;
+            const dt = timestamp - lastTime;
+            lastTime = timestamp;
+            if (!document.body.contains(slider)) return;
+            const rect = slider.getBoundingClientRect();
+            const isVisible = (rect.top < window.innerHeight && rect.bottom > 0 && rect.width > 0);
+            if (!isPaused && isVisible) {
+                progress += (dt / DURATION) * 100;
+                if (progress >= 100) goToSlide(currentIndex + 1);
+                else updateUI();
+            }
+            requestAnimationFrame(animate);
+        };
+
+        if (prevBtn) prevBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); goToSlide(currentIndex - 1); });
+        if (nextBtn) nextBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); goToSlide(currentIndex + 1); });
+        if (zoomBtn) zoomBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); if (images[currentIndex]) openFullscreen(images[currentIndex].src); });
+
+        imgContainer.addEventListener('click', (e) => {
+            if(e.target.closest('.story-controls')) return;
+            const rect = imgContainer.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            if (clickX < rect.width * 0.3) goToSlide(currentIndex - 1);
+            else if (clickX > rect.width * 0.7) goToSlide(currentIndex + 1);
+        });
+
+        imgContainer.addEventListener('scroll', () => {
+            if (isProgrammaticScroll) return;
+            const width = imgContainer.clientWidth;
+            if (width === 0) return;
+            const newIndex = Math.round(imgContainer.scrollLeft / width);
+            if (newIndex !== currentIndex && newIndex >= 0 && newIndex < images.length) {
+                currentIndex = newIndex; progress = 0;
+                updateUI(); updateContainerHeight();
+            }
+        }, { passive: true });
+
+        slider.addEventListener('mouseenter', () => isPaused = true);
+        slider.addEventListener('mouseleave', () => { isPaused = false; lastTime = performance.now(); });
+        const resizeObserver = new ResizeObserver(() => updateContainerHeight());
+        images.forEach(img => resizeObserver.observe(img));
+        updateUI();
+        requestAnimationFrame((time) => { lastTime = time; animate(time); });
+    }
+
+    /* ─── 일반 이미지 확대 설정 ─── */
+    function setupGlobalImageZoom(contentElement) {
+        const images = contentElement.querySelectorAll('img:not(.story-img):not(.hidden-thumbnail)');
+        images.forEach(img => {
+            if (img.parentElement.classList.contains('img-zoom-wrapper')) return;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'img-zoom-wrapper';
+            img.classList.forEach(cls => {
+                if (['big', 'side-l', 'side-r', 'mini', 'frame-soft', 'frame-polaroid', 'frame-glow'].includes(cls)) wrapper.classList.add(cls);
+            });
+            img.parentNode.insertBefore(wrapper, img);
+            wrapper.appendChild(img);
+            const zoomBtn = document.createElement('button');
+            zoomBtn.className = 'global-zoom-btn';
+            zoomBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>';
+            zoomBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); openFullscreen(img.src); });
+            wrapper.appendChild(zoomBtn);
+        });
+    }
+
+    /* ─── Fullscreen 이미지 뷰어 ─── */
+    function openFullscreen(imgSrc) {
+        const viewer = document.getElementById('fullscreen-viewer');
+        const img = document.getElementById('fullscreen-img');
+        if (viewer && img) { img.src = imgSrc; viewer.classList.add('visible'); }
+    }
+
+    function closeFullscreen() {
+        const viewer = document.getElementById('fullscreen-viewer');
+        if (viewer) viewer.classList.remove('visible');
+    }
+
+    loadPost();
+
+    // 애니메이션 로드 적용
+    window.addEventListener('pageshow', () => {
+        document.body.classList.add('loaded');
+        document.body.classList.remove('page-exit');
+    });
+
+    // 뒤로가기 애니메이션 핸들러
+    function handleBack(e) {
+        e.preventDefault();
+        const targetUrl = e.currentTarget.href;
+        document.body.classList.add('page-exit');
+        setTimeout(() => { window.location.href = targetUrl; }, 350);
+    }
+</script>
+<script src="./js/footerTheme.js?v=journal-2"></script>
+</body>
+</html>
