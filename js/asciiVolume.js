@@ -38,7 +38,7 @@
         }
         buildAtlas() {
             this.glyphs=' .:+×□#▦';this.atlas=document.createElement('canvas');this.atlas.width=8*32;this.atlas.height=8*32;
-            const a=this.atlas.getContext('2d');a.textAlign='center';a.textBaseline='middle';a.font='24px monospace';
+            const a=this.atlas.getContext('2d');a.textAlign='center';a.textBaseline='middle';a.font="24px 'Circular Std'";
             for(let tone=0;tone<8;tone++) for(let g=0;g<8;g++) {
                 const mix=tone/7;a.fillStyle=`rgb(${Math.round(95+mix*144)},${Math.round(150+mix*94)},${Math.round(181+mix*52)})`;
                 a.fillText(this.glyphs[g],g*32+16,tone*32+17);

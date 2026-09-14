@@ -210,7 +210,7 @@ body.dark .admin-editor {
 .admin-editor .post-principles { border-color:#d4d4d0; }
 .login-wrapper { background:#f5f5f3; }
 .login-box { border:1px solid #d4d4d0; border-radius:0; background:#f5f5f3; box-shadow:none; padding:48px; }
-.login-kicker { display:block; color:#6b6b68; font:10px/1.4 monospace; letter-spacing:.07em; }
+.login-kicker { display:block; color:#6b6b68; font:10px/1.4 'Circular Std'; letter-spacing:.07em; }
 .login-box h2 { font:500 28px/1.5 'Noto Serif KR',serif; letter-spacing:-.05em; }
 .login-preview-link { display:block; margin-top:12px; padding:10px 0; font-size:11px; color:#3058f9; text-decoration:none; border:0; background:none; cursor:pointer; }
 .publication-preview-dialog { width:calc(100vw - 48px); max-width:1480px; height:calc(100dvh - 48px); max-height:none; padding:0; border:1px solid #c6c6c0; background:#e7e7e3; color:#171717; }
@@ -320,5 +320,5 @@ body.dark .admin-editor {
 .admin-editor>:is(h1,h2){font:550 34px/1.32 'Pretendard',sans-serif;letter-spacing:-.045em;margin:48px 0 28px}
 .admin-editor .post-split-section{grid-template-columns:minmax(140px,.65fr) minmax(0,1.8fr);gap:36px}
 .admin-editor blockquote{font:450 28px/1.65 'Pretendard',sans-serif;border:0;border-block:1px solid #bbb;padding:32px 0;background:none}
-.admin-editor pre{font:15px/1.8 Consolas,monospace;padding:28px;background:#202020;color:#f1f1f1}
+.admin-editor pre{font:15px/1.8 'Circular Std','Circular Std';padding:28px;background:#202020;color:#f1f1f1}
 @media(max-width:760px){.admin-editor{font-size:18px}.admin-editor>:is(h1,h2){font-size:28px}.admin-editor .post-split-section{display:block}}

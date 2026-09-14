@@ -280,7 +280,6 @@ body:has(.post-panel-viewer.active-state) .panel-close-btn {
 body:has(.post-panel-viewer.active-state) .post-viewer-toc-sidebar {
     padding: 0 0 0 1rem;
     border: 0;
-    border-left: 1px solid rgba(17, 17, 17, 0.18);
     border-radius: 0;
     background: transparent;
     color: var(--post-ink);

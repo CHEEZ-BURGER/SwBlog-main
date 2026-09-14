@@ -4,6 +4,7 @@
     const $=s=>document.querySelector(s);
     const motion=window.PublicationMotion={instant:160,fast:280,base:520,scene:850,ease:'cubic-bezier(.16,1,.3,1)'};
     const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+    const loadedPosts=new Set();
     let entry=null, entryId=0, activeRow=null, hoverTimer, previewRAF=0;
     const source=row=>row?{id:row.dataset.postId,title:row.getAttribute('aria-label')||row.querySelector('.post-list-title')?.textContent||'',category:row.querySelector('.post-list-category')?.textContent||'',src:row.dataset.previewImg||''}:null;
     const rowFor=id=>Array.from(document.querySelectorAll('.post-list-item')).find(r=>r.dataset.postId===String(id));
@@ -11,7 +12,7 @@
     // One preview physics implementation, shared by index and continuation.
     const preview=document.createElement('div'); preview.className='publication-preview';preview.setAttribute('aria-hidden','true');
     const previewImage=new Image();previewImage.alt='';preview.append(previewImage);document.body.append(preview);
-    const pointer={x:0,y:0,tx:0,ty:0,rotation:0};let previewActive=false;
+    const pointer={x:0,y:0,tx:0,ty:0,rotation:0};let previewActive=false,previewWidth=0,previewHeight=0,rowBounds=null;
     function previewTick(){
         previewRAF=0;if(!previewActive||document.hidden)return;
         const dx=pointer.tx-pointer.x,dy=pointer.ty-pointer.y;
@@ -23,58 +24,98 @@
     function showPreview(src,e){
         if(!src||mobile.matches||reduced.matches){hidePreview();return;}
         if(!previewActive){pointer.x=e.clientX+24;pointer.y=e.clientY+24;}
-        previewImage.src=src;previewActive=true;preview.classList.add('is-visible');movePreview(e);
+        previewImage.src=src;previewActive=true;preview.classList.add('is-visible');
+        previewWidth=preview.offsetWidth;previewHeight=preview.offsetHeight;movePreview(e);
     }
     function movePreview(e){
-        if(!previewActive)return;pointer.tx=Math.max(12,Math.min(innerWidth-preview.offsetWidth-16,e.clientX+24));pointer.ty=Math.max(12,Math.min(innerHeight-preview.offsetHeight-16,e.clientY+24));
+        if(!previewActive)return;pointer.tx=Math.max(12,Math.min(innerWidth-previewWidth-16,e.clientX+24));pointer.ty=Math.max(12,Math.min(innerHeight-previewHeight-16,e.clientY+24));
         preview.style.willChange='transform';if(!previewRAF)previewRAF=requestAnimationFrame(previewTick);
     }
     function select(row){
-        if(row===activeRow)return;activeRow?.classList.remove('signal-active');activeRow=row;row?.classList.add('signal-active');clearTimeout(hoverTimer);
+        if(row===activeRow)return;activeRow?.classList.remove('signal-active');activeRow=row;rowBounds=null;row?.classList.add('signal-active');clearTimeout(hoverTimer);
+        if(!row)window.globalAsciiScene?.setRowPointer(null,null);
         hoverTimer=setTimeout(()=>window.globalAsciiScene?.setPost(source(row)),reduced.matches?0:60);
     }
+    function tiltRaster(e,row=e.target.closest('.post-list-item')){
+        if(!row||e.pointerType==='touch')return;
+        const bounds=rowBounds||(rowBounds=row.getBoundingClientRect());
+        if(bounds.width&&bounds.height)window.globalAsciiScene?.setRowPointer(
+            (e.clientX-bounds.left)/bounds.width*2-1,(e.clientY-bounds.top)/bounds.height*2-1);
+    }
     document.addEventListener('pointerover',e=>{
-        const row=e.target.closest('.post-list-item');if(row){select(row);showPreview(row.dataset.previewImg,e);return;}
+        const row=e.target.closest('.post-list-item');if(row){select(row);tiltRaster(e,row);showPreview(row.dataset.previewImg,e);return;}
         const next=e.target.closest('.post-continuation-link');if(next)showPreview(next.querySelector('img:not([hidden])')?.src,e);
     });
     document.addEventListener('pointerout',e=>{
         const target=e.target.closest('.post-list-item,.post-continuation-link');if(!target||target.contains(e.relatedTarget))return;
         hidePreview();if(!e.relatedTarget?.closest?.('.post-list-item'))select(null);
     });
-    document.addEventListener('pointermove',movePreview,{passive:true});
+    document.addEventListener('pointermove',e=>{movePreview(e);tiltRaster(e);},{passive:true});
+    document.addEventListener('scroll',()=>{rowBounds=null;},{capture:true,passive:true});
+    window.addEventListener('resize',()=>{rowBounds=null;previewWidth=preview.offsetWidth;previewHeight=preview.offsetHeight;},{passive:true});
     document.addEventListener('focusin',e=>{const row=e.target.closest('.post-list-item');if(row)select(row);});
     document.addEventListener('focusout',e=>{if(e.target.closest('.post-list-item')&&!e.relatedTarget?.closest?.('.post-list-item'))select(null);});
     document.addEventListener('visibilitychange',()=>{if(document.hidden)hidePreview();});
     reduced.addEventListener('change',hidePreview);
 
-    function cancelEntry(){++entryId;entry?.remove();entry=null;document.body.classList.remove('content-resolving');hidePreview();}
-    function number(scene,value){
-        const mask=scene.querySelector('.resolution-number');const old=mask.lastElementChild;const next=document.createElement('span');next.textContent=String(value).padStart(2,'0');
-        mask.append(next);if(!reduced.matches){next.animate([{transform:'translateY(100%)'},{transform:'translateY(0)'}],{duration:180,easing:motion.ease});old?.animate([{transform:'translateY(0)'},{transform:'translateY(-100%)'}],{duration:180,easing:motion.ease}).finished.then(()=>old.remove()).catch(()=>{});}else old?.remove();
+    // Capture input before document-level hover handlers during the entire loading reveal.
+    for(const type of ['pointermove','pointerover','pointerout','pointerdown','pointerup','mousemove','mouseover','mouseout','mousedown','mouseup','click','dblclick','contextmenu','wheel','touchstart','touchmove','touchend']){
+        window.addEventListener(type,e=>{
+            if(!document.body.classList.contains('content-pointer-locked'))return;
+            if(e.cancelable)e.preventDefault();e.stopImmediatePropagation();
+        },{capture:true,passive:false});
+    }
+    function cancelEntry(){++entryId;entry?.getAnimations({subtree:true}).forEach(a=>a.cancel());entry?.remove();entry=null;document.body.classList.remove('content-resolving','content-pointer-locked');hidePreview();}
+    async function number(state,value){
+        if(state.ticket!==entryId)return;
+        state.scene.dataset.percentage=String(value);
+        const digits=String(value).padStart(3,' '),reels=state.scene.querySelectorAll('.resolution-digit'),animations=[];
+        for(let index=2;index>=0;index--){
+            const reel=reels[index],old=reel.lastElementChild;
+            if(old.textContent===digits[index])continue;
+            const next=document.createElement('span');next.textContent=digits[index];reel.append(next);
+            if(reduced.matches){old.remove();continue;}
+            const options={duration:1500,delay:(2-index)*35,easing:'cubic-bezier(0,.97,0,.97)',fill:'both'};
+            const incoming=next.animate([{transform:'translateY(110%)'},{transform:'translateY(0)'}],options);
+            // Add the exit to the still-running entrance so overlapping digits never snap.
+            const outgoing=old.animate([{transform:'translateY(0)'},{transform:'translateY(-110%)'}],{...options,composite:'add'});
+            animations.push(incoming.finished.then(()=>{old.remove();incoming.cancel();outgoing.cancel();}).catch(()=>{}));
+        }
+        await Promise.all(animations);
+        state.value=value;
     }
     function begin(id){
-        cancelEntry();const ticket=entryId,post=source(rowFor(id));const scene=document.createElement('section');entry=scene;
+        cancelEntry();if(loadedPosts.has(String(id)))return null;
+        const ticket=entryId,scene=document.createElement('section');entry=scene;
         scene.className='resolution-scene';scene.setAttribute('aria-hidden','true');
-        scene.innerHTML='<img class="resolution-image" alt=""><canvas class="resolution-field"></canvas><div class="resolution-typography"><div class="resolution-number"><span>00</span></div><span class="resolution-percent">%</span></div><div class="resolution-meta"><span></span><span>RESOLVING CONTENT</span></div>';
-        scene.querySelector('.resolution-meta span').textContent='POST / '+String(id).padStart(3,'0')+' · '+(post?.category||'NOTE');
-        if(post?.src)scene.querySelector('img').src=post.src;
-        const canvas=scene.querySelector('canvas'),snapshot=window.globalAsciiScene?.snapshot();canvas.width=720;canvas.height=420;
-        if(snapshot)canvas.getContext('2d').drawImage(snapshot,0,0,720,420);
-        document.body.append(scene);document.body.classList.add('content-resolving');
-        const state={ticket,scene,start:performance.now(),ready:false};
-        (async()=>{for(const step of [12,28,47,71,88,94]){await sleep(reduced.matches?12:115);if(ticket!==entryId||state.ready)return;number(scene,step);scene.style.setProperty('--resolution',step/100);} })();
+        scene.innerHTML='<div class="resolution-typography"><div class="resolution-number"><div class="resolution-digit"><span> </span></div><div class="resolution-digit"><span>0</span></div><div class="resolution-digit"><span>0</span></div></div><span class="resolution-percent">%</span></div>';
+        document.body.append(scene);document.body.classList.add('content-resolving','content-pointer-locked');
+        clearTimeout(hoverTimer);hidePreview();activeRow?.classList.remove('signal-active');activeRow=null;window.globalAsciiScene?.setRowPointer(null,null);
+        const state={ticket,scene,value:0,id:String(id)};
+        state.progress=(async()=>{
+            for(const value of [18,30,68,92]){
+                if(ticket!==entryId)return;
+                state.reelMotion=number(state,value);
+                await sleep(210);
+            }
+        })();
         return state;
     }
     async function resolve(state,ok=true){
-        if(!state||state.ticket!==entryId)return;state.ready=true;
-        await sleep(Math.max(0,(reduced.matches?90:740)-(performance.now()-state.start)));
+        if(!state||state.ticket!==entryId)return;
+        if(ok)loadedPosts.add(state.id);
+        await state.progress;if(state.ticket!==entryId)return;
+        if(ok)await number(state,100);
         if(state.ticket!==entryId)return;
-        if(ok){number(state.scene,100);state.scene.style.setProperty('--resolution',1);state.scene.querySelector('.resolution-meta span:last-child').textContent='CONTENT RESOLVED';}
-        else state.scene.querySelector('.resolution-meta span:last-child').textContent='CONTENT UNAVAILABLE';
-        await sleep(reduced.matches?40:160);if(state.ticket!==entryId)return;
-        if(ok&&!reduced.matches)document.querySelectorAll('#panel-header > :not(.publication-hero)').forEach((el,i)=>el.animate([{clipPath:'inset(0 0 100%)',transform:'translateY(16px)'},{clipPath:'inset(0)',transform:'translateY(0)'}],{duration:520,delay:i*60,easing:motion.ease}));
+        // Rainbow starts with each glyph's entrance; completion needs only the settled hold.
+        await sleep(210);if(state.ticket!==entryId)return;
+        if(ok&&!reduced.matches){
+            document.querySelector('#panel-post-body')?.animate([
+                {transform:'translate3d(0,32px,0)'},{transform:'translate3d(0,0,0)'}
+            ],{duration:1200,easing:'cubic-bezier(.72,-0.01,0,.98)'});
+        }
         document.body.classList.remove('content-resolving');state.scene.classList.add('is-resolved');
-        await sleep(reduced.matches?80:520);if(state.ticket===entryId){state.scene.remove();entry=null;}
+        await sleep(reduced.matches?80:1200);if(state.ticket===entryId){state.scene.remove();entry=null;document.body.classList.remove('content-pointer-locked');}
     }
     let revealObserver, completionObserver, coverObserver, decodeObserver;
     function enhance(content,data={}){
@@ -104,6 +145,7 @@
         let complete=$('.reading-complete');
         if(!complete){complete=document.createElement('section');complete.className='reading-complete';complete.setAttribute('aria-label','읽기 완료');complete.innerHTML='<div><span class="complete-value">00</span><span>%</span></div><p>READING COMPLETE</p>';$('[id="panel-continuation"],.post-continuation')?.before(complete);}
         if(complete){
+            complete.classList.remove('is-revealed');
             complete.querySelector('.complete-value').textContent='00';
             completionObserver=new IntersectionObserver(entries=>{if(entries[0].isIntersecting){const value=complete.querySelector('.complete-value');value.textContent='100';if(!reduced.matches)value.animate([{transform:'translateY(70%)',clipPath:'inset(0 0 100%)'},{transform:'translateY(0)',clipPath:'inset(0)'}],{duration:520,easing:motion.ease});complete.classList.add('is-revealed');completionObserver.disconnect();}},{threshold:.35});completionObserver.observe(complete);
         }
@@ -132,7 +174,7 @@
     }
     function mobileActive(){
         mobileFrame=0;if(!mobile.matches||$('#post-panel-viewer')?.classList.contains('active-state'))return;
-        let nearest=null,distance=Infinity;document.querySelectorAll('.post-list-item').forEach(row=>{const r=row.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;const d=Math.abs(r.top+r.height/2-innerHeight/2);if(d<distance){nearest=row;distance=d;}});if(nearest)select(nearest);
+        const rows=document.querySelectorAll('.post-list-item');let nearest=null,distance=Infinity;rows.forEach(row=>{const r=row.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;const d=Math.abs(r.top+r.height/2-innerHeight/2);if(d<distance){nearest=row;distance=d;}});select(nearest||rows[0]||null);
     }
     document.addEventListener('scroll',()=>{if(mobile.matches&&!mobileFrame)mobileFrame=requestAnimationFrame(mobileActive);},{capture:true,passive:true});
     window.addEventListener('resize',()=>{hidePreview();mobileActive();});

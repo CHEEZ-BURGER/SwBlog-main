@@ -3,7 +3,7 @@
     --editorial-paper: #f3eee8;
     --editorial-ink: #141414;
     --editorial-muted: #6f6b66;
-    --editorial-line: rgba(20, 20, 20, 0.16);
+    --editorial-line: rgba(20, 20, 20, 0);
     --editorial-blue: #569aff;
     --editorial-serif: 'Instrument Serif', 'Times New Roman', 'Noto Serif KR', serif;
     --editorial-sans: 'Helvetica Neue', 'Pretendard Variable', 'Pretendard', sans-serif;
@@ -13,7 +13,7 @@ body.dark {
     --editorial-paper: #171717;
     --editorial-ink: #f3eee8;
     --editorial-muted: #aaa39b;
-    --editorial-line: rgba(243, 238, 232, 0.18);
+    --editorial-line: rgba(243, 238, 232, 0);
 }
 
 /* The landing footer uses every available pixel instead of a centered inner box. */
@@ -36,7 +36,6 @@ body.dark {
     padding: clamp(8rem, 15vh, 12rem) clamp(1.25rem, 6vw, 7rem) clamp(3rem, 7vw, 6rem);
     overflow: hidden;
     border: 0;
-    border-bottom: 1px solid var(--editorial-line);
     background: var(--editorial-paper);
     color: var(--editorial-ink);
 }

@@ -1,0 +1,24 @@
+<!doctype html><meta charset="utf-8"><title>SWBLOG full-page motion check</title>
+<style>html,body{margin:0;height:100%;background:#f7f1ed}iframe{width:100%;height:100%;border:0}#result{position:fixed;bottom:8px;left:8px;z-index:10;background:#fff;padding:10px;font:12px/1.4 sans-serif;max-width:380px;white-space:pre-wrap}button{font:inherit}</style>
+<iframe id="page" src="../index.html"></iframe><div id="result"><button id="run">Run full-page motion check</button></div>
+<script>
+const frame=document.getElementById('page'),result=document.getElementById('result');
+document.getElementById('run').onclick=async()=>{
+ result.textContent='Preparing actual post list…';const win=frame.contentWindow,doc=frame.contentDocument,wait=ms=>new Promise(r=>setTimeout(r,ms));
+ for(let i=0;i<300&&!doc.querySelector('.post-list-item');i++)await wait(50);
+ doc.querySelector('.scroll-down-btn').click();
+ for(let i=0;i<100&&!win.globalAsciiScene;i++)await wait(50);await wait(900);
+ const scene=win.globalAsciiScene,rows=[...doc.querySelectorAll('.post-list-item')].slice(0,3);if(!scene||!rows.length){result.textContent='Post data unavailable';return;}
+ const costs=[],intervals=[],longTasks=[];let previous,active=true,rowIndex=0;const draw=scene.draw.bind(scene);
+ scene.draw=now=>{const start=performance.now();draw(now);costs.push(performance.now()-start)};
+ const observer=new win.PerformanceObserver(list=>longTasks.push(...list.getEntries().map(e=>e.duration)));try{observer.observe({entryTypes:['longtask']})}catch{}
+ const measure=t=>{if(!active)return;if(previous)intervals.push(t-previous);previous=t;win.requestAnimationFrame(measure)};win.requestAnimationFrame(measure);
+ const hover=index=>{rowIndex=index;rows[index].dispatchEvent(new win.PointerEvent('pointerover',{bubbles:true,clientX:280,clientY:460,pointerType:'mouse'}))};hover(0);
+ const start=performance.now(),steer=setInterval(()=>{const row=rows[rowIndex],r=row.getBoundingClientRect(),t=(performance.now()-start)/550;row.dispatchEvent(new win.PointerEvent('pointermove',{bubbles:true,clientX:r.left+r.width*(.5+Math.sin(t)*.35),clientY:r.top+r.height*(.5+Math.cos(t)*.3),pointerType:'mouse'}));},16);
+ result.textContent='Measuring full-page motion, including previews and CSS waves…';
+ await wait(1000);hover(1);await wait(1000);hover(2);await wait(5000);
+ clearInterval(steer);active=false;observer.disconnect();scene.draw=draw;
+ const percentile=(a,p)=>a.slice().sort((a,b)=>a-b)[Math.floor((a.length-1)*p)];
+ result.textContent=JSON.stringify({viewport:[win.innerWidth,win.innerHeight],frames:intervals.length,averageFps:Math.round(intervals.length*1000/intervals.reduce((a,b)=>a+b,0)),frameP95Ms:percentile(intervals,.95),drawP95Ms:percentile(costs,.95),longTasks:longTasks.length,slowestTaskMs:Math.max(0,...longTasks),glyphs:scene.renderedCount},null,2);
+};
+</script>

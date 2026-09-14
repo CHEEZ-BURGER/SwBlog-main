@@ -18,10 +18,10 @@ html body:has(.post-panel-viewer.active-state) #post-panel{border:0!important}
 .toc-title{display:flex;justify-content:space-between;gap:12px;margin-bottom:30px;padding-bottom:20px;border-bottom:1px solid #d5d5d5;font:14px/1.5 'Pretendard',sans-serif;letter-spacing:0}
 .toc-title span{font-size:13px;color:#777}.toc-current{display:none}.toc-list{padding:0;margin:0;list-style:none;counter-reset:chapter}
 body:has(.post-panel-viewer.active-state) .toc-list li{counter-increment:chapter;display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;padding:12px 0;border:0;margin:0;border-radius:0;font:15px/1.5 'Pretendard',sans-serif;color:#737373!important;white-space:normal;transition:color .25s,transform .25s;cursor:pointer}
-.toc-list li::before{content:counter(chapter,decimal-leading-zero);font:12px/1.9 monospace;color:#999}
+.toc-list li::before{content:counter(chapter,decimal-leading-zero);font:12px/1.9 'Circular Std';color:#999}
 body:has(.post-panel-viewer.active-state) .toc-list li.active{color:#171717!important;background:none;transform:translateX(3px)}
 body:has(.post-panel-viewer.active-state) .toc-list li.active::before{color:#3058f9}
-.toc-progress-meta{display:flex;justify-content:space-between;align-items:center;font:12px/1.5 'Pretendard',sans-serif;margin-top:38px;color:#777}.toc-progress-meta strong{font:13px/1.5 monospace}.toc-reading-progress{height:2px;background:#ddd;margin-top:12px}.toc-reading-bar{height:100%;background:#171717}
+.toc-progress-meta{display:flex;justify-content:space-between;align-items:center;font:12px/1.5 'Pretendard',sans-serif;margin-top:38px;color:#777}.toc-progress-meta strong{font:13px/1.5 'Circular Std'}.toc-reading-progress{height:2px;background:#ddd;margin-top:12px}.toc-reading-bar{height:100%;background:#171717}
 .post-continuation,.post-page-footer,.footer{left:0;width:100%!important;max-width:none!important;margin:0!important;position:relative}
 .post-continuation{padding:64px 48px 72px;background:#ededed;border-top:1px solid #bdbdbd;color:#171717}
 .post-continuation-inner{max-width:1600px;width:100%;margin:0 auto;padding:0!important}

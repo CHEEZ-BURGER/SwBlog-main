@@ -115,7 +115,6 @@ body:has(.post-panel-viewer.active-state) .post-viewer-toc-sidebar {
     max-height: calc(100dvh - 8rem);
     z-index: 520;
     transform: none;
-    border: 1px solid rgba(242, 239, 233, 0.14);
     border-radius: 0;
     background: rgba(20, 20, 20, 0.86);
     color: var(--post-ink);

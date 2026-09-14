@@ -56,7 +56,7 @@
         <polyline points="6 9 12 15 18 9"></polyline>
     </svg>
 </button>
-<div class="headerBtn-box">
+<div class="headerBtn-box" id="site-header-controls">
     <div class="hamburger-btn">
         <button type="button" onclick="btn_1();" class="btn-body" aria-label="메뉴 열기" aria-expanded="false" aria-controls="site-menu"></button>
         <svg class="menu-arrow" viewBox="0 0 40 40" fill="none" aria-hidden="true">
@@ -73,8 +73,8 @@
             <ul class="typography-list">
                 <li style="--anim-delay: 0.1s;"><a href="./info.html" data-page-transition>INFO</a></li>
                 <li style="--anim-delay: 0.2s;"><a href="./cat_cod.html">DEVELOP</a></li>
-                <li style="--anim-delay: 0.3s;"><span class="menu-unavailable">DESIGN <small>COMING SOON</small></span></li>
-                <li style="--anim-delay: 0.4s;"><span class="menu-unavailable">LIFE <small>COMING SOON</small></span></li>
+                <li style="--anim-delay: 0.3s;"><span class="menu-unavailable">DESIGN </span></li>
+                <li style="--anim-delay: 0.4s;"><span class="menu-unavailable">LIFE </span></li>
             </ul>
         </nav>
         <div class="header-hidden-footer" style="--anim-delay: 0.4s;">
@@ -88,7 +88,7 @@
                 <span class="social-link is-unavailable" aria-label="메일, 준비 중" role="img">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><polyline points="3 7 12 13 21 7"></polyline></svg>
                 </span>
-                <span class="social-link social-contact is-unavailable">CONTACT <small>COMING SOON</small></span>
+                <span class="social-link social-contact is-unavailable">CONTACT </span>
             </div>
         </div>
     </div>
@@ -96,7 +96,7 @@
 <div class="menu-index-scrim" id="menu-index-scrim" aria-hidden="true"></div>
 <div class="split-layout">
     <div class="index-panel" id="archive-panel">
-        <button type="button" class="archive-toggle" aria-label="글 목록 펼치기" aria-expanded="false" aria-controls="post-container"><span class="archive-toggle-icon">☷</span><span class="archive-toggle-copy">THE INDEX <small>글 목록</small></span><span class="archive-toggle-arrow">↗</span></button>
+        <button type="button" class="archive-toggle" aria-label="글 목록 펼치기" aria-expanded="false" aria-controls="post-container"><span>.li</span></button>
         <div class="page">
             <header class="masthead">
                 <div class="main-inner hello-header">
@@ -201,15 +201,15 @@
 </div>
 
 <button type="button" class="panel-close-btn" aria-label="글 목록으로 돌아가기" hidden inert>
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="3" x2="3" y2="21"></line><line x1="3" y1="3" x2="21" y2="21"></line></svg>
 </button>
 
 <aside class="post-viewer-toc-sidebar" id="post-toc-sidebar" aria-label="글 목차" hidden>
-    <div class="toc-title">IN THIS NOTE <span>목차</span></div>
+    <div class="toc-title">Content</div>
     <div class="toc-current" id="toc-current" aria-live="polite">읽는 중인 꼭지</div>
     <ul class="toc-list" id="toc-list"></ul>
     <div class="toc-progress-meta">
-        <span>READING PROGRESS</span><strong id="toc-progress-text">0%</strong>
+        <strong id="toc-progress-text">0%</strong>
     </div>
     <div class="toc-reading-progress" aria-hidden="true">
         <div class="toc-reading-bar" id="toc-reading-bar"></div>
@@ -240,66 +240,53 @@
 
     class JSSmoothScroll {
         constructor(element) {
-            this.el = element;
-            this.targetY = this.el.scrollTop;
-            this.currentY = this.el.scrollTop;
-            this.isAnimating = false;
-            this.rafId = null;
-            this.onWheelBound = this.onWheel.bind(this);
-            this.updateBound = this.update.bind(this);
-            this.el.addEventListener('wheel', this.onWheelBound, { passive: false });
+            this.el=element;this.rafId=null;this.velocity=0;this.isAnimating=false;
+            this.originalBehavior=element.style.scrollBehavior;element.style.scrollBehavior='auto';
+            this.abort=new AbortController();const signal=this.abort.signal;
+            this.updateBound=this.update.bind(this);
+            element.addEventListener('wheel',e=>this.onWheel(e),{passive:false,signal});
+            element.addEventListener('scroll',()=>{
+                if(this.isAnimating&&Math.abs(element.scrollTop-this.lastWritten)>1.5)this.stop();
+            },{passive:true,signal});
+            for(const type of ['pointerdown','touchstart','keydown'])element.addEventListener(type,()=>this.stop(),{passive:true,signal});
+            document.addEventListener('visibilitychange',()=>{if(document.hidden)this.stop();},{signal});
         }
-        
         onWheel(e) {
-            if (typeof isLanding !== 'undefined' && isLanding) return; 
-            if (e.target.closest('.story-images') || e.target.closest('pre')) return;
-            e.preventDefault();
-            
-            if (!this.isAnimating) {
-                this.targetY = this.el.scrollTop;
-                this.currentY = this.el.scrollTop;
+            if(isLanding||e.defaultPrevented||e.ctrlKey||e.metaKey||document.body.classList.contains('menu-open')||document.body.classList.contains('content-pointer-locked'))return;
+            if(Math.abs(e.deltaX)>Math.abs(e.deltaY)||!e.deltaY)return;
+            // High-resolution trackpad input already has native inertia; never smooth it twice.
+            if(e.deltaMode===0&&(Math.abs(e.deltaY)<50||!Number.isInteger(e.deltaY))){this.stop();return;}
+            for(let node=e.target;node&&node!==this.el;node=node.parentElement){
+                if(node.matches?.('pre,textarea,select,.story-images')){this.stop();return;}
+                if(node.scrollHeight>node.clientHeight+1&&/auto|scroll/.test(getComputedStyle(node).overflowY)){
+                    if(e.deltaY<0?node.scrollTop>0:node.scrollTop+node.clientHeight<node.scrollHeight-1){this.stop();return;}
+                }
             }
-            
-            const deltaScale = e.deltaMode === WheelEvent.DOM_DELTA_LINE ? 16 : (e.deltaMode === WheelEvent.DOM_DELTA_PAGE ? this.el.clientHeight : 1);
-            this.targetY += e.deltaY * deltaScale;
-            this.targetY = Math.max(0, Math.min(this.targetY, this.el.scrollHeight - this.el.clientHeight));
-            
-            if (!this.isAnimating) {
-                this.isAnimating = true;
-                this.rafId = requestAnimationFrame(this.updateBound);
-            }
+            const max=Math.max(0,this.el.scrollHeight-this.el.clientHeight);
+            if(!max)return;
+            if(!this.isAnimating){this.currentY=this.targetY=this.el.scrollTop;this.velocity=0;this.lastTimestamp=0;}
+            const scale=e.deltaMode===1?16:e.deltaMode===2?this.el.clientHeight:1;
+            const delta=e.deltaY*scale;
+            if(delta*this.velocity<0)this.velocity*=.25;
+            const next=Math.max(0,Math.min(max,this.targetY+delta));
+            if(next===this.targetY&&!this.isAnimating)return;
+            e.preventDefault();this.targetY=next;
+            if(!this.isAnimating){this.isAnimating=true;this.lastWritten=this.el.scrollTop;this.rafId=requestAnimationFrame(this.updateBound);}
         }
-        
         update(timestamp) {
-            if (typeof isLanding !== 'undefined' && isLanding) { this.stop(); return; }
-            if (!this.lastTimestamp) this.lastTimestamp = timestamp;
-            const frameFactor = Math.min((timestamp - this.lastTimestamp) / (1000 / 60), 2);
-            this.lastTimestamp = timestamp;
-            
-            // 60/120Hz에서 동일한 감속감을 유지하는 시간 기반 보간입니다.
-            const easing = 1 - Math.pow(1 - 0.095, frameFactor);
-            this.currentY += (this.targetY - this.currentY) * easing;
-            this.el.scrollTop = this.currentY;
-            
-            if (Math.abs(this.targetY - this.currentY) > 0.4) {
-                this.rafId = requestAnimationFrame(this.updateBound);
-            } else {
-                this.el.scrollTop = this.targetY;
-                this.stop();
-            }
+            this.rafId=null;
+            if(isLanding||document.hidden||document.body.classList.contains('content-pointer-locked')){this.stop();return;}
+            const dt=Math.min(.064,this.lastTimestamp?(timestamp-this.lastTimestamp)/1000:1/60);this.lastTimestamp=timestamp;
+            // Analytic critically damped spring: consistent travel at 60/120Hz, no overshoot.
+            const omega=22,error=this.currentY-this.targetY,j=this.velocity+omega*error,decay=Math.exp(-omega*dt);
+            this.currentY=this.targetY+(error+j*dt)*decay;
+            this.velocity=(this.velocity-omega*j*dt)*decay;
+            this.el.scrollTop=this.currentY;this.lastWritten=this.el.scrollTop;
+            if(Math.abs(this.targetY-this.currentY)<.35&&Math.abs(this.velocity)<5){this.el.scrollTop=this.targetY;this.stop();return;}
+            this.rafId=requestAnimationFrame(this.updateBound);
         }
-
-        stop() {
-            if (this.rafId) cancelAnimationFrame(this.rafId);
-            this.rafId = null;
-            this.lastTimestamp = 0;
-            this.isAnimating = false;
-        }
-
-        destroy() {
-            this.stop();
-            this.el.removeEventListener('wheel', this.onWheelBound);
-        }
+        stop(){if(this.rafId)cancelAnimationFrame(this.rafId);this.rafId=null;this.isAnimating=false;this.velocity=0;this.lastTimestamp=0;}
+        destroy(){this.stop();this.abort.abort();this.el.style.scrollBehavior=this.originalBehavior;}
     }
 
     let smoothScrollInstances = [];
@@ -391,7 +378,8 @@
     desktopScrollQuery.addEventListener('change', syncSmoothScroll);
     reducedMotionQuery.addEventListener('change', syncSmoothScroll);
 
-    let isLanding = !isMobileLayout();
+    // The physical card scene is the entry point on every viewport, including touch screens.
+    let isLanding = true;
     window.isLayoutTransitioning = false;
     window.layoutTransitionTarget = 'center';
     let landingTransitionActive = false;
@@ -453,13 +441,17 @@ function syncLandingChromeAlignment(force = false) {
         const placeholder=document.getElementById('post-panel-placeholder');
         placeholder.replaceChildren();
         window.globalAsciiScene?.destroy();
-        window.globalAsciiScene=new AsciiArtScene('post-panel-placeholder');
-        window.globalAsciiScene.setActive(!document.getElementById('post-panel-viewer').classList.contains('active-state'));
+        try{
+            window.globalAsciiScene=new AsciiArtScene('post-panel-placeholder');
+            window.globalAsciiScene.setActive(!document.getElementById('post-panel-viewer').classList.contains('active-state'));
+            delete document.documentElement.dataset.asciiError;
+        }catch(error){
+            document.documentElement.dataset.asciiError=String(error?.stack||error);
+            console.error('ASCII scene failed to mount',error);
+        }
     }
     function exploreContent() {
-        if(isMobileLayout()) {
-            document.querySelector('.main-cont-back')?.scrollIntoView({behavior:reducedMotionQuery.matches?'auto':'smooth',block:'start'});
-        } else exitLandingState();
+        exitLandingState();
     }
     window.exploreContent=exploreContent;
 
@@ -550,7 +542,7 @@ function syncLandingChromeAlignment(force = false) {
         syncLandingChromeAlignment(true); requestJellyFrame();
     }
     const exitLandingState=({immediate=false}={})=>transitionArchive(false,immediate);
-    const enterLandingState=()=>{if(!isMobileLayout())return transitionArchive(true);};
+    const enterLandingState=()=>transitionArchive(true);
 
     requestAnimationFrame(syncLandingChromeAlignment);
     document.fonts?.ready.then(syncLandingChromeAlignment);
@@ -575,14 +567,11 @@ function syncLandingChromeAlignment(force = false) {
         landingChromeResizeObserver.observe(landingTitle);
     }
 
-    desktopScrollQuery.addEventListener('change', (event) => {
-        if (event.matches || !isLanding) return;
-        isLanding = false;
-        document.body.classList.remove('landing-state');
-        document.querySelector('.index-panel .page')?.removeAttribute('style');
-        document.querySelector('.hello-content-box')?.removeAttribute('style');
-        document.querySelector('.hello-header')?.removeAttribute('style');
-        mountReadingPlaceholder();
+    desktopScrollQuery.addEventListener('change', () => {
+        requestAnimationFrame(() => {
+            if (isLanding) window.globalPlaceholderScene?.onWindowResize();
+            else window.globalAsciiScene?.onResize();
+        });
     });
 
     let targetScrollDown = 0;
@@ -912,7 +901,7 @@ function syncLandingChromeAlignment(force = false) {
                 const footerStageActive = entry.isIntersecting && !postOpen;
                 document.body.classList.toggle('list-footer-stage', footerStageActive);
                 window.globalAsciiScene?.setActive(!footerStageActive);
-            }, { root: indexPanel, threshold: 0.04 });
+            }, { root: isMobileLayout() ? null : indexPanel, threshold: 0.04 });
             listFooterObserver.observe(listFooter);
         }
 
@@ -955,8 +944,8 @@ function syncLandingChromeAlignment(force = false) {
                 observer.unobserve(entry.target);
                 if (document.getElementById('post-panel-viewer').classList.contains('active-state')) return;
                 entry.target.querySelector('.post-list-content.main')?.animate([
-                    { clipPath:'inset(0 0 100% 0)', transform:'translateY(28px)' },
-                    { clipPath:'inset(0 0 0 0)', transform:'translateY(0)' }
+                    { transform:'translateY(48px)' },
+                    { transform:'translateY(0)' }
                 ], { duration:750, delay:order++*75, easing:'cubic-bezier(.16,1,.3,1)', fill:'backwards' });
             });
         }, { root:isMobileLayout() ? null : document.querySelector('.index-panel'), threshold:.05 });
@@ -1087,7 +1076,7 @@ function syncLandingChromeAlignment(force = false) {
         }).join('');
         container.innerHTML = postMarkup;
         window.Publication2026?.refreshIndex();
-        document.getElementById('archive-count').textContent = String(posts.length).padStart(2, '0') + ' ENTRIES';
+        document.getElementById('archive-count').textContent = String(posts.length).padStart(2, '0') + '';
 
         setupPostReveal(container);
 
@@ -1193,20 +1182,33 @@ function syncLandingChromeAlignment(force = false) {
         let headingPositions = [];
         let tocTicking = false;
         let lastActiveIndex = -1;
+        let contentBottom = 0, panelHeight = 0, lastProgress = -1;
+        let endingTop = Infinity, tocTop = 0, tocHeight = 0;
+
 
         const refreshHeadingPositions = () => {
             const panelTop = postPanel.getBoundingClientRect().top;
+            contentBottom = contentEl.getBoundingClientRect().bottom - panelTop + postPanel.scrollTop;
+            panelHeight = postPanel.clientHeight;
+            const ending = document.querySelector('.reading-complete') || document.getElementById('panel-continuation');
+            endingTop = ending ? ending.getBoundingClientRect().top + postPanel.scrollTop : Infinity;
+            const tocRect = tocSidebar.getBoundingClientRect();
+            tocTop = parseFloat(getComputedStyle(tocSidebar).top) || tocRect.top; tocHeight = tocRect.height;
             headingPositions = tocItems.map(({ heading }) => heading.getBoundingClientRect().top - panelTop + postPanel.scrollTop);
         };
 
         const updateToc = () => {
             tocTicking = false;
-            const bodyBottom = contentEl.getBoundingClientRect().bottom - postPanel.getBoundingClientRect().top + postPanel.scrollTop;
-            const scrollableHeight = bodyBottom - postPanel.clientHeight;
-            const progress = scrollableHeight > 0 ? Math.min(100, (postPanel.scrollTop / scrollableHeight) * 100) : 100;
+            // The ending masks the fixed index from bottom to top at the exact scroll edge.
+            const covered = Math.max(0, Math.min(tocHeight, tocTop + tocHeight - (endingTop - postPanel.scrollTop)));
+            tocSidebar.style.setProperty('--toc-ending-cover', covered + 'px');
+            tocSidebar.inert = window.innerWidth > 1180 && covered >= tocHeight && tocHeight > 0;
+            const scrollableHeight = contentBottom - panelHeight;
+            const progress = scrollableHeight > 0 ? Math.max(0, Math.min(100, (postPanel.scrollTop / scrollableHeight) * 100)) : 100;
             const roundedProgress = Math.round(progress);
             if (progressBar) progressBar.style.transform = `scaleX(${progress / 100})`;
-            if (progressText) progressText.textContent = `${roundedProgress}%`;
+            if (progressText && roundedProgress !== lastProgress) progressText.textContent = `${roundedProgress}%`;
+            lastProgress = roundedProgress;
 
             let activeIndex = -1;
             const scrollOffset = postPanel.scrollTop + 80;
@@ -1242,10 +1244,13 @@ function syncLandingChromeAlignment(force = false) {
             tocScrollListener();
         });
         postPanel._tocResizeObserver.observe(contentEl);
+        postPanel._tocResizeObserver.observe(postPanel);
+        postPanel._tocResizeObserver.observe(tocSidebar);
         refreshHeadingPositions();
         tocScrollListener();
     }
 
+    const loadedPostData = new Map();
     async function loadPanelPost(postId) {
         const renderId = ++currentRenderId;
         const resolution = window.Publication2026?.begin(postId);
@@ -1301,14 +1306,16 @@ function syncLandingChromeAlignment(force = false) {
         
         if (renderId !== currentRenderId) return;
 
-        loading.style.display = '';
+        loading.style.display = loadedPostData.has(String(postId)) ? 'none' : '';
         closeButton?.focus({ preventScroll: true });
         header.style.display  = 'none';
         content.innerHTML = ''; 
         panel.scrollTop = 0;
 
         let data, error;
-        if (!supabaseClient) {
+        if (loadedPostData.has(String(postId))) {
+            data = loadedPostData.get(String(postId));
+        } else if (!supabaseClient) {
             data = null;
             error = { message: 'supabase client unavailable' };
         } else {
@@ -1332,6 +1339,7 @@ function syncLandingChromeAlignment(force = false) {
                 panelBody.style.transform = 'translate3d(0, 0, 0)';
             });
         } else {
+            loadedPostData.set(String(postId), data);
             document.getElementById('panel-cat').textContent   = data.category || '';
             document.getElementById('panel-title').textContent = data.title    || '';
             document.getElementById('panel-date').textContent  =
@@ -1375,13 +1383,11 @@ function syncLandingChromeAlignment(force = false) {
         }
     }
 
-    function closePanelPost({ syncHistory = true } = {}) {
+    async function closePanelPost({ syncHistory = true } = {}) {
+        if (document.body.classList.contains('reader-closing')) return;
         const currentUrl = new URL(window.location.href);
         if (syncHistory && currentUrl.searchParams.has('post')) {
-            if (history.state?.swblogPost) {
-                history.back();
-                return;
-            }
+
             currentUrl.searchParams.delete('post');
             history.replaceState({ swblogBase: true }, '', currentUrl);
         }
@@ -1397,10 +1403,51 @@ function syncLandingChromeAlignment(force = false) {
         const closeButton = document.querySelector('.panel-close-btn');
         const tocSidebar = document.getElementById('post-toc-sidebar');
 
-        // 1. 포스트 내용 부드럽게 페이드아웃
-        panelBody.style.transition = 'opacity var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out)';
+        const reducedCloseMotion = reducedMotionQuery.matches;
+        document.body.classList.add('reader-closing', 'reader-list-revealing');
+        closeButton?.setAttribute('aria-disabled', 'true');
+        document.querySelectorAll('.post-list-item').forEach((item, index) => {
+            item.style.setProperty('--reader-row-order', String(Math.min(index, 11)));
+        });
+
+        if (!reducedCloseMotion) {
+            const closeEase = 'cubic-bezier(.76,0,.18,1)';
+            const animations = [];
+            const closeIcon = closeButton?.querySelector('svg');
+            const closeLines = closeIcon ? Array.from(closeIcon.querySelectorAll('line')) : [];
+
+            if (closeIcon) animations.push(closeIcon.animate([
+                { transform: 'rotate(0deg) scale(1)', offset: 0 },
+                { transform: 'rotate(22deg) scale(.9)', offset: .18 },
+                { transform: 'rotate(180deg) scale(1.08)', offset: .72 },
+                { transform: 'rotate(225deg) scale(.82)', offset: 1 }
+            ], { duration: 760, easing: 'cubic-bezier(.22,.8,.18,1)', fill: 'forwards' }));
+
+            closeLines.forEach((line, index) => animations.push(line.animate([
+                { transform: 'scaleX(1)', offset: 0 },
+                { transform: 'scaleX(.58)', offset: .2 },
+                { transform: 'scaleX(1.16)', offset: .66 },
+                { transform: 'scaleX(.2)', offset: 1 }
+            ], { duration: 700, delay: index * 36, easing: closeEase, fill: 'forwards' })));
+
+            animations.push(panelBody.animate([
+                { clipPath: 'inset(0 0 0 0)', transform: 'translate3d(0,0,0)', opacity: 1, offset: 0 },
+                { clipPath: 'inset(0 0 0 4%)', transform: 'translate3d(8px,0,0)', opacity: 1, offset: .22 },
+                { clipPath: 'inset(0 0 0 100%)', transform: 'translate3d(30px,0,0)', opacity: .92, offset: 1 }
+            ], { duration: 780, easing: closeEase, fill: 'forwards' }));
+
+            if (tocSidebar && !tocSidebar.hidden) animations.push(tocSidebar.animate([
+                { transform: 'translate3d(0,0,0)', opacity: 1 },
+                { transform: 'translate3d(-18px,0,0)', opacity: 0 }
+            ], { duration: 420, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }));
+
+            await Promise.allSettled(animations.map(animation => animation.finished));
+        }
+
+        // Keep the final frame while the underlying index finishes unfolding.
+        panelBody.style.transition = 'none';
         panelBody.style.opacity = '0';
-        panelBody.style.transform = 'translate3d(0, 10px, 0)';
+        panelBody.style.transform = 'translate3d(30px, 0, 0)';
 
         document.querySelectorAll('.post-list-item').forEach(el => el.classList.remove('active'));
 
@@ -1411,6 +1458,7 @@ function syncLandingChromeAlignment(force = false) {
         if (closeButton) {
             closeButton.hidden = true;
             closeButton.setAttribute('inert', '');
+            closeButton.removeAttribute('aria-disabled');
         }
         if (tocSidebar) tocSidebar.hidden = true;
         placeholder.classList.remove('hidden-state');
@@ -1436,6 +1484,8 @@ function syncLandingChromeAlignment(force = false) {
         if (panelReturnFocus instanceof HTMLElement) panelReturnFocus.focus({ preventScroll: true });
         panelReturnFocus = null;
 
+        window.setTimeout(() => document.body.classList.remove('reader-closing', 'reader-list-revealing'), reducedCloseMotion ? 0 : 260);
+
         // 3. 트랜지션 완료 후 뒷정리
         setTimeout(() => {
             if (viewer.classList.contains('active-state')) return;
@@ -1447,20 +1497,16 @@ function syncLandingChromeAlignment(force = false) {
         }, 750); 
     }
 
-    function returnToPostList() {
+    async function returnToPostList() {
         const returnTarget = panelReturnFocus;
         const currentUrl = new URL(window.location.href);
-        const canGoBackToList = Boolean(history.state?.swblogPost);
 
-        closePanelPost({ syncHistory: false });
+
+        await closePanelPost({ syncHistory: false });
 
         if (currentUrl.searchParams.has('post')) {
-            if (canGoBackToList) {
-                history.back();
-            } else {
-                currentUrl.searchParams.delete('post');
-                history.replaceState({ swblogBase: true }, '', currentUrl);
-            }
+            currentUrl.searchParams.delete('post');
+            history.replaceState({ swblogBase: true }, '', currentUrl);
         }
 
         requestAnimationFrame(() => {
@@ -1924,8 +1970,11 @@ function syncLandingChromeAlignment(force = false) {
             this.isDragging = false;
             this.dragDistance = 0;
             this.lastMouseX = 0;
+            this.lastPointerY = 0;
+            this.railPointer = { x: 0, y: 0, tx: 0, ty: 0, inside: false };
             this.cards = [];
             this.currentActiveTitleCard = null;
+            this.arrivalStart = null;
             this.transitionState = 'idle';
             this.rafId = null;
 
@@ -2006,11 +2055,18 @@ function syncLandingChromeAlignment(force = false) {
             
             this.sceneContainer.appendChild(this.cameraWrap);
             this.container.appendChild(this.sceneContainer);
+
+            this.mobileSceneChrome = document.createElement('div');
+            this.mobileSceneChrome.className = 'rail-mobile-chrome';
+            this.mobileSceneChrome.setAttribute('aria-hidden', 'true');
+            this.mobileSceneChrome.innerHTML = '<span>PHYSICAL ARCHIVE</span><span>SWIPE THE DECK</span>';
+            this.container.appendChild(this.mobileSceneChrome);
         }
 
         onWindowResize() {
             if (!this.container || this.container.classList.contains('hidden-state')) return;
             this.width = this.container.clientWidth;
+            this.height = this.container.clientHeight;
         }
 
         updateCards(posts) {
@@ -2031,8 +2087,10 @@ function syncLandingChromeAlignment(force = false) {
 
             displayPosts.forEach((post, i) => {
                 const imgSrc = getFirstImage(post.content);
-                const isMobileView = window.innerWidth <= 1180;
-                const randomWidth = isMobileView ? 180 : 300;
+                // Preserve the physical card scale while keeping a complete card reachable on phones.
+                const referenceCardWidth = isMobileLayout()
+                    ? Math.min(286, Math.max(224, window.innerWidth * 0.64))
+                    : 300;
                 
                 const el = document.createElement('div');
                 el.className = 'rail-card';
@@ -2048,7 +2106,7 @@ function syncLandingChromeAlignment(force = false) {
                 el.style.position = 'absolute';
                 el.style.top = '0';
                 el.style.left = '0';
-                el.style.width = `${randomWidth}px`;
+                el.style.width = `${referenceCardWidth}px`;
                 el.style.transformStyle = 'preserve-3d';
                 
                 const titleWrap = document.createElement('div');
@@ -2216,9 +2274,17 @@ function syncLandingChromeAlignment(force = false) {
 
         triggerEnter() {
             this.transitionState = 'entering';
+            this.arrivalStart = null;
             this.cards.forEach(card => {
-                card.exitYOffset = -(window.innerHeight + 800 + Math.random() * 800);
+                card.exitYOffset = 0;
             });
+        }
+
+        popScale(progress) {
+            const p = Math.max(0, Math.min(1, progress));
+            if (reducedMotionQuery.matches || p === 0 || p === 1) return p;
+            const t = p - 1;
+            return 1 + 2.2 * t * t * t + 1.2 * t * t;
         }
 
         applyScrollReaction(progress) {
@@ -2233,24 +2299,38 @@ function syncLandingChromeAlignment(force = false) {
         onPointerDown(e) {
             this.isDragging = true;
             this.lastMouseX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+            this.lastPointerY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
             this.dragDistance = 0;
             this.container.style.cursor = 'grabbing';
         }
 
         onPointerMove(e) {
+            const clientX = Number.isFinite(e.clientX) ? e.clientX : (e.touches && e.touches[0].clientX) || 0;
+            const clientY = Number.isFinite(e.clientY) ? e.clientY : (e.touches && e.touches[0].clientY) || 0;
+
+            if (isLanding) {
+                const rect = this.container.getBoundingClientRect();
+                const inside = clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
+                this.railPointer.inside = inside;
+                this.railPointer.tx = inside ? Math.max(-1, Math.min(1, ((clientX - rect.left) / Math.max(rect.width, 1)) * 2 - 1)) : 0;
+                this.railPointer.ty = inside ? Math.max(-1, Math.min(1, ((clientY - rect.top) / Math.max(rect.height, 1)) * 2 - 1)) : 0;
+            }
+
             if (!this.isDragging) return;
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
             const dx = clientX - this.lastMouseX;
+            const dy = clientY - this.lastPointerY;
             this.lastMouseX = clientX;
-            this.dragDistance += Math.abs(dx);
+            this.lastPointerY = clientY;
+            this.dragDistance += Math.hypot(dx, dy);
             
             const deltaProgress = (dx / (this.width || window.innerWidth)) * 0.3;
             this.dragTarget = (this.dragTarget || 0) + deltaProgress;
             this.velocity = deltaProgress * 2;
         }
 
-        onPointerUp() {
+        onPointerUp(e) {
             this.isDragging = false;
+            if(e?.pointerType==='touch')this.railPointer.inside=false;
             this.container.style.cursor = 'grab';
         }
 
@@ -2278,6 +2358,17 @@ function syncLandingChromeAlignment(force = false) {
             const dt = Math.min(time - this.lastTime || 0, 25);
             this.lastTime = time;
 
+            const pointerActive = this.railPointer.inside
+                && !reducedMotionQuery.matches
+                && !document.body.classList.contains('menu-open')
+                && !document.body.classList.contains('content-pointer-locked');
+            const pointerEase = 1 - Math.pow(0.86, dt / 16.6);
+            this.railPointer.x += ((pointerActive ? this.railPointer.tx : 0) - this.railPointer.x) * pointerEase;
+            this.railPointer.y += ((pointerActive ? this.railPointer.ty : 0) - this.railPointer.y) * pointerEase;
+            const pointerRailOffset = this.railPointer.x * 0.008;
+            const curveReaction = this.railPointer.y * 16;
+            const mobileRail = isMobileLayout();
+
             this.velocity *= Math.pow(0.95, dt / 16.6);
             if (Math.abs(this.velocity) < 0.00001) this.velocity = 0;
 
@@ -2291,11 +2382,15 @@ function syncLandingChromeAlignment(force = false) {
 
             let closestCard = null;
             let minAbsDist = Infinity;
+            // One shared upward entrance; card scale is reserved for rail traversal and exit.
+            if (this.arrivalStart == null) this.arrivalStart = time;
+            const arrivalProgress = reducedMotionQuery.matches ? 1 : Math.min(1, (time - this.arrivalStart) / 850);
+            const arrivalY = (this.height || innerHeight) * Math.pow(1 - arrivalProgress, 3);
 
             this.cards.forEach((card) => {
                 const tilt=card.el._tilt;
                 if(tilt&&!reducedMotionQuery.matches){tilt.x+=(tilt.tx-tilt.x)*.12;tilt.y+=(tilt.ty-tilt.y)*.12;card.el._innerWrap.style.transform=`rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`;}
-                let p = (card.base_t + this.scrollProgress) % 1.0;
+                let p = (card.base_t + this.scrollProgress + pointerRailOffset) % 1.0;
                 if (p < 0) p += 1.0;
                 let dist = p - 0.5; 
                 let absDist = Math.abs(dist);
@@ -2313,26 +2408,57 @@ function syncLandingChromeAlignment(force = false) {
                     if (Math.abs(card.exitYOffset) < 1) card.exitYOffset = 0;
                 }
 
-                let cx = Math.sin(dist * Math.PI * 1.5) * this.width * 0.6;
-                let cy = Math.sin(dist * Math.PI * 3) * 120 + card.exitYOffset; 
-                let cz = Math.cos(dist * Math.PI * 2) * 900 - 450;
+                let cx,cy,cz;
+                if(mobileRail){
+                    // A pocket-sized vertical orbit: one physical card is held forward while
+                    // the neighbours travel diagonally through a shallow stack.
+                    cx=Math.sin(dist*Math.PI*2)*this.width*.42;
+                    cy=dist*this.height*1.28+Math.sin(dist*Math.PI*2)*this.height*.065
+                        +card.exitYOffset+arrivalY;
+                    cz=Math.cos(dist*Math.PI*2)*520-250;
+                }else{
+                    cx = Math.sin(dist * Math.PI * 1.5) * this.width * 0.6;
+                    cy = Math.sin(dist * Math.PI * 3) * (120 + curveReaction)
+                        + Math.cos(dist * Math.PI * 2) * curveReaction * 0.45
+                        + card.exitYOffset + arrivalY;
+                    cz = Math.cos(dist * Math.PI * 2) * 900 - 450;
+                }
                 
                 if (absDist < 0.15) {
                     let pop = Math.pow(1 - (absDist / 0.15), 2);
                     cz += pop * 150;
                 }
 
-                let currentScale = 0.4 + (0.8 * Math.pow(Math.max(0, 1 - absDist * 2), 1.5));
+                let currentScale = mobileRail
+                    ? 0.42 + (0.56 * Math.pow(Math.max(0,1-absDist*2),1.55))
+                    : 0.4 + (0.8 * Math.pow(Math.max(0, 1 - absDist * 2), 1.5));
+                // Collapse at the rail seam, then overshoot gently on each arrival/departure.
+                const railScale = this.popScale((.5 - absDist) / .14);
+                const exitScale = this.transitionState === 'exiting'
+                    ? this.popScale(1 - (time - this.exitStart) / 300) : 1;
+                currentScale *= railScale * exitScale;
                 const focusTarget = card.isHovered || absDist < .045 ? 1 : 0;
                 card.focus = (card.focus || 0) + (focusTarget - (card.focus || 0)) * .12;
                 currentScale *= 1 + card.focus * .03;
                 cz += card.focus * 28 - (1 - card.focus) * 16;
                 card.image.style.filter = `saturate(${.86 + card.focus * .14})`;
                 card.el.dataset.cardFocus = card.focus > .5 ? 'active' : 'side';
-                let rotY = Math.sin(-dist * Math.PI) * 0.55;
-                let rotZ = Math.sin(dist * Math.PI * 2) * 0.04;
+                if(mobileRail&&tilt){
+                    tilt.tx=(card.focus||0)*this.railPointer.y*-4;
+                    tilt.ty=(card.focus||0)*Math.max(-10,Math.min(10,this.velocity*5200));
+                }
+                let rotY = mobileRail?Math.sin(-dist*Math.PI)*.38:Math.sin(-dist * Math.PI) * 0.55;
+                let rotZ = mobileRail?Math.sin(dist*Math.PI*2)*.085:Math.sin(dist * Math.PI * 2) * 0.04;
 
                 card.el.style.display = 'block';
+                if(mobileRail){
+                    const orbitOpacity=Math.max(0,Math.min(1,(.23-absDist)/.075));
+                    card.el.style.opacity=String(orbitOpacity);
+                    card.el.style.pointerEvents=absDist<.19?'auto':'none';
+                }else{
+                    card.el.style.opacity='1';
+                    card.el.style.pointerEvents='auto';
+                }
                 card.el.style.transform = `translate3d(calc(-50% + ${cx}px), calc(-50% + ${cy}px), ${cz}px) rotateY(${rotY}rad) rotateZ(${rotZ}rad) skewX(${skewAmount}deg) scale(${currentScale})`;
                 card.el.style.zIndex = Math.round((1 - absDist) * 100);
             });

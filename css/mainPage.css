@@ -357,7 +357,7 @@ h1, h2 {
     stroke-linecap: butt;
     transform-origin: center;
     color: var(--color-hamburger-bar1);
-    transition: transform 420ms cubic-bezier(.9,0,.12,1);
+    transition: transform 420ms cubic-bezier(0,.77,.14,.98);
 }
 
 .menu-arrow-head {
@@ -965,7 +965,6 @@ body.menu-open .menu-arrow { transform: rotate(-45deg); }
     height: 100dvh;
     overflow-y: auto;
     overflow-x: hidden;
-    border-left: 1px solid var(--color-border-alt);
     border-radius: 0;
     background-color: var(--color-bg);
     box-shadow: none;
@@ -1175,7 +1174,6 @@ body:has(.post-panel-viewer.active-state) .post-panel,
 }
 
 .toc-list li:focus-visible {
-    outline: 3px solid var(--color-point);
     outline-offset: 2px;
     color: var(--color-text-heading);
     padding-left: 1rem;
@@ -1374,7 +1372,7 @@ body:has(.post-panel-viewer.active-state) .post-panel,
     color: #e83e8c;
     padding: 0.2rem 0.4rem;
     border-radius: 0.3rem;
-    font-family: 'Consolas', 'Monaco', monospace;
+    font-family: 'Circular Std';
     font-size: 0.9em;
     font-weight: 500;
 }
@@ -1386,7 +1384,7 @@ body:has(.post-panel-viewer.active-state) .post-panel,
     padding: 1.25rem;
     overflow-x: auto;
     margin: 1.5rem 0;
-    font-family: 'Consolas', 'Monaco', monospace;
+    font-family: 'Circular Std';
     font-size: 0.95em;
     line-height: 1.6;
     box-shadow: 0 8px 24px rgba(0,0,0,0.1);
@@ -3002,3 +3000,4 @@ body.landing-state .scroll-down-btn:hover {
         transition-duration: 0.01ms !important;
     }
 }
+.header-hidden-inner,.header-hidden-inner :is(a,span,li,p,small,h1,h2,h3){font-family:'Instrument Serif','Noto Serif KR',Georgia,serif!important}

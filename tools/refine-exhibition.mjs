@@ -16,7 +16,7 @@ s=replace(s,'<header class="masthead">', `<header class="masthead">
                     <div class="landing-featured" aria-label="최근 기록"></div>
                 </div>`);
 s=s.replace('2026</span> Work / Blog / Etc','2026</span> &nbsp; / &nbsp; SELECTED NOTES & EXPERIMENTS');
-s=replace(s,'<h2 class="section-title">전체 글 목록</h2>', '<div class="archive-heading"><h2 class="section-title">The index<span>전체 글 목록</span></h2><span class="archive-count" id="archive-count">00 ENTRIES</span></div>');
+s=replace(s,'<h2 class="section-title">전체 글 목록</h2>', '<div class="archive-heading"><h2 class="section-title">The index<span>전체 글 목록</span></h2><span class="archive-count" id="archive-count">00</span></div>');
 s=replace(s,'<div class="index-panel">','<div class="index-panel" id="archive-panel">\n        <button type="button" class="archive-toggle" aria-label="글 목록 펼치기" aria-expanded="false" aria-controls="post-container"><span class="archive-toggle-icon">☷</span><span class="archive-toggle-copy">THE INDEX <small>글 목록</small></span><span class="archive-toggle-arrow">↗</span></button>');
 s=replace(s,'<time class="post-viewer-date" id="panel-date"></time>','<time class="post-viewer-date" id="panel-date"></time><span class="post-reading-meta" id="panel-reading-meta"></span>');
 s=replace(s,'<div class="toc-title">Navigate</div>','<div class="toc-title">IN THIS NOTE <span>목차</span></div>');
@@ -127,7 +127,7 @@ s=s.slice(0,classStart)+`    class AsciiArtScene extends window.SkyPrintScene {}
 `+s.slice(classEnd);
 s=s.replace('window.globalPlaceholderScene = new PlaceholderScene(\'post-panel-placeholder\');\n        if (allPosts.length)', 'window.globalPlaceholderScene = new PlaceholderScene(\'post-panel-placeholder\');\n        if (!isLanding) { window.globalAsciiScene = window.globalPlaceholderScene; }\n        if (allPosts.length)');
 s=s.replace('window.globalPlaceholderScene = new PlaceholderScene(\'post-panel-placeholder\');\r\n        if (allPosts.length)', 'window.globalPlaceholderScene = new PlaceholderScene(\'post-panel-placeholder\');\r\n        if (!isLanding) { window.globalAsciiScene = window.globalPlaceholderScene; }\r\n        if (allPosts.length)');
-s=replace(s,"        container.innerHTML = postMarkup;", "        container.innerHTML = postMarkup;\n        document.getElementById('archive-count').textContent = String(posts.length).padStart(2, '0') + ' ENTRIES';");
+s=replace(s,"        container.innerHTML = postMarkup;", "        container.innerHTML = postMarkup;\n        document.getElementById('archive-count').textContent = String(posts.length).padStart(2, '0') + '';");
 s=replace(s,"        const headings = Array.from(contentEl.querySelectorAll('h2'));", "        const headings = Array.from(contentEl.querySelectorAll('h1, h2'));\n        const characters = contentEl.textContent.replace(/\\s/g, '').length;\n        document.getElementById('panel-reading-meta').textContent = '약 ' + Math.max(1, Math.ceil(characters / 500)) + '분 읽기';");
 s=replace(s,"            const scrollableHeight = postPanel.scrollHeight - postPanel.clientHeight;", "            const bodyBottom = contentEl.getBoundingClientRect().bottom - postPanel.getBoundingClientRect().top + postPanel.scrollTop;\n            const scrollableHeight = bodyBottom - postPanel.clientHeight;");
 s=replace(s,'const progress = scrollableHeight > 0 ? (postPanel.scrollTop / scrollableHeight) * 100 : 0;', 'const progress = scrollableHeight > 0 ? Math.min(100, (postPanel.scrollTop / scrollableHeight) * 100) : 100;');
