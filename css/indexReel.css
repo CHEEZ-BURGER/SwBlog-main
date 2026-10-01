@@ -1,0 +1,56 @@
+/* SWBLOG landing: a canvas ribbon of posts over a full-bleed wordmark, then a dense index. */
+:root{
+    --reel-margin:clamp(18px,2.5vw,40px);
+    /* KIMSUNGW + two glyph dots measure 7.34em wide in Circular Std. */
+    --reel-wordmark:min(calc((100vw - var(--reel-margin) * 2) / 7.34),30svh);
+    /* Distance from the viewport bottom to the wordmark baseline. */
+    --reel-base:var(--reel-margin);
+    --reel-muted:#8a837e;
+    --reel-rule:rgba(18,18,18,.16);
+    --reel-font-meta:'Helvetica Neue',Helvetica,'Pretendard Variable','Pretendard',Arial,sans-serif;
+}
+
+/* The ribbon is drawn on one canvas; the links keep every card reachable by keyboard. */
+.rail-scene{position:absolute;inset:0;z-index:1;overflow:hidden}
+.rail-canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
+.rail-link{position:absolute;top:50%;left:50%;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* Landing shows only the rail, the wordmark, the logo and the menu arrow. */
+html body.landing-state .scroll-down-btn{display:none!important}
+html body.landing-state .scroll-progress-container{top:50%;right:var(--reel-margin);bottom:auto;transform:translateY(-50%)}
+
+/* The wordmark runs margin to margin and sits on the bottom edge. */
+html body.landing-state .hello-scene{align-items:flex-end;justify-content:center;padding:0 var(--reel-margin) var(--reel-base)!important}
+html body.landing-state .hello-content-box{align-items:center;width:100%;max-width:none;margin:0;padding:0}
+html body.landing-state .hello-content-box h1{margin-bottom:-.35em;font-size:var(--reel-wordmark)}
+
+@media(min-width:1181px){
+    /* Index: a dense table instead of tall cards. */
+    html body:not(.landing-state) .hello-scene{padding:112px var(--reel-margin) 44px}
+    html body:not(:has(.post-panel-viewer.active-state)) .archive-heading{align-items:baseline;padding:0 var(--reel-margin) 18px}
+    html body:not(:has(.post-panel-viewer.active-state)) .archive-heading .section-title{font:600 15px/1.4 'Pretendard Variable','Pretendard',sans-serif;letter-spacing:-.02em}
+    html body:not(:has(.post-panel-viewer.active-state)) .archive-count{color:var(--text);font:500 13px/1.4 var(--reel-font-meta);font-variant-numeric:tabular-nums}
+    html body:not(:has(.post-panel-viewer.active-state)) .archive-count::before{content:'('}
+    html body:not(:has(.post-panel-viewer.active-state)) .archive-count::after{content:')'}
+    .archive-columns{display:grid;grid-template-columns:calc(94px + var(--reel-margin)) minmax(0,1fr) auto;padding:10px var(--reel-margin);border-top:1px solid var(--reel-rule);color:var(--reel-muted);font:500 11px/1.4 var(--reel-font-meta);letter-spacing:.06em;text-transform:uppercase}
+    html body:not(:has(.post-panel-viewer.active-state)) .main-line{padding-top:0}
+    html body:not(:has(.post-panel-viewer.active-state)) .post-list-container{border-top:1px solid var(--reel-rule)}
+    html body:not(:has(.post-panel-viewer.active-state)) .post-list-item{border-bottom-color:var(--reel-rule)}
+    html body:not(:has(.post-panel-viewer.active-state)) .post-list-content:is(.main,.clone){min-height:108px;padding:24px var(--reel-margin) 24px calc(44px + var(--reel-margin))!important;gap:20px}
+    html body:not(:has(.post-panel-viewer.active-state)) .post-list-num{justify-content:flex-start;width:calc(44px + var(--reel-margin));padding-left:var(--reel-margin);color:var(--reel-muted)!important;font:500 12px/1 var(--reel-font-meta);font-variant-numeric:tabular-nums}
+    html body:not(:has(.post-panel-viewer.active-state)) .post-list-dot{width:30px;height:30px}
+    html body:not(:has(.post-panel-viewer.active-state)) .post-list-text-wrap{gap:6px}
+    html body:not(:has(.post-panel-viewer.active-state)) .post-list-category{color:var(--reel-muted);font:500 11px/1.3 var(--reel-font-meta);letter-spacing:.06em}
+    html body:not(:has(.post-panel-viewer.active-state)) .post-list-title{display:-webkit-box;overflow:hidden;margin:0;padding:0;font-size:clamp(21px,1.8vw,30px);font-weight:600;line-height:1.3;letter-spacing:-.04em;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+    html body:not(:has(.post-panel-viewer.active-state)) .post-list-date{color:var(--reel-muted);font:500 12px/1.4 var(--reel-font-meta);font-variant-numeric:tabular-nums}
+}
+html body:has(.post-panel-viewer.active-state) .archive-columns{display:none}
+
+/* Titles wrap now, so the marquee edge fade and slide no longer apply. */
+html body .post-list-text-wrap.has-marquee{-webkit-mask-image:none;mask-image:none}
+html body .post-list-item .post-list-title.marquee{animation:none!important}
+
+@media(max-width:1180px){
+    :root{--reel-base:max(22px,calc(env(safe-area-inset-bottom) + 14px))}
+    .archive-columns{display:none}
+}

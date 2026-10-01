@@ -30,6 +30,7 @@
     <link rel="stylesheet" href="./css/editorial.css?v=journal-2">
     <link rel="stylesheet" href="./css/exhibition.css?v=journal-2">
     <link rel="stylesheet" href="./css/publication2026.css?v=2026-1">
+    <link rel="stylesheet" href="./css/indexReel.css?v=reel-2">
 </head>
 <body>
 
@@ -117,6 +118,7 @@
                 <div class="main-line">
                     <div class="main-inner">
                         <div class="archive-heading"><h2 class="section-title">전체 글 목록</h2><span class="archive-count" id="archive-count">00 ENTRIES</span></div>
+                        <div class="archive-columns" aria-hidden="true"><span>No.</span><span>Title</span><span>Date</span></div>
                     </div>
                     <div class="post-list-container" id="post-container"></div>
                 </div>
@@ -1410,9 +1412,9 @@ function syncLandingChromeAlignment(force = false) {
             item.style.setProperty('--reader-row-order', String(Math.min(index, 11)));
         });
 
+        const animations = [];
         if (!reducedCloseMotion) {
             const closeEase = 'cubic-bezier(.76,0,.18,1)';
-            const animations = [];
             const closeIcon = closeButton?.querySelector('svg');
             const closeLines = closeIcon ? Array.from(closeIcon.querySelectorAll('line')) : [];
 
@@ -1461,6 +1463,8 @@ function syncLandingChromeAlignment(force = false) {
             closeButton.removeAttribute('aria-disabled');
         }
         if (tocSidebar) tocSidebar.hidden = true;
+        // The held final frames would otherwise leave the close icon collapsed for the next post.
+        animations.forEach(animation => animation.cancel());
         placeholder.classList.remove('hidden-state');
         setMobilePostBackgroundInert(false);
 
@@ -1958,6 +1962,10 @@ function syncLandingChromeAlignment(force = false) {
     });
 
     class AsciiArtScene extends window.AsciiVolumeScene {}
+    const RAIL_SHADES = Array.from({ length: 43 }, (_, level) => `rgba(18,18,18,${level / 100})`);
+    // Landing rail: every post rides one flexible ribbon around a 3D figure-eight.
+    // It is painted on a 2D canvas in thin strips, so cards bend with the path and
+    // any image host works (no CORS needed, unlike WebGL textures).
     class PlaceholderScene {
         constructor(containerId) {
             this.container = document.getElementById(containerId);
@@ -1965,21 +1973,34 @@ function syncLandingChromeAlignment(force = false) {
             this.container.placeholderScene = this;
             this.container.classList.add('rail-placeholder');
 
-            this.scrollProgress = 0;
-            this.velocity = 0;
+            this.scroll = 0;        // ribbon travel along the path, in world px
+            this.velocity = 0;      // free travel per 60Hz frame
+            this.speed = 0;         // smoothed actual travel per frame
+            this.ripple = 0;
+            this.lean = 0;
+            this.dragTarget = 0;
             this.isDragging = false;
+            this.pressed = false;
             this.dragDistance = 0;
             this.lastMouseX = 0;
             this.lastPointerY = 0;
-            this.railPointer = { x: 0, y: 0, tx: 0, ty: 0, inside: false };
+            this.pointer = { x: 0, y: 0, inside: false, strength: 0 };
             this.cards = [];
-            this.currentActiveTitleCard = null;
+            this.placements = [];
+            this.drawOrder = [];
+            this.hovered = null;
+            this.focused = null;
             this.arrivalStart = null;
             this.transitionState = 'idle';
             this.rafId = null;
+            this.destroyed = false;
+            this.point = [0, 0, 0];
+            this.paper = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#f7f1ed';
+            this.lastTime = performance.now();
+            this.animate = this.animate.bind(this);
 
             this.init();
-            
+
             this.resizeObserver = new ResizeObserver(() => this.onWindowResize());
             this.resizeObserver.observe(this.container);
 
@@ -1993,13 +2014,11 @@ function syncLandingChromeAlignment(force = false) {
             window.addEventListener('pointercancel', this.onPointerUpBound);
             this.container.addEventListener('wheel', this.onWheelBound, { passive: true });
 
-            this.lastTime = performance.now();
-            this.animate = this.animate.bind(this);
-            this.rafId = requestAnimationFrame(this.animate);
+            this.requestFrame();
             this.onVisibilityChange = () => {
-                if (!document.hidden && isLanding && !this.rafId) {
+                if (!document.hidden && isLanding) {
                     this.lastTime = performance.now();
-                    this.rafId = requestAnimationFrame(this.animate);
+                    this.requestFrame();
                 }
             };
             document.addEventListener('visibilitychange', this.onVisibilityChange);
@@ -2009,282 +2028,217 @@ function syncLandingChromeAlignment(force = false) {
             this.container.style.touchAction = 'pan-y';
             this.container.style.backgroundColor = 'var(--color-bg-rail-light)';
 
-            if (!document.getElementById('rail-card-styles')) {
-                const style = document.createElement('style');
-                style.id = 'rail-card-styles';
-                style.innerHTML = `
-                    .rail-card { cursor: grab; -webkit-backface-visibility: hidden; backface-visibility: hidden; transform-style: preserve-3d; }
-                    .rail-card:active { cursor: grabbing; }
-                    .rail-card img { transition: filter 0.4s ease; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
-                    @keyframes rail-marquee {
-                        0%, 15% { transform: translateX(0); }
-                        85%, 100% { transform: translateX(var(--move-x)); }
-                    }
-                    .rail-marquee-active { animation: rail-marquee var(--anim-duration, 2s) ease-in-out infinite alternate; }
-                    @keyframes rail-spin-dot { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-                    .rail-card-meta { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px; text-shadow: 0 2px 8px rgba(255,255,255,0.9); }
-                    .rail-card-dot { width: 26px; height: 26px; object-fit: contain; filter: invert(1); animation: rail-spin-dot 4s linear infinite; }
-                    .rail-card-cat { font-size: 1.4rem; font-weight: 800; color: #888; letter-spacing: 0.05em; }
-                    .rail-card-date { font-size: 1.3rem; color: #888; opacity: 0.8; letter-spacing: 0.05em; }
-                    .rail-card-title-mask { width: 100%; overflow: hidden; white-space: nowrap; -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent); mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent); }
-                    .rail-card-title-inner { display: inline-block; font-size: 2.3rem; color: var(--color-text-heading); text-shadow: var(--shadow-text-rail); }
-                    .rail-card-side { background-color: var(--color-bg-rail-side); font-weight: 700; }
-                `;
-                document.head.appendChild(style);
-            }
-
             this.sceneContainer = document.createElement('div');
-            this.sceneContainer.style.position = 'absolute';
-            this.sceneContainer.style.top = '0';
-            this.sceneContainer.style.left = '0';
-            this.sceneContainer.style.width = '100%';
-            this.sceneContainer.style.height = '100%';
-            this.sceneContainer.style.overflow = 'hidden';
-            this.sceneContainer.style.perspective = '2000px';
-            this.sceneContainer.style.transformStyle = 'preserve-3d';
-            this.sceneContainer.style.zIndex = '1';
-            
-            this.cameraWrap = document.createElement('div');
-            this.cameraWrap.style.position = 'absolute';
-            this.cameraWrap.style.top = '50%';
-            this.cameraWrap.style.left = '50%';
-            this.cameraWrap.style.width = '0';
-            this.cameraWrap.style.height = '0';
-            this.cameraWrap.style.perspective = 'none';
-            this.cameraWrap.style.transformStyle = 'preserve-3d';
-            
-            this.sceneContainer.appendChild(this.cameraWrap);
-            this.container.appendChild(this.sceneContainer);
+            this.sceneContainer.className = 'rail-scene';
+            this.canvas = document.createElement('canvas');
+            this.canvas.className = 'rail-canvas';
+            this.canvas.setAttribute('aria-hidden', 'true');
+            this.ctx = this.canvas.getContext('2d');
+            // The canvas is invisible to keyboards and screen readers; these links stand in for the cards.
+            this.links = document.createElement('nav');
+            this.links.className = 'rail-links';
+            this.links.setAttribute('aria-label', '최근 글');
 
-            this.mobileSceneChrome = document.createElement('div');
-            this.mobileSceneChrome.className = 'rail-mobile-chrome';
-            this.mobileSceneChrome.setAttribute('aria-hidden', 'true');
-            this.mobileSceneChrome.innerHTML = '<span>PHYSICAL ARCHIVE</span><span>SWIPE THE DECK</span>';
-            this.container.appendChild(this.mobileSceneChrome);
+            this.sceneContainer.append(this.canvas, this.links);
+            this.container.appendChild(this.sceneContainer);
+            this.measure();
+        }
+
+        requestFrame() {
+            if (!this.rafId && !this.destroyed) this.rafId = requestAnimationFrame(this.animate);
+        }
+
+        // The ribbon fills the band between the header and the top of the wordmark.
+        measure() {
+            const width = this.container.clientWidth;
+            const height = this.container.clientHeight;
+            if (!width || !height) return;
+            this.width = width;
+            this.height = height;
+            this.mobile = isMobileLayout();
+            this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+            this.canvas.width = Math.round(width * this.dpr);
+            this.canvas.height = Math.round(height * this.dpr);
+            this.ctx.imageSmoothingQuality = 'medium';
+
+            const title = document.querySelector('.hello-content-box h1');
+            const stage = document.querySelector('.hello-scene');
+            const titleSize = title ? parseFloat(getComputedStyle(title).fontSize) : 0;
+            const titleBase = stage ? parseFloat(getComputedStyle(stage).paddingBottom) : 0;
+            const top = this.mobile ? 108 : 92;
+            const bottom = height - titleBase - titleSize * 0.76 - (this.mobile ? 28 : 22);
+            const band = Math.max(160, bottom - top);
+
+            const aspect = this.mobile ? 1.25 : 1.56;
+            const frontHeight = Math.min(band * 0.74, (width * (this.mobile ? 0.74 : 0.42)) / aspect);
+            this.radiusX = width * (this.mobile ? 0.62 : 0.46);
+            this.radiusZ = this.radiusX * 0.72;
+            this.distance = this.radiusX * 2.25;
+            this.frontScale = this.distance / (this.distance - this.radiusZ);
+            this.cardHeight = frontHeight / this.frontScale;
+            this.cardWidth = this.cardHeight * aspect;
+            this.slot = this.cardWidth * 1.085;
+            // Crests of the figure-eight rise a little past the band, so the low side
+            // dips behind the wordmark.
+            const crestScale = this.distance / (this.distance - this.radiusZ * 0.707);
+            this.wave = Math.max(0, Math.min(
+                this.cardHeight * (this.mobile ? 0.5 : 0.42),
+                (band / 2 + (this.mobile ? 0 : 30)) / crestScale - this.cardHeight / 2
+            ));
+            this.centerX = width / 2;
+            this.centerY = top + band / 2;
+            this.bulge = this.cardHeight * 0.22;
+            this.bulgeFalloff = 2 * Math.pow(width * 0.17, 2);
+
+            if (aspect !== this.aspect) {
+                this.aspect = aspect;
+                this.cards.forEach(card => this.buildTexture(card));
+            }
+            this.buildPath();
+            this.layoutCards();
+            this.requestFrame();
         }
 
         onWindowResize() {
             if (!this.container || this.container.classList.contains('hidden-state')) return;
-            this.width = this.container.clientWidth;
-            this.height = this.container.clientHeight;
+            if (!isLanding || this.transitionState === 'exiting') return;
+            this.measure();
+        }
+
+        // Front view: a figure-eight. Top view: an ellipse whose near side faces the viewer.
+        pathPoint(theta, out, waveScale = 1) {
+            const sin = Math.sin(theta);
+            // Keep both crossings level so the front card sits upright.
+            const edge = Math.min(1, Math.max(0, (Math.abs(sin) - 0.22) / 0.5));
+            out[0] = this.radiusX * sin;
+            out[1] = this.wave * waveScale * Math.sin(2 * theta) * edge * edge * (3 - 2 * edge);
+            out[2] = this.radiusZ * Math.cos(theta);
+        }
+
+        // Arc-length table, so cards keep their width everywhere on the path.
+        buildPath() {
+            const samples = 512;
+            const point = this.point;
+            const lengths = new Float32Array(samples + 1);
+            let px = 0, py = 0, pz = 0;
+            for (let i = 0; i <= samples; i++) {
+                this.pathPoint((i / samples) * Math.PI * 2, point);
+                if (i) lengths[i] = lengths[i - 1] + Math.hypot(point[0] - px, point[1] - py, point[2] - pz);
+                px = point[0]; py = point[1]; pz = point[2];
+            }
+            this.pathLength = lengths[samples];
+            this.thetaTable = this.thetaTable || new Float32Array(samples + 1);
+            let cursor = 0;
+            for (let i = 0; i <= samples; i++) {
+                const target = (i / samples) * this.pathLength;
+                while (cursor < samples - 1 && lengths[cursor + 1] < target) cursor++;
+                const span = lengths[cursor + 1] - lengths[cursor] || 1;
+                this.thetaTable[i] = ((cursor + (target - lengths[cursor]) / span) / samples) * Math.PI * 2;
+            }
+        }
+
+        thetaAt(distance) {
+            const table = this.thetaTable;
+            const last = table.length - 1;
+            const length = this.pathLength;
+            const position = ((((distance % length) + length) % length) / length) * last;
+            const index = Math.min(last - 1, Math.floor(position));
+            return table[index] + (table[index + 1] - table[index]) * (position - index);
+        }
+
+        layoutCards() {
+            this.placements = [];
+            this.drawOrder = [];
+            if (!this.cards.length || !this.pathLength) return;
+            this.segments = this.mobile ? 24 : 32;
+            // Repeat short archives so the loop is always full.
+            const copies = Math.ceil((this.pathLength / this.slot + 1) / this.cards.length);
+            const count = copies * this.cards.length;
+            for (let i = 0; i < count; i++) {
+                this.placements.push({
+                    card: this.cards[i % this.cards.length],
+                    offset: i * this.slot,
+                    quad: new Float32Array((this.segments + 1) * 4),
+                    facing: new Float32Array(this.segments + 1),
+                    depth: 0, depthStart: 0, depthEnd: 0, screenX: 0, fog: 0
+                });
+            }
+            this.ribbonLength = count * this.slot;
+            const columns = this.segments + 1;
+            this.columnX = new Float32Array(columns);
+            this.columnY = new Float32Array(columns);
+            this.columnZ = new Float32Array(columns);
+        }
+
+        // Cover-crop each image once, with spare width for the inner parallax and hover zoom.
+        buildTexture(card) {
+            const image = card.image;
+            if (!image || !image.naturalWidth) return;
+            const texture = document.createElement('canvas');
+            texture.width = this.mobile ? 768 : 1152;
+            texture.height = Math.round(texture.width / (this.aspect * 1.12));
+            const context = texture.getContext('2d');
+            const scale = Math.max(texture.width / image.naturalWidth, texture.height / image.naturalHeight);
+            const width = image.naturalWidth * scale;
+            const height = image.naturalHeight * scale;
+            context.fillStyle = '#fff';
+            context.fillRect(0, 0, texture.width, texture.height);
+            context.imageSmoothingQuality = 'high';
+            context.drawImage(image, (texture.width - width) / 2, (texture.height - height) / 2, width, height);
+            card.texture = texture;
+        }
+
+        openPost(postId) {
+            document.querySelectorAll('.post-list-item').forEach(li => li.classList.remove('active'));
+            const listItem = document.querySelector(`.post-list-item[data-post-id="${postId}"]`);
+            if (listItem) listItem.classList.add('active');
+            openPanelPost(postId, listItem, 'push');
         }
 
         updateCards(posts) {
-            this.cards.forEach(c => {
-                if (c.el && c.el.parentNode) c.el.parentNode.removeChild(c.el);
-            });
+            this.links.replaceChildren();
             this.cards = [];
-            this.currentActiveTitleCard = null;
-            if (!posts || posts.length === 0) return;
+            this.hovered = null;
+            this.focused = null;
+            (posts || []).forEach(post => {
+                const source = getFirstImage(post.content);
+                if (!source) return;
+                let color = '#569aff';
+                if (post.category === 'DESIGN') color = '#ffba59';
+                if (post.category === 'LIFE') color = '#ff6e8e';
+                const card = { post, postId: post.id, index: this.cards.length, color, texture: null, image: new Image(), lift: 0 };
 
-            const validPosts = posts.filter(post => getFirstImage(post.content));
-            if (validPosts.length === 0) return;
+                const link = document.createElement('a');
+                link.className = 'rail-link';
+                link.href = `?post=${encodeURIComponent(post.id)}`;
+                link.textContent = post.title || '글 읽기';
+                link.addEventListener('focus', () => { this.focused = card; this.requestFrame(); });
+                link.addEventListener('blur', () => { if (this.focused === card) this.focused = null; this.requestFrame(); });
+                link.addEventListener('click', event => { event.preventDefault(); this.openPost(post.id); });
+                this.links.append(link);
 
-            let displayPosts = [...validPosts];
-            while (displayPosts.length < 8) {
-                displayPosts = [...displayPosts, ...validPosts];
-            }
-
-            displayPosts.forEach((post, i) => {
-                const imgSrc = getFirstImage(post.content);
-                // Preserve the physical card scale while keeping a complete card reachable on phones.
-                const referenceCardWidth = isMobileLayout()
-                    ? Math.min(286, Math.max(224, window.innerWidth * 0.64))
-                    : 300;
-                
-                const el = document.createElement('div');
-                el.className = 'rail-card';
-                el.tabIndex = 0;
-                el.setAttribute('role', 'link');
-                el.setAttribute('aria-label', post.title || '글 읽기');
-                el.addEventListener('keydown', event => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        openPanelPost(post.id, null, 'push');
-                    }
-                });
-                el.style.position = 'absolute';
-                el.style.top = '0';
-                el.style.left = '0';
-                el.style.width = `${referenceCardWidth}px`;
-                el.style.transformStyle = 'preserve-3d';
-                
-                const titleWrap = document.createElement('div');
-                titleWrap.className = 'rail-card-title-wrap';
-                titleWrap.style.position = 'absolute';
-                titleWrap.style.bottom = '100%';
-                titleWrap.style.left = '50%';
-                titleWrap.style.transformOrigin = 'bottom center';
-                titleWrap.style.transform = 'translate3d(-50%, 20px, 0) scale(0.5)';
-                titleWrap.style.width = '260%';
-                titleWrap.style.marginBottom = '12px';
-                titleWrap.style.textAlign = 'center';
-                titleWrap.style.pointerEvents = 'none';
-                titleWrap.style.opacity = '0';
-                titleWrap.style.transition = 'opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-                
-                const dateStr = new Date(post.created_at).toISOString().split('T')[0];
-                let dotColor = 'cat_b.png';
-                if (post.category === 'DESIGN') dotColor = 'cat_y.png';
-                if (post.category === 'LIFE')   dotColor = 'cat_r.png';
-                
-                titleWrap.innerHTML = `
-                    <div class="rail-card-meta">
-                        <img src="./mainPage_img/${dotColor}" alt="${escapeHtml(post.category)}" class="rail-card-dot">
-                        <span class="rail-card-cat">${escapeHtml(post.category)}</span>
-                        <span class="rail-card-date">${escapeHtml(dateStr)}</span>
-                    </div>
-                    <div class="rail-card-title-mask">
-                        <div class="rail-card-title-inner">${escapeHtml(post.title)}</div>
-                    </div>
-                `;
-                
-                const titleInner = titleWrap.querySelector('.rail-card-title-inner');
-                
-                const img = document.createElement('img');
-                img.src = imgSrc;
-                img.style.width = '100%';
-                img.style.height = '100%';
-                img.style.objectFit = 'cover';
-                img.style.display = 'block';
-                img.style.pointerEvents = 'none';
-                img.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease';
-                img.style.transform = 'scale(1.05)';
-                
-                const imgWrap = document.createElement('div');
-                imgWrap.style.position = 'relative';
-                imgWrap.style.width = '130%';
-                imgWrap.style.left = '50%';
-                imgWrap.style.aspectRatio = '1920 / 1080';
-                imgWrap.style.overflow = 'hidden';
-                imgWrap.style.transform = 'translateX(-50%) translateZ(calc(var(--box-depth) / 2))';
-                imgWrap.style.zIndex = '1';
-
-                const innerWrap = document.createElement('div');
-                innerWrap.className = 'rail-card-inner';
-                innerWrap.style.width = '100%';
-                innerWrap.style.height = '100%';
-                innerWrap.style.transformStyle = 'preserve-3d';
-                innerWrap.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.4s ease';
-                innerWrap.style.setProperty('--box-depth', '20px');
-                innerWrap.style.borderRadius = '8px';
-                
-                let isHovered = false;
-                const tilt={x:0,y:0,tx:0,ty:0};
-                el._tilt=tilt;el._innerWrap=innerWrap;
-                el.addEventListener('mouseenter', () => {
-                    isHovered = true;
-                    img.style.transform = 'scale(1.0)';
-                    innerWrap.style.backgroundColor = 'rgba(0, 0, 0, 0.04)';
-                });
-                el.addEventListener('mouseleave', () => {
-                    isHovered = false;
-                    tilt.tx=0;tilt.ty=0;
-                    img.style.transform = 'scale(1.05)';
-                    innerWrap.style.backgroundColor = 'transparent';
-                });
-
-                el.addEventListener('mousemove', (e) => {
-                    if (!isHovered) return;
-                    const rect = el.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    const centerX = rect.width / 2;
-                    const centerY = rect.height / 2;
-                    const rotateY = (x - centerX) * 0.06;
-                    const rotateX = (y - centerY) * -0.09;
-                    tilt.tx=Math.max(-9,Math.min(9,rotateX));tilt.ty=Math.max(-9,Math.min(9,rotateY));
-                });
-
-                el.addEventListener('pointerup', () => {
-                    if (this.dragDistance < 5) {
-                        if (typeof loadPanelPost === 'function') {
-                            if (typeof exitLandingState === 'function') exitLandingState({ immediate: true });
-                            document.querySelectorAll('.post-list-item').forEach(li => li.classList.remove('active'));
-                            const listItem = document.querySelector(`.post-list-item[data-post-id="${post.id}"]`);
-                            if (listItem) listItem.classList.add('active');
-                            openPanelPost(post.id, listItem, 'push');
-                        }
-                    }
-                });
-
-                const sides = ['back', 'top', 'bottom', 'left', 'right'];
-                sides.forEach(side => {
-                    const sideEl = document.createElement('div');
-                    sideEl.className = `rail-card-side rail-card-${side}`;
-                    sideEl.style.position = 'absolute';
-                    if (side === 'left' || side === 'right') {
-                        sideEl.style.width = 'var(--box-depth)';
-                        sideEl.style.height = '100%';
-                    } else {
-                        sideEl.style.width = '130%';
-                        sideEl.style.height = side === 'back' ? '100%' : 'var(--box-depth)';
-                        sideEl.style.left = '-15%';
-                    }
-                    
-                    let transform = '';
-                    if (side === 'back')   transform = 'rotateY(180deg) translateZ(calc(var(--box-depth) / 2))';
-                    if (side === 'right')  transform = 'rotateY(90deg) translateZ(calc(130% / 2))';
-                    if (side === 'left')   transform = 'rotateY(-90deg) translateZ(calc(130% / 2))';
-                    if (side === 'top')    transform = 'rotateX(90deg) translateZ(calc(100% / 2))';
-                    if (side === 'bottom') transform = 'rotateX(-90deg) translateZ(calc(100% / 2))';
-                    sideEl.style.transform = transform;
-                    innerWrap.appendChild(sideEl);
-                });
-
-                imgWrap.appendChild(img);
-                innerWrap.appendChild(titleWrap);
-                innerWrap.appendChild(imgWrap);
-                el.appendChild(innerWrap);
-                this.cameraWrap.appendChild(el);
-
-                this.cards.push({
-                    postId: post.id,
-                    title: post.title,
-                    el: el,
-                    image: img,
-                    base_t: i / displayPosts.length,
-                    noiseOffset: Math.random() * Math.PI * 2,
-                    exitYOffset: 0,
-                    exitSpeed: 20 + (Math.random() * 30),
-                    get isHovered() { return isHovered; }
-                });
-
-                setTimeout(() => {
-                    const wrapWidth = titleWrap.clientWidth || 780;
-                    const innerWidth = titleInner.scrollWidth;
-                    if (innerWidth > wrapWidth) {
-                        titleWrap.style.textAlign = 'left';
-                        const moveX = innerWidth - wrapWidth + 32;
-                        titleInner.style.setProperty('--move-x', `-${moveX}px`);
-                        titleInner.style.setProperty('--anim-duration', `${Math.max(3, moveX / 60)}s`);
-                        titleInner.classList.add('rail-marquee-active');
-                    } else {
-                        titleWrap.style.textAlign = 'center';
-                    }
-                }, 150);
+                card.image.decoding = 'async';
+                card.image.onload = () => {
+                    if (this.destroyed) return;
+                    this.buildTexture(card);
+                    this.requestFrame();
+                };
+                card.image.src = source;
+                this.cards.push(card);
             });
+            this.layoutCards();
+            this.requestFrame();
         }
 
         triggerExit() {
             this.transitionState = 'exiting';
             this.exitStart = performance.now();
-            this.cards.forEach(card => { card.exitOrigin = card.exitYOffset; });
         }
 
         triggerEnter() {
             this.transitionState = 'entering';
             this.arrivalStart = null;
-            this.cards.forEach(card => {
-                card.exitYOffset = 0;
-            });
-        }
-
-        popScale(progress) {
-            const p = Math.max(0, Math.min(1, progress));
-            if (reducedMotionQuery.matches || p === 0 || p === 1) return p;
-            const t = p - 1;
-            return 1 + 2.2 * t * t * t + 1.2 * t * t;
+            this.velocity = -this.slot * 0.045;
         }
 
         applyScrollReaction(progress) {
@@ -2298,22 +2252,26 @@ function syncLandingChromeAlignment(force = false) {
 
         onPointerDown(e) {
             this.isDragging = true;
-            this.lastMouseX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
-            this.lastPointerY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+            this.pressed = true;
+            this.lastMouseX = e.clientX || 0;
+            this.lastPointerY = e.clientY || 0;
             this.dragDistance = 0;
+            this.velocity = 0;
             this.container.style.cursor = 'grabbing';
+            this.requestFrame();
         }
 
         onPointerMove(e) {
-            const clientX = Number.isFinite(e.clientX) ? e.clientX : (e.touches && e.touches[0].clientX) || 0;
-            const clientY = Number.isFinite(e.clientY) ? e.clientY : (e.touches && e.touches[0].clientY) || 0;
+            const clientX = Number.isFinite(e.clientX) ? e.clientX : 0;
+            const clientY = Number.isFinite(e.clientY) ? e.clientY : 0;
 
             if (isLanding) {
                 const rect = this.container.getBoundingClientRect();
-                const inside = clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
-                this.railPointer.inside = inside;
-                this.railPointer.tx = inside ? Math.max(-1, Math.min(1, ((clientX - rect.left) / Math.max(rect.width, 1)) * 2 - 1)) : 0;
-                this.railPointer.ty = inside ? Math.max(-1, Math.min(1, ((clientY - rect.top) / Math.max(rect.height, 1)) * 2 - 1)) : 0;
+                this.pointer.x = clientX - rect.left;
+                this.pointer.y = clientY - rect.top;
+                this.pointer.inside = e.pointerType !== 'touch'
+                    && clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
+                if (reducedMotionQuery.matches) this.requestFrame();
             }
 
             if (!this.isDragging) return;
@@ -2322,184 +2280,311 @@ function syncLandingChromeAlignment(force = false) {
             this.lastMouseX = clientX;
             this.lastPointerY = clientY;
             this.dragDistance += Math.hypot(dx, dy);
-            
-            const deltaProgress = (dx / (this.width || window.innerWidth)) * 0.3;
-            this.dragTarget = (this.dragTarget || 0) + deltaProgress;
-            this.velocity = deltaProgress * 2;
+            // The front card follows the pointer one-to-one.
+            this.dragTarget += dx / this.frontScale;
         }
 
         onPointerUp(e) {
-            this.isDragging = false;
-            if(e?.pointerType==='touch')this.railPointer.inside=false;
-            this.container.style.cursor = 'grab';
+            const wasPressed = this.pressed;
+            this.pressed = false;
+            if (this.isDragging) {
+                this.isDragging = false;
+                this.velocity = Math.max(-90, Math.min(90, this.speed));
+                this.container.style.cursor = this.hovered ? 'pointer' : 'grab';
+            }
+            if (e?.pointerType === 'touch') this.pointer.inside = false;
+            if (!wasPressed || e?.type !== 'pointerup' || this.dragDistance >= 5 || !isLanding) return;
+            const rect = this.container.getBoundingClientRect();
+            const card = this.hit((e.clientX - rect.left) * this.dpr, (e.clientY - rect.top) * this.dpr);
+            if (card) this.openPost(card.postId);
         }
 
         onWheel(e) {
-            const deltaProgress = (-e.deltaY / 2000) * 0.02;
-            this.velocity += deltaProgress;
+            this.velocity -= e.deltaY * 0.045;
             if (e.deltaY > 0 && typeof handlePlaceholderLandingScroll === 'function') {
                 handlePlaceholderLandingScroll(e.deltaY);
             }
         }
 
-        nudge(amount = -0.0026) {
+        nudge() {
             if (!isLanding || document.hidden || reducedMotionQuery.matches) return;
-            this.velocity += amount;
+            this.velocity -= this.slot * 0.045;
             this.container.dataset.introNudge = 'complete';
             this.lastTime = performance.now();
-            if (!this.rafId) this.rafId = requestAnimationFrame(this.animate);
+            this.requestFrame();
+        }
+
+        // Which card is under a point (device px), nearest first.
+        hit(x, y) {
+            for (let i = this.drawOrder.length - 1; i >= 0; i--) {
+                const quad = this.drawOrder[i].quad;
+                for (let j = 0; j < this.segments; j++) {
+                    const k = j * 4;
+                    const a = (quad[k + 4] - quad[k]) * (y - quad[k + 1]) - (quad[k + 5] - quad[k + 1]) * (x - quad[k]);
+                    const b = (quad[k + 6] - quad[k + 4]) * (y - quad[k + 5]) - (quad[k + 7] - quad[k + 5]) * (x - quad[k + 4]);
+                    const c = (quad[k + 2] - quad[k + 6]) * (y - quad[k + 7]) - (quad[k + 3] - quad[k + 7]) * (x - quad[k + 6]);
+                    const d = (quad[k] - quad[k + 2]) * (y - quad[k + 3]) - (quad[k + 1] - quad[k + 3]) * (x - quad[k + 2]);
+                    if ((a >= 0 && b >= 0 && c >= 0 && d >= 0) || (a <= 0 && b <= 0 && c <= 0 && d <= 0)) return this.drawOrder[i].card;
+                }
+            }
+            return null;
+        }
+
+        // Bend one card along the path and project its top and bottom edges to the screen.
+        shape(placement, center, size, lift, rise, waveScale, time) {
+            const segments = this.segments;
+            const { quad, facing } = placement;
+            const xs = this.columnX, ys = this.columnY, zs = this.columnZ;
+            const point = this.point;
+            const width = this.cardWidth * size;
+            for (let j = 0; j <= segments; j++) {
+                this.pathPoint(this.thetaAt(center + (j / segments - 0.5) * width), point, waveScale);
+                xs[j] = point[0]; ys[j] = point[1] + rise; zs[j] = point[2];
+            }
+
+            const half = (this.cardHeight * size) / 2;
+            const distance = this.distance;
+            const pointer = this.pointer;
+            const rippleSize = this.cardHeight * 0.1 * this.ripple;
+            const rippleStep = (Math.PI * 2) / (this.slot * 1.7);
+            const ripplePhase = time * 0.0065;
+            let depth = 0;
+            for (let j = 0; j <= segments; j++) {
+                const before = j ? j - 1 : 0;
+                const after = j < segments ? j + 1 : segments;
+                const tx = xs[after] - xs[before], tz = zs[after] - zs[before];
+                // Card edges stay vertical, like a curtain on a rail, so neighbouring strips share
+                // parallel edges and tile without gaps. The normal is therefore horizontal.
+                const flatLength = Math.hypot(tx, tz) || 1;
+                const nx = -tz / flatLength, nz = tx / flatLength;
+
+                // A flick sends a wave down the ribbon; the pointer presses a soft bump into it.
+                const phase = (center + (j / segments - 0.5) * width) * rippleStep + ripplePhase;
+                const wave = Math.sin(phase) * rippleSize;
+                const x = xs[j] + nx * wave;
+                const y = ys[j] + Math.cos(phase) * rippleSize * 0.5;
+                let z = zs[j] + nz * wave;
+                const flat = distance / (distance - z);
+                const dx = this.centerX + x * flat - pointer.x;
+                const dy = this.centerY - y * flat - pointer.y;
+                z += lift + pointer.strength * this.bulge * Math.exp(-(dx * dx + dy * dy) / this.bulgeFalloff);
+
+                const scale = (distance / (distance - z)) * this.dpr;
+                // Speed tips the whole ribbon back, the same amount on every edge.
+                const lean = this.lean * half * scale;
+                const k = j * 4;
+                quad[k] = this.centerX * this.dpr + x * scale + lean;
+                quad[k + 1] = this.centerY * this.dpr - (y + half) * scale;
+                quad[k + 2] = this.centerX * this.dpr + x * scale - lean;
+                quad[k + 3] = this.centerY * this.dpr - (y - half) * scale;
+                facing[j] = (nx * -x + nz * (distance - z)) / Math.hypot(x, y, distance - z);
+                depth += z;
+                if (j === 0) placement.depthStart = z;
+                if (j === segments) placement.depthEnd = z;
+            }
+            placement.depth = depth / (segments + 1);
+            const middle = (segments >> 1) * 4;
+            placement.screenX = (quad[middle] + quad[middle + 2]) / 2;
+        }
+
+        // Outline of the strips between two columns: top edge out, bottom edge back.
+        trace(quad, first, last) {
+            const ctx = this.ctx;
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.beginPath();
+            ctx.moveTo(quad[first * 4], quad[first * 4 + 1]);
+            for (let j = first + 1; j <= last; j++) ctx.lineTo(quad[j * 4], quad[j * 4 + 1]);
+            for (let j = last; j >= first; j--) ctx.lineTo(quad[j * 4 + 2], quad[j * 4 + 3]);
+            ctx.closePath();
+        }
+
+        paint(placement) {
+            const ctx = this.ctx;
+            const segments = this.segments;
+            const { quad, facing, card } = placement;
+            const texture = card.texture;
+            // Paint from the far end so a card that wraps a turn covers itself correctly.
+            const ascending = placement.depthStart <= placement.depthEnd;
+            const spill = 0.015;
+
+            let sourceX = 0, sourceY = 0, sourceStep = 0, sourceHeight = 0;
+            if (texture) {
+                // The image sits slightly zoomed in its frame, eases out on hover,
+                // and slides against the card's travel.
+                const zoom = 1.08 - 0.045 * card.lift;
+                const windowWidth = texture.width / (1.12 * zoom);
+                sourceHeight = texture.height / zoom;
+                const slide = Math.max(-0.9, Math.min(0.9, (placement.screenX / this.dpr - this.centerX) / (this.width * 0.5)));
+                sourceX = (texture.width - windowWidth) * (0.5 + 0.5 * slide);
+                sourceY = (texture.height - sourceHeight) / 2;
+                sourceStep = windowWidth / segments;
+            }
+
+            let n = 0;
+            while (n < segments) {
+                // A run is a stretch of strips that all face the same way.
+                const startStrip = ascending ? n : segments - 1 - n;
+                const front = facing[startStrip] + facing[startStrip + 1] > 0;
+                let end = n + 1;
+                while (end < segments) {
+                    const j = ascending ? end : segments - 1 - end;
+                    if ((facing[j] + facing[j + 1] > 0) !== front) break;
+                    end++;
+                }
+                const endStrip = ascending ? end - 1 : segments - end;
+                const first = Math.min(startStrip, endStrip);
+                const last = Math.max(startStrip, endStrip) + 1;
+
+                // Strips are affine, so they overshoot a little and the true outline trims them.
+                this.trace(quad, first, last);
+                ctx.save();
+                ctx.clip();
+                for (let i = n; i < end; i++) {
+                    const j = ascending ? i : segments - 1 - i;
+                    const k = j * 4;
+                    const bx = (quad[k + 2] - quad[k] + quad[k + 6] - quad[k + 4]) / 2;
+                    const by = (quad[k + 3] - quad[k + 1] + quad[k + 7] - quad[k + 5]) / 2;
+                    const ax = (quad[k + 4] + quad[k + 6] - quad[k] - quad[k + 2]) / 2;
+                    const ay = (quad[k + 5] + quad[k + 7] - quad[k + 1] - quad[k + 3]) / 2;
+                    const edge = Math.hypot(ax, ay);
+                    if (edge < 0.05 || Math.abs(ax * by - ay * bx) < 0.5) continue;
+                    const overlap = Math.min(0.5, 1.4 / edge);
+                    const left = j === 0 ? Math.min(overlap, 0.06) : overlap;
+                    const right = j === segments - 1 ? Math.min(overlap, 0.06) : overlap;
+                    ctx.setTransform(ax, ay, bx, by, (quad[k] + quad[k + 2] - bx) / 2, (quad[k + 1] + quad[k + 3] - by) / 2);
+                    if (front && texture) {
+                        ctx.drawImage(
+                            texture,
+                            sourceX + (j - left) * sourceStep, sourceY - spill * sourceHeight,
+                            sourceStep * (1 + left + right), sourceHeight * (1 + spill * 2),
+                            -left, -spill, 1 + left + right, 1 + spill * 2
+                        );
+                    } else {
+                        ctx.fillStyle = front ? '#ece5e0' : card.color;
+                        ctx.fillRect(-left, -spill, 1 + left + right, 1 + spill * 2);
+                    }
+                }
+                ctx.restore();
+
+                // Shade where the ribbon turns away, fog with distance, then a hairline.
+                this.trace(quad, first, last);
+                const fromX = (quad[first * 4] + quad[first * 4 + 2]) / 2;
+                const toX = (quad[last * 4] + quad[last * 4 + 2]) / 2;
+                if (Math.abs(toX - fromX) > 2) {
+                    const gradient = ctx.createLinearGradient(fromX, 0, toX, 0);
+                    for (let j = first; j <= last; j++) {
+                        const offset = ((quad[j * 4] + quad[j * 4 + 2]) / 2 - fromX) / (toX - fromX);
+                        const shade = Math.min(0.42, (1 - Math.abs(facing[j])) * 0.5 + (front ? 0 : 0.05));
+                        gradient.addColorStop(Math.max(0, Math.min(1, offset)), RAIL_SHADES[Math.round(shade * 100)]);
+                    }
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                }
+                if (placement.fog > 0.01) {
+                    ctx.globalAlpha = placement.fog;
+                    ctx.fillStyle = this.paper;
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+                const focused = card === this.focused;
+                ctx.lineWidth = (focused ? 2.5 : 1) * this.dpr;
+                ctx.strokeStyle = focused ? '#121212' : 'rgba(18,18,18,.17)';
+                ctx.stroke();
+                n = end;
+            }
         }
 
         animate(time) {
             this.rafId = null;
             if ((!isLanding && this.transitionState !== 'exiting') || document.hidden || this.container.classList.contains('hidden-state')) return;
+            if (!this.width) { this.measure(); if (!this.width) return; }
 
             time = time || performance.now();
-            const dt = Math.min(time - this.lastTime || 0, 25);
+            const dt = Math.min(Math.max(time - this.lastTime, 0) || 16.6, 34);
             this.lastTime = time;
+            const step = dt / 16.6;
+            const reduced = reducedMotionQuery.matches;
 
-            const pointerActive = this.railPointer.inside
-                && !reducedMotionQuery.matches
+            const pointerActive = this.pointer.inside && !reduced && !this.isDragging
                 && !document.body.classList.contains('menu-open')
                 && !document.body.classList.contains('content-pointer-locked');
-            const pointerEase = 1 - Math.pow(0.86, dt / 16.6);
-            this.railPointer.x += ((pointerActive ? this.railPointer.tx : 0) - this.railPointer.x) * pointerEase;
-            this.railPointer.y += ((pointerActive ? this.railPointer.ty : 0) - this.railPointer.y) * pointerEase;
-            const pointerRailOffset = this.railPointer.x * 0.008;
-            const curveReaction = this.railPointer.y * 16;
-            const mobileRail = isMobileLayout();
+            this.pointer.strength += ((pointerActive ? 1 : 0) - this.pointer.strength) * (1 - Math.pow(0.88, step));
 
-            this.velocity *= Math.pow(0.95, dt / 16.6);
-            if (Math.abs(this.velocity) < 0.00001) this.velocity = 0;
+            // Travel: drag, then inertia, then a slow forward drift.
+            const dragStep = this.dragTarget * (1 - Math.pow(0.7, step));
+            this.dragTarget -= dragStep;
+            let travel = dragStep;
+            if (!this.isDragging) {
+                this.velocity *= Math.pow(0.945, step);
+                if (Math.abs(this.velocity) < 0.01) this.velocity = 0;
+                travel += this.velocity * step;
+                if (this.focused && this.ribbonLength) {
+                    // Keyboard focus brings its card to the front.
+                    const length = this.ribbonLength;
+                    const gap = ((((-this.focused.index * this.slot - this.scroll) % length) + length * 1.5) % length) - length / 2;
+                    travel += gap * (1 - Math.pow(0.86, step));
+                } else if (!reduced && !this.hovered) {
+                    travel -= 0.4 * step;
+                }
+            }
+            this.scroll += travel;
+            this.speed += (travel / step - this.speed) * (1 - Math.pow(0.75, step));
+            const energy = Math.min(1, Math.abs(this.speed) / 36);
+            this.ripple += (energy - this.ripple) * (1 - Math.pow(energy > this.ripple ? 0.72 : 0.955, step));
+            this.lean += (Math.max(-0.16, Math.min(0.16, -this.speed * 0.004)) - this.lean) * (1 - Math.pow(0.85, step));
 
-            const autoScroll = this.isDragging ? 0 : 0.0001 * (dt / 16.6);
-            const dragStep = (this.dragTarget || 0) * .18;
-            this.dragTarget = (this.dragTarget || 0) - dragStep;
-            this.scrollProgress += dragStep + (this.isDragging ? 0 : this.velocity) + autoScroll;
-
-            let skewAmount = this.velocity * 4000;
-            skewAmount = Math.max(-8, Math.min(8, skewAmount));
-
-            let closestCard = null;
-            let minAbsDist = Infinity;
-            // One shared upward entrance; card scale is reserved for rail traversal and exit.
             if (this.arrivalStart == null) this.arrivalStart = time;
-            const arrivalProgress = reducedMotionQuery.matches ? 1 : Math.min(1, (time - this.arrivalStart) / 850);
-            const arrivalY = (this.height || innerHeight) * Math.pow(1 - arrivalProgress, 3);
+            const arrival = time - this.arrivalStart;
+            const exit = this.transitionState === 'exiting' ? Math.min(1, (time - this.exitStart) / 300) : 0;
+            // The figure-eight opens out of a flat line, then breathes.
+            const unfurl = reduced ? 1 : 1 - Math.pow(1 - Math.min(1, arrival / 1500), 4);
+            const waveScale = unfurl * (1 + (reduced ? 0 : 0.05 * Math.sin(time * 0.0007))) * (1 - exit);
 
-            this.cards.forEach((card) => {
-                const tilt=card.el._tilt;
-                if(tilt&&!reducedMotionQuery.matches){tilt.x+=(tilt.tx-tilt.x)*.12;tilt.y+=(tilt.ty-tilt.y)*.12;card.el._innerWrap.style.transform=`rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`;}
-                let p = (card.base_t + this.scrollProgress + pointerRailOffset) % 1.0;
-                if (p < 0) p += 1.0;
-                let dist = p - 0.5; 
-                let absDist = Math.abs(dist);
+            const ctx = this.ctx;
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-                if (absDist < minAbsDist) {
-                    minAbsDist = absDist;
-                    closestCard = card;
-                }
+            const ribbon = this.ribbonLength;
+            const halfPath = this.pathLength / 2;
+            const order = this.drawOrder;
+            order.length = 0;
+            for (let i = 0; i < this.placements.length; i++) {
+                const placement = this.placements[i];
+                const card = placement.card;
+                const center = ((((placement.offset + this.scroll) % ribbon) + ribbon * 1.5) % ribbon) - ribbon / 2;
+                const reach = Math.abs(center);
+                if (reach >= halfPath) continue;
+                // Cards swap in and out at the hidden back crossing; shrink them there.
+                const seam = Math.min(1, Math.max(0, (halfPath - 0.15 * this.slot - reach) / (0.8 * this.slot)));
+                const grown = reduced ? 1 : 1 - Math.pow(1 - Math.max(0, Math.min(1, (arrival - Math.min(reach / this.slot, 5) * 85) / 1000)), 4);
+                const leaving = Math.max(0, Math.min(1, exit * 1.4 - 0.4 * (0.5 + center / this.pathLength)));
+                const size = seam * seam * (3 - 2 * seam) * grown * (1 - 0.45 * leaving);
+                if (size < 0.02) continue;
+                const rise = (this.height * 1.25 / this.frontScale) * Math.pow(leaving, 1.7) - (1 - grown) * this.cardHeight * 0.4;
+                this.shape(placement, center, size, card.lift * this.cardHeight * 0.12, rise, waveScale, time);
+                placement.fog = 0.52 * Math.pow(Math.max(0, Math.min(1, (this.radiusZ - placement.depth) / (2 * this.radiusZ))), 1.2);
+                order.push(placement);
+            }
+            order.sort((a, b) => a.depth - b.depth);
 
-                if (this.transitionState === 'exiting') {
-                    const exitProgress = Math.min(1, (time - this.exitStart) / 300);
-                    card.exitYOffset = (card.exitOrigin || 0) - (innerHeight + 1000) * Math.pow(exitProgress, 1.7);
-                } else if (this.transitionState === 'entering') {
-                    card.exitYOffset += (0 - card.exitYOffset) * 0.08 * (dt / 16.6); 
-                    if (Math.abs(card.exitYOffset) < 1) card.exitYOffset = 0;
-                }
-
-                let cx,cy,cz;
-                if(mobileRail){
-                    // A pocket-sized vertical orbit: one physical card is held forward while
-                    // the neighbours travel diagonally through a shallow stack.
-                    cx=Math.sin(dist*Math.PI*2)*this.width*.42;
-                    cy=dist*this.height*1.28+Math.sin(dist*Math.PI*2)*this.height*.065
-                        +card.exitYOffset+arrivalY;
-                    cz=Math.cos(dist*Math.PI*2)*520-250;
-                }else{
-                    cx = Math.sin(dist * Math.PI * 1.5) * this.width * 0.6;
-                    cy = Math.sin(dist * Math.PI * 3) * (120 + curveReaction)
-                        + Math.cos(dist * Math.PI * 2) * curveReaction * 0.45
-                        + card.exitYOffset + arrivalY;
-                    cz = Math.cos(dist * Math.PI * 2) * 900 - 450;
-                }
-                
-                if (absDist < 0.15) {
-                    let pop = Math.pow(1 - (absDist / 0.15), 2);
-                    cz += pop * 150;
-                }
-
-                let currentScale = mobileRail
-                    ? 0.42 + (0.56 * Math.pow(Math.max(0,1-absDist*2),1.55))
-                    : 0.4 + (0.8 * Math.pow(Math.max(0, 1 - absDist * 2), 1.5));
-                // Collapse at the rail seam, then overshoot gently on each arrival/departure.
-                const railScale = this.popScale((.5 - absDist) / .14);
-                const exitScale = this.transitionState === 'exiting'
-                    ? this.popScale(1 - (time - this.exitStart) / 300) : 1;
-                currentScale *= railScale * exitScale;
-                const focusTarget = card.isHovered || absDist < .045 ? 1 : 0;
-                card.focus = (card.focus || 0) + (focusTarget - (card.focus || 0)) * .12;
-                currentScale *= 1 + card.focus * .03;
-                cz += card.focus * 28 - (1 - card.focus) * 16;
-                card.image.style.filter = `saturate(${.86 + card.focus * .14})`;
-                card.el.dataset.cardFocus = card.focus > .5 ? 'active' : 'side';
-                if(mobileRail&&tilt){
-                    tilt.tx=(card.focus||0)*this.railPointer.y*-4;
-                    tilt.ty=(card.focus||0)*Math.max(-10,Math.min(10,this.velocity*5200));
-                }
-                let rotY = mobileRail?Math.sin(-dist*Math.PI)*.38:Math.sin(-dist * Math.PI) * 0.55;
-                let rotZ = mobileRail?Math.sin(dist*Math.PI*2)*.085:Math.sin(dist * Math.PI * 2) * 0.04;
-
-                card.el.style.display = 'block';
-                if(mobileRail){
-                    const orbitOpacity=Math.max(0,Math.min(1,(.23-absDist)/.075));
-                    card.el.style.opacity=String(orbitOpacity);
-                    card.el.style.pointerEvents=absDist<.19?'auto':'none';
-                }else{
-                    card.el.style.opacity='1';
-                    card.el.style.pointerEvents='auto';
-                }
-                card.el.style.transform = `translate3d(calc(-50% + ${cx}px), calc(-50% + ${cy}px), ${cz}px) rotateY(${rotY}rad) rotateZ(${rotZ}rad) skewX(${skewAmount}deg) scale(${currentScale})`;
-                card.el.style.zIndex = Math.round((1 - absDist) * 100);
-            });
-
-            let targetTitleCard = null;
-            const hoveredCard = this.cards.find(c => c.isHovered);
-            if (hoveredCard) {
-                targetTitleCard = hoveredCard;
-            } else if (closestCard) {
-                targetTitleCard = closestCard;
+            const hovered = pointerActive ? this.hit(this.pointer.x * this.dpr, this.pointer.y * this.dpr) : null;
+            if (hovered !== this.hovered) {
+                this.hovered = hovered;
+                if (!this.isDragging) this.container.style.cursor = hovered ? 'pointer' : 'grab';
+            }
+            for (let i = 0; i < this.cards.length; i++) {
+                const card = this.cards[i];
+                const target = card === this.hovered || card === this.focused ? 1 : 0;
+                card.lift = reduced ? target : card.lift + (target - card.lift) * (1 - Math.pow(0.86, step));
             }
 
-            if (this.currentActiveTitleCard && this.currentActiveTitleCard !== targetTitleCard) {
-                const titleWrap = this.currentActiveTitleCard.el.querySelector('.rail-card-title-wrap');
-                if (titleWrap) {
-                    const start = getComputedStyle(titleWrap);
-                    const from = {opacity:start.opacity,transform:start.transform};
-                    titleWrap.getAnimations().forEach(animation => animation.cancel());
-                    titleWrap.style.transition = 'none';
-                    titleWrap.style.opacity = '0';
-                    titleWrap.style.transform = 'translate3d(-50%, -12px, 0) scale(0.5)';
-                    if (!reducedMotionQuery.matches) titleWrap.animate([from,{opacity:0,transform:'translate3d(-50%, -12px, 0) scale(0.5)'}],{duration:400,easing:'cubic-bezier(.16,1,.3,1)'});
-                }
-            }
+            for (let i = 0; i < order.length; i++) this.paint(order[i]);
 
-            if (targetTitleCard && this.currentActiveTitleCard !== targetTitleCard) {
-                const titleWrap = targetTitleCard.el.querySelector('.rail-card-title-wrap');
-                if (titleWrap) {
-                    titleWrap.getAnimations().forEach(animation => animation.cancel());
-                    titleWrap.style.transition = 'none';
-                    titleWrap.style.opacity = '1';
-                    titleWrap.style.transform = 'translate3d(-50%, 0, 0) scale(0.5)';
-                    if (!reducedMotionQuery.matches) titleWrap.animate([{opacity:0,transform:'translate3d(-50%, 16px, 0) scale(0.5)'},{opacity:1,transform:'translate3d(-50%, 0, 0) scale(0.5)'}],{duration:400,easing:'cubic-bezier(.16,1,.3,1)'});
-                }
-            }
-
-            this.currentActiveTitleCard = targetTitleCard;
-            if (!reducedMotionQuery.matches) this.rafId = requestAnimationFrame(this.animate);
+            if (!reduced) this.requestFrame();
         }
 
         destroy() {
+            this.destroyed = true;
             if (this.rafId) cancelAnimationFrame(this.rafId);
             this.rafId = null;
             if (this.resizeObserver) this.resizeObserver.disconnect();
@@ -2511,7 +2596,9 @@ function syncLandingChromeAlignment(force = false) {
             document.removeEventListener('visibilitychange', this.onVisibilityChange);
             delete this.container.placeholderScene;
             this.container.classList.remove('rail-placeholder');
+            this.container.style.cursor = '';
             this.cards.length = 0;
+            this.placements.length = 0;
         }
     }
 

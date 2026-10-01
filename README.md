@@ -16,7 +16,9 @@ npm run build
 
 ## 화면 구조
 
-- `index.html`: Floating Card Landing → 글 목록과 ASCII Signal Field → 패널형 독자 화면. 기존 카드 레일과 글 목록의 vertical swap, rainbow 문자, 카테고리 이미지 회전을 유지합니다.
+- `index.html`: Index Reel Landing → 글 목록과 ASCII Signal Field → 패널형 독자 화면. 글 목록의 vertical swap, rainbow 문자, 카테고리 이미지 회전을 유지합니다.
+- `css/indexReel.css`: 랜딩과 글 목록의 최종 레이어. 랜딩에는 레일, 워드마크, 로고, 메뉴 화살표만 둡니다. 워드마크는 좌우 여백에 맞춰 하단에 앉고, 글 목록은 표 형태입니다.
+- 랜딩 레일(`index.html`의 `PlaceholderScene`): 글 카드들이 하나의 리본으로 이어져 3D ∞ 궤도를 돕니다. 2D 캔버스에 카드를 얇은 세로 조각으로 나눠 그려 경로를 따라 휘게 하므로, CORS 헤더가 없는 외부 이미지도 그대로 쓸 수 있습니다. 드래그·휠로 돌리면 리본에 물결이 지나가고, 포인터 주변이 살짝 부풀며, 카드 뒷면은 카테고리 색(CODING 파랑, DESIGN 노랑, LIFE 빨강)입니다. 캔버스 대신 숨은 링크 목록이 키보드·스크린리더 탐색을 맡습니다.
 - `post.html`: 독립적인 글 주소. 기존 글 링크와 연결됩니다.
 - `editor.html`: 기존 Supabase 인증과 작성 기능, 데스크톱·모바일 독자 미리보기.
 - `preview.html`: 에디터의 본문 미리보기와 공개 레이아웃 샘플.
