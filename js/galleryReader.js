@@ -107,7 +107,8 @@
         sheet.className = 'gallery-sheet';
         const facts = document.createElement('dl');
         facts.className = 'gallery-facts';
-        const date = data.created_at ? new Date(data.created_at).toISOString().slice(0, 10).replace(/-/g, '.') : '';
+        const created = data.created_at ? new Date(data.created_at) : null;
+        const date = created ? [created.getFullYear(), created.getMonth() + 1, created.getDate()].map(n => String(n).padStart(2, '0')).join('.') : '';
         [['Tags', window.SwblogTags?.label(window.SwblogTags.tagsOf(data)) || ''], ['Date', date], ['Images', String(total).padStart(2, '0')]].forEach(([term, value]) => {
             if (!value) return;
             const row = document.createElement('div');

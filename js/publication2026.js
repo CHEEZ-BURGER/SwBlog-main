@@ -253,7 +253,8 @@
         document.querySelectorAll('.footer-kicker').forEach(el=>{el.textContent='END / '+String(data.id||'INDEX').padStart(3,'0');});
         const archive=$('#archive-panel');if(archive){archive.dataset.currentNumber=String(data.id||'').padStart(2,'0');archive.style.setProperty('--current-number','"'+String(data.id||'').padStart(2,'0')+'"');}
         content.querySelectorAll('.post-editorial-heading').forEach((el,i)=>{el.classList.toggle('chapter-takeover',i===1||i===5);});
-        content.querySelectorAll('pre').forEach(pre=>{pre.dataset.codeLabel='CODE / '+(pre.querySelector('code')?.className.match(/language-([\w-]+)/)?.[1]||'TEXT').toUpperCase();});
+        // Code blocks carry their own head (language and copy), see PostContent.normalizeCodeBlocks.
+        window.PostContent?.normalizeCodeBlocks?.(content);
         // Pictures and media are uncovered as whole blocks; text rises line by line (setupLines).
         const targets=content.querySelectorAll('figure:not(.gallery-plate),.img-zoom-wrapper,video');
         revealObserver=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('is-revealed');revealObserver.unobserve(e.target);}}),{threshold:.08});

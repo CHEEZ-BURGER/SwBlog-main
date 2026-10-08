@@ -53,7 +53,8 @@
             image: firstImage(post.content),
             minutes: readMinutes(post.content),
             excerpt: excerpt(post.content),
-            date: created ? created.toISOString().slice(0, 10).replace(/-/g, '.') : '',
+            // The reader's own day (as the post header shows it), not the UTC one.
+            date: created ? [created.getFullYear(), created.getMonth() + 1, created.getDate()].map(n => String(n).padStart(2, '0')).join('.') : '',
             url: postUrl(post.id)
         };
     }

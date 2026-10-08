@@ -43,6 +43,29 @@
     const queueEnding=()=>{if(!frame)frame=requestAnimationFrame(updateEnding);};
     const invalidateEnding=()=>{dirty=true;queueEnding();};
     panel.addEventListener('scroll',queueEnding,{passive:true});
+    // Phones and tablets: the close button, the menu arrow and the contents button sit over the
+    // text. Reading down (a steady 28px or more) slides them away; scrolling up, or coming back
+    // near the top, brings them back. Only the buttons' own class changes, and only when the
+    // direction does, so scrolling restyles nothing else (css/reading.css).
+    const narrow=window.matchMedia('(max-width:1180px)');
+    let lastTop=0,travel=0,away=false,chromeFrame=0;
+    const setAway=value=>{
+        if(value===away)return;
+        away=value;
+        document.querySelectorAll('.panel-close-btn,.hamburger-btn,.mobile-contents').forEach(el=>el.classList.toggle('is-away',value));
+    };
+    const updateChrome=()=>{
+        chromeFrame=0;
+        const top=panel.scrollTop,delta=top-lastTop;lastTop=top;
+        if(!narrow.matches||!viewer.classList.contains('active-state')||top<96){travel=0;setAway(false);return;}
+        if(delta*travel<0)travel=0;
+        travel+=delta;
+        if(travel>28)setAway(true);
+        else if(travel<-28)setAway(false);
+    };
+    panel.addEventListener('scroll',()=>{if(!chromeFrame)chromeFrame=requestAnimationFrame(updateChrome);},{passive:true});
+    new MutationObserver(()=>{if(!viewer.classList.contains('active-state')){lastTop=0;travel=0;setAway(false);}}).observe(viewer,{attributes:true,attributeFilter:['class']});
+    narrow.addEventListener?.('change',()=>{if(!narrow.matches)setAway(false);});
     const sizes=new ResizeObserver(invalidateEnding);
     [panel,document.getElementById('panel-post-body'),continuation].filter(Boolean).forEach(el=>sizes.observe(el));
     new MutationObserver(invalidateEnding).observe(viewer,{attributes:true,attributeFilter:['class']});

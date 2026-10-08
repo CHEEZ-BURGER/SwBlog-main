@@ -66,7 +66,11 @@ html body:not(.reading-gallery) :is(.post-viewer-content,.publication-content,#p
 html body:not(.reading-gallery) :is(.post-viewer-content,.publication-content,#panel-content) blockquote p{font-size:inherit!important;line-height:inherit!important}
 html body:not(.reading-gallery) :is(.post-viewer-content,.publication-content,#panel-content) .note-box{margin:32px 0!important;padding:22px 24px!important;font-size:calc(var(--read-size) * .95)!important;line-height:1.7!important}
 html body:not(.reading-gallery) :is(.post-viewer-content,.publication-content,#panel-content) .post-principles{margin:32px 0!important}
-html body:not(.reading-gallery) :is(.post-viewer-content,.publication-content,#panel-content) pre{margin:32px 0!important}
+/* Code blocks have their own sheet (css/codeBlock.css). */
+/* Pictures inside a 2- or 3-up grid are spaced by the grid's gap alone; the pause around a
+   picture belongs to the grid, not to each picture (on a phone they stack, and the doubled
+   margins left about 110px between them). */
+html body:not(.reading-gallery) :is(.post-viewer-content,.publication-content,#panel-content) .image-grid :is(.img-zoom-wrapper,figure){margin:0!important}
 
 /* The contents beside a post: a small label with the reading progress beside it, then the
    sections. Read sections turn darker, the one being read is ink; nothing else marks them. */
@@ -148,3 +152,77 @@ html body :is(.post-viewer-content,.publication-content,.gallery-post,#panel-con
 html body :is(.post-viewer-content,.publication-content,.gallery-post,#panel-content) a.post-button:is(:hover,:focus-visible)::after{transform:translateX(3px)}
 html body :is(.post-viewer-content,.publication-content,.gallery-post,#panel-content) a.post-button[target="_blank"]:is(:hover,:focus-visible)::after{transform:translate(2px,-2px)}
 html body :is(.post-viewer-content,.publication-content,.gallery-post,#panel-content) a.post-button:focus-visible{outline:1px solid var(--read-ink);outline-offset:3px}
+
+/* A grid the old editor left empty (only a <br>) takes no room. */
+html body :is(.post-viewer-content,.publication-content,#panel-content) .image-grid:not(:has(img,video,iframe)){display:none!important}
+
+/* Table cells break between words only, so a figure like "51.8ms" or a heading like "최적화 전"
+   never splits mid-word; a table that is still too wide scrolls inside its own box. */
+html body:not(.reading-gallery) :is(.post-viewer-content,.publication-content,#panel-content) :is(th,td){word-break:keep-all!important;overflow-wrap:normal!important}
+
+/* Phones. */
+@media(max-width:820px){
+    /* Header: the date and reading time on one line, the hashtags on their own line under them
+       (the narrow grid column used to break "#인터랙션" letter by letter). */
+    html body #panel-header #panel-tags{grid-column:1 / -1!important;grid-row:4!important;margin:10px 0 0!important;word-break:keep-all}
+    html body #panel-header .publication-hero{grid-row:5!important}
+    html body #panel-header :is(#panel-date,#panel-reading-meta){white-space:nowrap}
+
+    /* Tables: a slightly smaller face and closer cells, so most fit the phone without scrolling. */
+    html body:not(.reading-gallery) :is(.post-viewer-content,.publication-content,#panel-content) table{font-size:calc(var(--read-size) * .8)!important;line-height:1.6!important}
+    html body:not(.reading-gallery) :is(.post-viewer-content,.publication-content,#panel-content) :is(th,td){padding:14px 10px!important}
+    html body:not(.reading-gallery) :is(.post-viewer-content,.publication-content,#panel-content) :is(th,td):first-child{padding-left:2px!important}
+    html body:not(.reading-gallery) :is(.post-viewer-content,.publication-content,#panel-content) figure.post-table{margin:44px auto 48px!important}
+    html body:not(.reading-gallery) :is(.post-viewer-content,.publication-content,#panel-content) figure.post-table figcaption{padding:0 2px}
+
+    /* Gallery posts: every plate carries its own number under it, so the fixed counter, which
+       sat on top of the text on a phone, stands down. */
+    html body .gallery-counter{display:none!important}
+}
+
+/* Phones and tablets: the close button, the menu arrow and the contents button stand over the
+   text, so while reading down they slide out of the way and they come back as soon as the
+   reader scrolls up or returns to the top (js/readingExperience.js sets .is-away). */
+@media(max-width:1180px){
+    html body:is(.reader-open.reader-open) :is(.panel-close-btn,.hamburger-btn,.mobile-contents){transition:transform 640ms cubic-bezier(.19,1,.22,1)!important}
+    html body:is(.reader-open.reader-open) :is(.panel-close-btn,.hamburger-btn).is-away{transform:translate3d(0,-160%,0)!important;pointer-events:none}
+    html body:is(.reader-open.reader-open) .mobile-contents.is-away{transform:translate3d(0,calc(100% + 40px),0)!important;pointer-events:none}
+}
+@media(max-width:1180px) and (prefers-reduced-motion:reduce){
+    html body:is(.reader-open.reader-open) :is(.panel-close-btn,.hamburger-btn,.mobile-contents){transition:none!important}
+}
+
+/* Empty paragraphs the old editor used as spacers (marked .post-spacer by js/postContent.js):
+   between two paragraphs one is a short rest; at the edge of a section, beside a heading, a
+   picture, a list or a code block, or after another spacer, it takes no room at all. */
+html body:not(.reading-gallery) :is(.post-viewer-content,.publication-content,#panel-content) p.post-spacer{height:calc(var(--read-size) * 1.2);margin:0!important;overflow:hidden;font-size:0!important;line-height:0!important}
+html body:not(.reading-gallery) :is(.post-viewer-content,.publication-content,#panel-content) p.post-spacer:is(:first-child,:last-child),
+html body:not(.reading-gallery) :is(.post-viewer-content,.publication-content,#panel-content) p.post-spacer+p.post-spacer,
+html body:not(.reading-gallery) :is(.post-viewer-content,.publication-content,#panel-content) :is(pre,figure,table,hr,blockquote,ul,ol,h1,h2,h3,h4,.image-grid,.img-zoom-wrapper,.story-slider,.note-box,.post-button-row)+p.post-spacer,
+html body:not(.reading-gallery) :is(.post-viewer-content,.publication-content,#panel-content) p.post-spacer:has(+:is(pre,figure,table,hr,blockquote,ul,ol,h1,h2,h3,h4,.image-grid,.img-zoom-wrapper,.story-slider,.note-box,.post-button-row)){display:none!important}
+
+/* While a post is open the menu arrow is the close button's twin: the same box, the same place
+   mirrored, and a glyph of the same height (the X's lines run 18 of its 24 units; the arrow runs
+   32 of its 40, so its drawing is sized to match the X's drawn height). */
+html body:is(.reader-open.reader-open) div.hamburger-btn.hamburger-btn .menu-arrow{inset:auto!important;left:calc(50% - var(--twin-arrow) / 2)!important;top:calc(50% - var(--twin-arrow) / 2)!important;width:var(--twin-arrow)!important;height:var(--twin-arrow)!important}
+@media(min-width:1181px){
+    /* X: 44px drawing (33px drawn) on the 48px button with its 72px paper square. */
+    html body:is(.reader-open.reader-open) div.hamburger-btn.hamburger-btn{--twin-arrow:41px}
+}
+@media(max-width:1180px){
+    /* X: a 56px square of 90% white, 10px in from the corner, 40px drawing (30px drawn). */
+    html body:is(.reader-open.reader-open) div.hamburger-btn.hamburger-btn{
+        --twin-arrow:37.5px;
+        top:max(10px,env(safe-area-inset-top))!important;right:max(10px,env(safe-area-inset-right))!important;left:auto!important;
+        width:56px!important;height:56px!important
+    }
+    html body:is(.reader-open.reader-open) div.hamburger-btn.hamburger-btn::before{
+        content:''!important;position:absolute!important;inset:0!important;width:auto!important;height:auto!important;
+        border:0!important;border-radius:0!important;background:rgba(255,255,255,.9)!important;
+        -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)
+    }
+}
+/* …and the same weight: the X's strokes draw about 5px; the arrow's shaft is thickened to match
+   and its head (a filled shape) gets a thin outline of the same colour. */
+html body:is(.reader-open.reader-open) div.hamburger-btn.hamburger-btn .menu-arrow-line{stroke-width:5.35px!important}
+html body:is(.reader-open.reader-open) div.hamburger-btn.hamburger-btn .menu-arrow-head{stroke:currentColor!important;stroke-width:1.1px!important;stroke-linejoin:miter}
