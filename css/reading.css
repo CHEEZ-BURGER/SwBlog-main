@@ -290,3 +290,38 @@ html body #panel-content .post-locked{display:flex;flex-direction:column;align-i
 html body #panel-content .post-locked .lock-icon{width:28px;height:28px}
 html body #panel-content .post-locked p{margin:0!important;color:#6e6e73;font-size:var(--read-size)!important}
 @media(prefers-reduced-motion:reduce){html body .post-list-item.is-denied .lock-icon{animation:none}}
+
+/* Desktop: the same rail in the right margin, made for a mouse (js/sectionRail.js). At rest the
+   pills are faint; pointing at the rail brings them up and thickens them, the one under the
+   cursor most, and a dark label to the left of the cursor names that section. A click glides
+   there, a drag runs through the post, the wheel over the rail steps a section at a time. */
+@media(min-width:1181px){
+    html body:is(.reader-open.reader-open) .section-rail{
+        position:fixed;top:50%;right:clamp(16px,2vw,40px);z-index:460;display:flex!important;flex-direction:column;align-items:center;gap:5px;
+        height:min(56vh,520px);padding:0 12px 0 20px;transform:translateY(-50%);
+        cursor:pointer;outline:none;-webkit-user-select:none;user-select:none;transition:opacity 300ms ease
+    }
+    html body .section-rail-pill{position:relative;display:block;flex:1 1 0;min-height:10px;width:3px;overflow:hidden;border-radius:999px;background:rgba(18,18,18,.12);opacity:.5;
+        transition:width 460ms cubic-bezier(.19,1,.22,1),opacity 300ms ease}
+    html body .section-rail-fill{position:absolute;inset:0;border-radius:inherit;background:#a1a1a6;transform:scaleY(0);transform-origin:top}
+    html body .section-rail-pill.is-active .section-rail-fill{background:#1d1d1f}
+    html body .section-rail:is(:hover,:focus-visible,.is-held) .section-rail-pill{width:5px;opacity:1}
+    html body .section-rail .section-rail-pill.is-pointed{width:8px}
+    html body .section-rail.is-held{cursor:grabbing}
+    html body .section-rail:focus-visible{outline:1px solid #1d1d1f;outline-offset:6px;border-radius:999px}
+    html body:is(.reader-open.reader-open) .section-rail-label{
+        position:fixed;top:0;right:calc(clamp(16px,2vw,40px) + 44px);z-index:461;display:flex!important;align-items:center;gap:9px;max-width:min(360px,40vw);height:36px;padding:0 16px;
+        border-radius:999px;background:#1d1d1f;color:#fff;font:500 13px/1 'Pretendard Variable','Pretendard',sans-serif;letter-spacing:-.01em;white-space:nowrap;
+        pointer-events:none;opacity:0;transition:opacity 180ms ease
+    }
+    html body:is(.reader-open.reader-open) .section-rail-label.is-on{opacity:1}
+    html body .section-rail-number{color:#a1a1a6;font:400 11px/1 'Helvetica Neue','Pretendard Variable','Pretendard',sans-serif;letter-spacing:.06em;font-variant-numeric:tabular-nums}
+    html body .section-rail-number:empty{display:none}
+    html body .section-rail-title{overflow:hidden;text-overflow:ellipsis}
+    html body :is(.section-rail,.section-rail-label).is-leaving,
+    html body.post-end-stage .section-rail,
+    html body.content-resolving .section-rail{opacity:0!important;pointer-events:none}
+}
+@media(min-width:1181px) and (prefers-reduced-motion:reduce){
+    html body :is(.section-rail,.section-rail-pill,.section-rail-label){transition:none!important}
+}
