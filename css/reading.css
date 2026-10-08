@@ -70,32 +70,32 @@ html body:not(.reading-gallery) :is(.post-viewer-content,.publication-content,#p
 
 /* The contents beside a post: a small label with the reading progress beside it, then the
    sections. Read sections turn darker, the one being read is ink; nothing else marks them. */
-html body:has(.post-panel-viewer.active-state) #post-toc-sidebar{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"label progress" "list list";align-items:baseline;row-gap:20px}
+html body:is(.reader-open.reader-open) #post-toc-sidebar{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"label progress" "list list";align-items:baseline;row-gap:20px}
 html body #post-toc-sidebar .toc-title{grid-area:label;margin:0!important;padding:0!important;border:0!important;color:var(--read-muted);font:400 11px/1.4 'Helvetica Neue','Pretendard Variable','Pretendard',sans-serif!important;letter-spacing:.14em!important;text-transform:uppercase}
 html body #post-toc-sidebar .toc-progress-meta{grid-area:progress;display:block;margin:0!important;padding:0}
 html body #post-toc-sidebar .toc-progress-meta strong{color:var(--read-ink);font:400 11px/1.4 'Helvetica Neue','Pretendard Variable','Pretendard',sans-serif!important;letter-spacing:.06em!important;font-variant-numeric:tabular-nums}
 html body #post-toc-sidebar :is(.toc-reading-progress,.toc-current){display:none!important}
 html body #post-toc-sidebar .toc-list{grid-area:list;margin:0;padding:0 8px 0 0!important}
-html body:has(.post-panel-viewer.active-state) #post-toc-sidebar .toc-list li{
+html body:is(.reader-open.reader-open) #post-toc-sidebar .toc-list li{
     display:grid;grid-template-columns:28px minmax(0,1fr);gap:0;min-height:0;padding:7px 0!important;border:0;border-radius:0;background:none!important;
     color:#a1a1a6!important;font:400 13px/1.5 'Pretendard Variable','Pretendard',sans-serif!important;letter-spacing:-.005em;
     transform:none!important;cursor:pointer;transition:color 420ms cubic-bezier(.19,1,.22,1)
 }
 html body #post-toc-sidebar .toc-list li::before{content:attr(data-number)!important;color:inherit!important;font:400 11px/1.75 'Helvetica Neue','Pretendard Variable','Pretendard',sans-serif!important;letter-spacing:.04em;font-variant-numeric:tabular-nums;opacity:.85}
-html body:has(.post-panel-viewer.active-state) #post-toc-sidebar .toc-list li.read{color:#6e6e73!important}
-html body:has(.post-panel-viewer.active-state) #post-toc-sidebar .toc-list li.active{color:var(--read-ink)!important;font-weight:500!important}
+html body:is(.reader-open.reader-open) #post-toc-sidebar .toc-list li.read{color:#6e6e73!important}
+html body:is(.reader-open.reader-open) #post-toc-sidebar .toc-list li.active{color:var(--read-ink)!important;font-weight:500!important}
 html body #post-toc-sidebar .toc-list li:is(:hover,:focus-visible){color:var(--read-ink)!important;background:none!important}
 html body #post-toc-sidebar .toc-list li:focus-visible{outline:1px solid var(--read-ink);outline-offset:4px}
 /* The contents show as a grid only where they show at all: on wide screens, when the post has
    them (not [hidden]) and when it is not a gallery post. Phones keep their own contents button. */
 @media(min-width:1181px){
-    html body:not(.reading-gallery):has(.post-panel-viewer.active-state) #post-toc-sidebar:not([hidden]){display:grid!important}
+    html body:not(.reading-gallery):is(.reader-open.reader-open) #post-toc-sidebar:not([hidden]){display:grid!important}
 }
 /* A gallery post has neither the contents nor the sidebar of posts. */
 html body.reading-gallery :is(#post-toc-sidebar,.mobile-contents){display:none!important}
-html body.reading-gallery:has(.post-panel-viewer.active-state) #archive-panel{visibility:hidden!important;pointer-events:none!important}
-html body:has(.post-panel-viewer.active-state) #post-toc-sidebar .toc-list li.active::before,
-html body:has(.post-panel-viewer.active-state) #post-toc-sidebar .toc-list li.read::before{color:inherit!important}
+html body.reading-gallery:is(.reader-open.reader-open) #archive-panel{visibility:hidden!important;pointer-events:none!important}
+html body:is(.reader-open.reader-open) #post-toc-sidebar .toc-list li.active::before,
+html body:is(.reader-open.reader-open) #post-toc-sidebar .toc-list li.read::before{color:inherit!important}
 
 /* No rules in the article: the note and the numbered principles stand on tone and space. */
 html body:not(.reading-gallery) :is(.post-viewer-content,.publication-content,#panel-content) .note-box{border:0!important;border-radius:4px}

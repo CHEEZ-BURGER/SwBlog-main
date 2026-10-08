@@ -290,7 +290,7 @@
             const omega=12,error=this.currentY-this.targetY,j=this.velocity+omega*error,decay=Math.exp(-omega*dt);
             this.currentY=this.targetY+(error+j*dt)*decay;
             this.velocity=(this.velocity-omega*j*dt)*decay;
-            this.el.scrollTop=this.currentY;this.lastWritten=this.el.scrollTop;
+            this.el.scrollTop=this.currentY;this.lastWritten=this.currentY;
             if(Math.abs(this.targetY-this.currentY)<.35&&Math.abs(this.velocity)<5){this.el.scrollTop=this.targetY;this.stop();return;}
             this.rafId=requestAnimationFrame(this.updateBound);
         }
@@ -326,15 +326,18 @@
             let speed = 0;
             let isHovered = false;
             let rafId = null;
+            let spinTime = null;
 
-            const rotateDot = () => {
-                if (isHovered) {
-                    speed += (3.5 - speed) * 0.08;
-                } else {
-                    speed *= 0.95;
-                }
-                
-                currentRot += speed;
+            const rotateDot = now => {
+                rafId = null;
+                if (document.hidden) { spinTime = null; return; }
+                const step = spinTime === null ? 1 : Math.max(0, Math.min(64, now - spinTime)) / (1000 / 60);
+                spinTime = now;
+                const target = isHovered ? 3.5 : 0, damping = isHovered ? .92 : .95;
+                const decay = Math.pow(damping, step), error = speed - target;
+                // Integrate the original 60Hz motion over elapsed time, including the angle.
+                currentRot += target * step + error * damping * (1 - decay) / (1 - damping);
+                speed = target + error * decay;
                 dot.style.transform = `rotate(${currentRot}deg)`;
                 
                 if (!isHovered && Math.abs(speed) < 0.01) {
@@ -342,6 +345,7 @@
                     dot.style.transform = `rotate(${currentRot}deg)`;
                     cancelAnimationFrame(rafId);
                     rafId = null;
+                    spinTime = null;
                     return;
                 }
                 rafId = requestAnimationFrame(rotateDot);
@@ -358,6 +362,10 @@
             });
             dot.addEventListener('mouseleave', () => {
                 isHovered = false;
+            });
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) { cancelAnimationFrame(rafId); rafId = null; spinTime = null; }
+                else if (!rafId && (isHovered || Math.abs(speed) >= .01)) rafId = requestAnimationFrame(rotateDot);
             });
         });
 
@@ -1512,7 +1520,7 @@ function syncLandingChromeAlignment(force = false) {
         let tocTicking = false;
         let lastActiveIndex = -1;
         let contentBottom = 0, panelHeight = 0, lastProgress = -1;
-        let endingTop = Infinity, tocTop = 0, tocHeight = 0;
+        let endingTop = Infinity, tocTop = 0, tocHeight = 0, lastCovered = -1, lastInert = null, lastScale = -1;
 
 
         const refreshHeadingPositions = () => {
@@ -1528,19 +1536,22 @@ function syncLandingChromeAlignment(force = false) {
 
         const updateToc = () => {
             tocTicking = false;
+            // All scroll reads precede style writes; even scrollTop can flush pending styles.
+            const scrollTop = postPanel.scrollTop;
             // The ending masks the fixed index from bottom to top at the exact scroll edge.
-            const covered = Math.max(0, Math.min(tocHeight, tocTop + tocHeight - (endingTop - postPanel.scrollTop)));
-            tocSidebar.style.setProperty('--toc-ending-cover', covered + 'px');
-            tocSidebar.inert = window.innerWidth > 1180 && covered >= tocHeight && tocHeight > 0;
+            const covered = Math.max(0, Math.min(tocHeight, tocTop + tocHeight - (endingTop - scrollTop)));
+            if (covered !== lastCovered) { tocSidebar.style.setProperty('--toc-ending-cover', covered + 'px'); lastCovered = covered; }
+            const inert = window.innerWidth > 1180 && covered >= tocHeight && tocHeight > 0;
+            if (inert !== lastInert) { tocSidebar.inert = inert; lastInert = inert; }
             const scrollableHeight = contentBottom - panelHeight;
-            const progress = scrollableHeight > 0 ? Math.max(0, Math.min(100, (postPanel.scrollTop / scrollableHeight) * 100)) : 100;
+            const progress = scrollableHeight > 0 ? Math.max(0, Math.min(100, (scrollTop / scrollableHeight) * 100)) : 100;
             const roundedProgress = Math.round(progress);
-            if (progressBar) progressBar.style.transform = `scaleX(${progress / 100})`;
+            if (progressBar && progress !== lastScale) { progressBar.style.transform = `scaleX(${progress / 100})`; lastScale = progress; }
             if (progressText && roundedProgress !== lastProgress) progressText.textContent = `${roundedProgress}%`;
             lastProgress = roundedProgress;
 
             let activeIndex = -1;
-            const scrollOffset = postPanel.scrollTop + 80;
+            const scrollOffset = scrollTop + 80;
             for (let i = headingPositions.length - 1; i >= 0; i--) {
                 if (headingPositions[i] < scrollOffset) {
                     activeIndex = i;
@@ -1577,11 +1588,45 @@ function syncLandingChromeAlignment(force = false) {
         postPanel._tocResizeObserver.observe(contentEl);
         postPanel._tocResizeObserver.observe(postPanel);
         postPanel._tocResizeObserver.observe(tocSidebar);
-        refreshHeadingPositions();
-        tocScrollListener();
+        // Initial observer delivery measures after layout and after hero/text enhancement.
+        // A synchronous measurement here forced another full article layout in this frame.
+    }
+
+    // Mirror the viewer state on its ancestors once per open/close. Styles can then match a
+    // class instead of searching the whole article for the same active viewer on every frame.
+    // The doubled class in CSS preserves the original :has() specificity and cascade.
+    function setReaderActive(active) {
+        const viewer = document.getElementById('post-panel-viewer');
+        viewer.classList.toggle('active-state', active);
+        for (let ancestor = viewer.parentElement; ancestor; ancestor = ancestor.parentElement) {
+            ancestor.classList.toggle('reader-open', active);
+        }
     }
 
     const loadedPostData = new Map();
+    async function appendPreparedArticle(content, prepared, renderId) {
+        const pending = [...prepared.childNodes].reverse().map(node => ({ node, parent: content }));
+        content.replaceChildren();
+        // Build the same tree under the loading paper, in small slices. This lets the browser
+        // lay out new text between slices instead of stalling the loading animation for a
+        // whole long article. No slices from an obsolete reader request may reach the page.
+        while (pending.length) {
+            if (renderId !== currentRenderId) return false;
+            const start = performance.now();
+            let count = 0;
+            do {
+                const { node, parent } = pending.pop();
+                const template = node.nodeType === 1 && node.tagName === 'TEMPLATE';
+                const copy = node.cloneNode(template);
+                parent.append(copy);
+                if (!template) for (let i = node.childNodes.length - 1; i >= 0; i--) pending.push({ node: node.childNodes[i], parent: copy });
+            } while (pending.length && ++count < 48 && performance.now() - start < 2);
+            if (pending.length) await new Promise(resolve => requestAnimationFrame(resolve));
+        }
+        if (prepared.dataset.editorialLayout) content.dataset.editorialLayout = prepared.dataset.editorialLayout;
+        return true;
+    }
+
     async function loadPanelPost(postId) {
         const renderId = ++currentRenderId;
         const resolution = window.Publication2026?.begin(postId);
@@ -1632,7 +1677,7 @@ function syncLandingChromeAlignment(force = false) {
             placeholder.style.willChange = 'opacity';
             
             requestAnimationFrame(() => {
-                viewer.classList.add('active-state');
+                setReaderActive(true);
                 placeholder.classList.add('hidden-state');
             });
             
@@ -1691,18 +1736,33 @@ function syncLandingChromeAlignment(force = false) {
             renderPanelContinuation(data.id);
 
             const rawContent = data.content || '';
-            const parseAndRender = () => {
+            const parseAndRender = async () => {
                 if (renderId !== currentRenderId) return;
                 
                 const rawHtml = window.PostContent
                     ? PostContent.toRenderableHtml(rawContent, window.marked)
                     : (window.marked ? marked.parse(rawContent) : rawContent);
                 const safeHtml = window.DOMPurify ? DOMPurify.sanitize(rawHtml, {
+                    RETURN_DOM_FRAGMENT: true,
                     ADD_TAGS: ['svg', 'polyline', 'circle', 'line', 'path', 'blockquote', 'button', 'table', 'tr', 'td', 'th', 'tbody', 'thead', 'tfoot', 'caption', 'colgroup', 'col', 'figure', 'figcaption'],
                     ADD_ATTR: ['target', 'rel', 'colspan', 'rowspan', 'scope', 'data-style', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'fill', 'viewBox', 'points', 'cx', 'cy', 'r', 'x1', 'y1', 'x2', 'y2', 'id', 'class', 'data-layout', 'd', 'data-initialized', 'contenteditable', 'style', 'alt', 'datetime']
                 }) : rawHtml;
                 
-                content.innerHTML = safeHtml;
+                // Reuse the sanitized DOM instead of serializing it and parsing it a second
+                // time. Decode article pictures asynchronously so text/motion can paint first.
+                const gallery = window.SwblogPostType?.postType(data) === 'gallery' && window.GalleryReader;
+                if (!reducedMotionQuery.matches && !gallery && window.PostContent) {
+                    const prepared = document.createElement('div');
+                    if (safeHtml instanceof DocumentFragment) prepared.append(safeHtml);
+                    else prepared.innerHTML = safeHtml;
+                    prepared.querySelectorAll('img').forEach(image => { image.decoding = 'async'; });
+                    window.PostContent.enhanceEditorialLayout(prepared, { title: data.title || '' });
+                    if (!await appendPreparedArticle(content, prepared, renderId)) return;
+                } else {
+                    if (safeHtml instanceof DocumentFragment) content.replaceChildren(safeHtml);
+                    else content.innerHTML = safeHtml;
+                    content.querySelectorAll('img').forEach(image => { image.decoding = 'async'; });
+                }
                 
                 requestAnimationFrame(() => {
                     if (renderId !== currentRenderId) return;
@@ -1798,7 +1858,7 @@ function syncLandingChromeAlignment(force = false) {
         document.querySelectorAll('.post-list-item').forEach(el => el.classList.remove('active'));
 
         // 2. 패널 너비 복원 및 ASCII 씬 활성화
-        viewer.classList.remove('active-state');
+        setReaderActive(false);
         viewer.setAttribute('aria-hidden', 'true');
         viewer.setAttribute('inert', '');
         if (closeButton) {
@@ -2003,7 +2063,7 @@ function syncLandingChromeAlignment(force = false) {
         const autoplayEnabled = true;
         let interactionPaused = false;
         let userPaused = false;
-        const canAutoplay = () => autoplayEnabled && !interactionPaused && !userPaused && !reducedMotionQuery.matches;
+        const canAutoplay = () => autoplayEnabled && !document.hidden && !document.body.classList.contains('menu-open') && !document.getElementById('fullscreen-viewer')?.classList.contains('visible') && !interactionPaused && !userPaused && !reducedMotionQuery.matches;
 
         const updatePauseButton = () => {
             if (!pauseBtn) return;
@@ -2015,7 +2075,7 @@ function syncLandingChromeAlignment(force = false) {
         };
         updatePauseButton();
 
-        segments.forEach(seg => {
+        const fills = Array.from(segments, seg => {
             let fill = seg.querySelector('.story-segment-fill');
             if (!fill) {
                 fill = document.createElement('div');
@@ -2024,11 +2084,16 @@ function syncLandingChromeAlignment(force = false) {
             }
             fill.style.transition = 'none';
             fill.style.transform = 'scaleX(0)';
+            return fill;
         });
 
         const updateUI = (updateStates = true) => {
+            if (!updateStates) {
+                if (fills[currentIndex]) fills[currentIndex].style.transform = `scaleX(${progress / 100})`;
+                return;
+            }
             segments.forEach((seg, idx) => {
-                const fill = seg.querySelector('.story-segment-fill');
+                const fill = fills[idx];
                 if (!fill) return;
 
                 if (idx < currentIndex) {
@@ -2171,6 +2236,28 @@ function syncLandingChromeAlignment(force = false) {
             if (isVisible && canAutoplay() && !animationFrameId) animationFrameId = requestAnimationFrame(animate);
         }, { threshold: 0.01 });
         visibilityObserver.observe(slider);
+
+        const syncPlayback = () => {
+            if (!slider.isConnected) {
+                visibilityObserver.disconnect();resizeObserver.disconnect();
+                playbackObserver.disconnect();playbackAbort.abort();
+                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                if (heightFrameId) cancelAnimationFrame(heightFrameId);
+                clearTimeout(scrollTimeout);
+                animationFrameId = null;
+                return;
+            }
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;lastTime = null;
+            if (isVisible && canAutoplay()) animationFrameId = requestAnimationFrame(animate);
+        };
+        const playbackAbort = new AbortController();
+        document.addEventListener('visibilitychange', syncPlayback, { signal: playbackAbort.signal });
+        reducedMotionQuery.addEventListener('change', syncPlayback, { signal: playbackAbort.signal });
+        const playbackObserver = new MutationObserver(syncPlayback);
+        playbackObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+        playbackObserver.observe(document.getElementById('panel-content'), { childList: true });
+        playbackObserver.observe(document.getElementById('fullscreen-viewer'), { attributes: true, attributeFilter: ['class'] });
 
         updateUI();
     }

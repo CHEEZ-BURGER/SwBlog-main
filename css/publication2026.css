@@ -23,8 +23,8 @@ html body .hamburger-btn :is(.up-bar,.down-bar){border-top:0;background:var(--te
 .post-list-content{background:transparent!important}
 .post-list-container{background:var(--bg)!important}
 .post-list-item.active .post-list-content{background:var(--text)!important}
-html body:not(.landing-state):not(:has(.post-panel-viewer.active-state)) .hamburger-btn :is(.up-bar,.down-bar){background:var(--bg)!important}
-html body:not(.landing-state):not(:has(.post-panel-viewer.active-state)) .menu-arrow{color:#121212!important}
+html body:not(.landing-state):not(:is(.reader-open.reader-open)) .hamburger-btn :is(.up-bar,.down-bar){background:var(--bg)!important}
+html body:not(.landing-state):not(:is(.reader-open.reader-open)) .menu-arrow{color:#121212!important}
 .post-list-item[data-category="DESIGN"]{--category-accent:#FFBA59}.post-list-item[data-category="LIFE"]{--category-accent:#FF6E8E}
 /* Signature glyph wave stays concurrent with the slide, category spin and preview. */
 html body .post-list-item:is(:hover,:focus-visible,.signal-active) .clone .wave-char{
@@ -45,7 +45,7 @@ html body .post-list-item:is(:hover,:focus-visible,.signal-active) .clone .wave-
 .post-list-item:is(:focus-visible,.signal-active) .post-list-content.clone{transform:translateY(0)}
 .post-list-item .post-list-dot{border-radius:0;background:none;object-position:center;filter:invert(1);transition:transform var(--motion-base) var(--ease-out)}
 html body .post-list-item:is(:hover,:focus-visible,.signal-active) .post-list-dot{animation:rotate_cat 3200ms linear infinite!important;animation-delay:180ms!important}
-html body:has(.post-panel-viewer.active-state) #archive-panel .post-list-item.active{background:color-mix(in srgb,var(--category-accent) 12%,var(--bg))!important;box-shadow:inset 4px 0 var(--text)}
+html body:is(.reader-open.reader-open) #archive-panel .post-list-item.active{background:color-mix(in srgb,var(--category-accent) 12%,var(--bg))!important;box-shadow:inset 4px 0 var(--text)}
 html body #archive-panel .post-list-item.active .post-list-content{background:transparent!important}
 html body #archive-panel .post-list-item.active :is(.post-list-title,.post-list-category,.post-list-num){color:var(--text)!important}
 html body #archive-panel .post-list-item.active .post-list-dot{filter:invert(1)!important}
@@ -70,7 +70,7 @@ html body #archive-panel .post-list-item.active .post-list-dot{filter:invert(1)!
 .resolution-number{position:relative;display:grid;overflow:hidden;min-width:1.75em;padding-bottom:.05em}.resolution-number span{grid-area:1/1;text-align:right}.resolution-percent{font-size:.4em;align-self:center;margin-left:.1em;letter-spacing:-.08em}
 .resolution-meta{position:absolute;inset:auto 5vw 6vh;display:flex;justify-content:space-between;gap:20px;font:18px/1.5 var(--font-meta);border-top:1px solid var(--text);padding-top:18px}
 .content-resolving .publication-preview{visibility:hidden!important}
-html body:has(.post-panel-viewer.active-state) .post-viewer-header,.post-article-header{background:var(--bg);min-height:90svh;padding-top:130px;padding-bottom:60px}
+html body:is(.reader-open.reader-open) .post-viewer-header,.post-article-header{background:var(--bg);min-height:90svh;padding-top:130px;padding-bottom:60px}
 .post-viewer-header::before,.post-article-header::before{content:attr(data-post-number);font:18px/1.5 var(--font-meta);letter-spacing:.05em;margin-bottom:24px;color:var(--text);border-color:var(--rule)}
 .post-viewer-category,.post-category{font:18px/1.5 var(--font-meta);letter-spacing:.04em;text-align:right;margin-top:-43px;margin-bottom:80px}
 html body #panel-title,.post-article-header .post-title{font:550 clamp(64px,7vw,128px)/1.04 var(--font-display)!important;letter-spacing:-.055em;max-width:16ch;text-wrap:balance;word-break:keep-all;margin-bottom:70px}
@@ -106,42 +106,42 @@ html body .footer-nav a{color:var(--bg);border-color:#555}.footer-kicker,.footer
 .mobile-contents{display:none}
 @media(min-width:1181px){
  /* The drawer has one fixed layout width; only its clipped edge moves. */
- html body:has(.post-panel-viewer.active-state) .split-layout>#archive-panel,
- html body:has(.post-panel-viewer.active-state) .split-layout>#archive-panel:not(.disable-hover):is(:hover,:focus-within),
- html body.archive-pinned:has(.post-panel-viewer.active-state) .split-layout>#archive-panel{
+ html body:is(.reader-open.reader-open) .split-layout>#archive-panel,
+ html body:is(.reader-open.reader-open) .split-layout>#archive-panel:not(.disable-hover):is(:hover,:focus-within),
+ html body.archive-pinned:is(.reader-open.reader-open) .split-layout>#archive-panel{
   width:var(--reader-rail-expanded)!important;min-width:var(--reader-rail-expanded)!important;max-width:var(--reader-rail-expanded)!important;flex-basis:var(--reader-rail-expanded)!important;background:var(--bg)!important;box-shadow:none!important;
   clip-path:inset(0 calc(100% - var(--reader-rail)) 0 0);transition:clip-path var(--motion-scene) var(--ease-scene),opacity var(--motion-fast)!important;
  }
- html body:has(.post-panel-viewer.active-state) .split-layout>#archive-panel:not(.disable-hover):is(:hover,:focus-within),html body.archive-pinned:has(.post-panel-viewer.active-state) .split-layout>#archive-panel{clip-path:inset(0)}
- body:has(.post-panel-viewer.active-state) #archive-panel .archive-heading::before{content:var(--current-number,'00');font:120px/.9 var(--font-display)}
- body:has(.post-panel-viewer.active-state) .archive-toggle{background:var(--bg)}
- body:has(.post-panel-viewer.active-state) #archive-panel::after{content:attr(data-current-number);position:fixed;top:90px;right:25px;font:550 160px/1 var(--font-display);letter-spacing:-.07em;opacity:.06;pointer-events:none}
- html body:has(.post-panel-viewer.active-state) .post-viewer-header{padding-left:clamp(120px,11vw,180px)!important;padding-right:5vw!important}
- html body:has(.post-panel-viewer.active-state) .post-viewer-content{padding-left:clamp(300px,25vw,420px)!important;padding-right:5vw!important}
- html body:has(.post-panel-viewer.active-state):has(#archive-panel:not(.disable-hover):is(:hover,:focus-within)) .post-viewer-toc-sidebar{transform:translateX(-10px)}
- body:has(.post-panel-viewer.active-state) .post-viewer-toc-sidebar{mix-blend-mode:multiply}
- html body.cover-in-view:has(.post-panel-viewer.active-state) #post-toc-sidebar{opacity:0!important;pointer-events:none!important;transform:translateY(10px)!important}
+ html body:is(.reader-open.reader-open) .split-layout>#archive-panel:not(.disable-hover):is(:hover,:focus-within),html body.archive-pinned:is(.reader-open.reader-open) .split-layout>#archive-panel{clip-path:inset(0)}
+ body:is(.reader-open.reader-open) #archive-panel .archive-heading::before{content:var(--current-number,'00');font:120px/.9 var(--font-display)}
+ body:is(.reader-open.reader-open) .archive-toggle{background:var(--bg)}
+ body:is(.reader-open.reader-open) #archive-panel::after{content:attr(data-current-number);position:fixed;top:90px;right:25px;font:550 160px/1 var(--font-display);letter-spacing:-.07em;opacity:.06;pointer-events:none}
+ html body:is(.reader-open.reader-open) .post-viewer-header{padding-left:clamp(120px,11vw,180px)!important;padding-right:5vw!important}
+ html body:is(.reader-open.reader-open) .post-viewer-content{padding-left:clamp(300px,25vw,420px)!important;padding-right:5vw!important}
+ html body:is(.reader-open.reader-open):has(#archive-panel:not(.disable-hover):is(:hover,:focus-within)) .post-viewer-toc-sidebar{transform:translateX(-10px)}
+ body:is(.reader-open.reader-open) .post-viewer-toc-sidebar{mix-blend-mode:multiply}
+ html body.cover-in-view:is(.reader-open.reader-open) #post-toc-sidebar{opacity:0!important;pointer-events:none!important;transform:translateY(10px)!important}
 }
 @media(max-width:1180px){
- html body:not(.landing-state):not(:has(.post-panel-viewer.active-state)) .hamburger-btn :is(.up-bar,.down-bar){background:var(--text)!important}
- html body:not(.landing-state):not(:has(.post-panel-viewer.active-state)) .menu-arrow{color:var(--text)}
+ html body:not(.landing-state):not(:is(.reader-open.reader-open)) .hamburger-btn :is(.up-bar,.down-bar){background:var(--text)!important}
+ html body:not(.landing-state):not(:is(.reader-open.reader-open)) .menu-arrow{color:var(--text)}
  .mobile-signal{display:block;height:300px;margin:0;background:var(--bg)}
  .mobile-signal .signal-field{height:300px}
- html body:not(.landing-state):not(:has(.post-panel-viewer.active-state)) #post-panel{display:block!important;position:relative!important;width:100%!important;max-width:none!important;height:300px!important;min-height:0!important;overflow:hidden!important;inset:auto!important}
- html body:not(.landing-state):not(:has(.post-panel-viewer.active-state)) #post-panel-placeholder{position:relative!important;height:300px!important;display:block!important;opacity:1!important;visibility:visible!important}
- html body:not(.landing-state):not(:has(.post-panel-viewer.active-state)) #post-panel:not(:has(.signal-field)){display:none!important}
+ html body:not(.landing-state):not(:is(.reader-open.reader-open)) #post-panel{display:block!important;position:relative!important;width:100%!important;max-width:none!important;height:300px!important;min-height:0!important;overflow:hidden!important;inset:auto!important}
+ html body:not(.landing-state):not(:is(.reader-open.reader-open)) #post-panel-placeholder{position:relative!important;height:300px!important;display:block!important;opacity:1!important;visibility:visible!important}
+ html body:not(.landing-state):not(:is(.reader-open.reader-open)) #post-panel:not(:has(.signal-field)){display:none!important}
  body:not(.landing-state) .split-layout{display:flex;flex-direction:column}
  .signal-field{grid-template-rows:45px minmax(0,1fr) 55px;border:0;border-top:1px solid var(--rule)}.signal-field .ascii-caption{padding:0 24px}.signal-field figcaption{margin:0 24px;padding:6px 0}.signal-field button{width:44px;height:44px}
  .post-viewer-category,.post-category{margin-bottom:65px}.publication-hero{margin-top:48px}
- html body:has(.post-panel-viewer.active-state) .mobile-contents:not([hidden]){display:block;position:fixed;right:24px;bottom:20px;z-index:9990;min-height:48px;padding:0 22px;border:1px solid var(--text);background:var(--bg);color:var(--text);font:18px/1.5 var(--font-meta)}
- html body.contents-open:has(.post-panel-viewer.active-state) #post-toc-sidebar:not([hidden]){display:block!important;position:fixed!important;inset:auto 16px 80px!important;width:auto!important;max-height:65svh;overflow:auto;padding:28px!important;background:var(--bg)!important;border:1px solid var(--rule)!important;opacity:1!important;visibility:visible!important;transform:none!important;z-index:9990;pointer-events:auto}
- html body:has(.post-panel-viewer.active-state) #archive-panel{display:none!important}
- html body.post-end-stage:has(.post-panel-viewer.active-state) .mobile-contents{display:none!important}
+ html body:is(.reader-open.reader-open) .mobile-contents:not([hidden]){display:block;position:fixed;right:24px;bottom:20px;z-index:9990;min-height:48px;padding:0 22px;border:1px solid var(--text);background:var(--bg);color:var(--text);font:18px/1.5 var(--font-meta)}
+ html body.contents-open:is(.reader-open.reader-open) #post-toc-sidebar:not([hidden]){display:block!important;position:fixed!important;inset:auto 16px 80px!important;width:auto!important;max-height:65svh;overflow:auto;padding:28px!important;background:var(--bg)!important;border:1px solid var(--rule)!important;opacity:1!important;visibility:visible!important;transform:none!important;z-index:9990;pointer-events:auto}
+ html body:is(.reader-open.reader-open) #archive-panel{display:none!important}
+ html body.post-end-stage:is(.reader-open.reader-open) .mobile-contents{display:none!important}
  .resolution-meta{font-size:10px}.reading-complete{min-height:50svh}.post-continuation{min-height:65svh}
 }
 @media(max-width:600px){
  html body #panel-title,.post-article-header .post-title{font-size:clamp(42px,11.5vw,68px)!important;line-height:1.12!important;margin-bottom:48px;max-width:100%}
- html body:has(.post-panel-viewer.active-state) .post-viewer-header,.post-article-header{min-height:0;padding:112px 24px 48px}
+ html body:is(.reader-open.reader-open) .post-viewer-header,.post-article-header{min-height:0;padding:112px 24px 48px}
  .post-viewer-category,.post-category{font-size:11px;margin-bottom:55px}.post-reading-meta{margin-left:10px;padding-left:10px}.publication-hero{aspect-ratio:4/3}
  .post-continuation-link{grid-template-columns:1fr}.post-continuation-title{font-size:40px}.post-continuation-media{width:65%;justify-self:end}.post-continuation{padding:44px 24px 60px}
  .footer-main{grid-template-columns:1fr}.footer-main>div{padding:40px 24px}.footer-nav{padding:32px 24px}.reading-complete{padding:60px 24px}.reading-complete>div{font-size:29vw}
@@ -180,7 +180,7 @@ body.content-pointer-locked .resolution-scene{pointer-events:auto!important;touc
 
 .complete-value{letter-spacing:normal}
 .header-hidden-inner,.header-hidden-inner :is(a,span,li,p,small,h1,h2,h3){font-family:'Instrument Serif','Noto Serif KR',Georgia,serif!important}
-html body:has(.post-panel-viewer.active-state) .panel-close-btn{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:var(--text)!important;width:48px;height:48px}
+html body:is(.reader-open.reader-open) .panel-close-btn{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:var(--text)!important;width:48px;height:48px}
 html body .panel-close-btn{transition:transform 400ms var(--ease-in-out),opacity 200ms,left 750ms var(--ease-panel)!important}
 html body .panel-close-btn:is(:hover,:focus-visible){transform:scale(1.14) rotate(90deg)}
 @media(prefers-reduced-motion:reduce){html body .panel-close-btn:is(:hover,:focus-visible){transform:none}}
@@ -195,14 +195,14 @@ html body .panel-close-btn:is(:hover,:focus-visible){transform:scale(1.14) rotat
 @media(prefers-reduced-motion:reduce){.resolution-digit span,.resolution-percent{animation:none}}
 
 /* Reader rail stays above close control; the menu scrim covers both. */
-html body:has(.post-panel-viewer.active-state) .panel-close-btn{z-index:450}
+html body:is(.reader-open.reader-open) .panel-close-btn{z-index:450}
 html body .menu-index-scrim{z-index:600;background:rgba(18,18,18,.1);-webkit-backdrop-filter:none;backdrop-filter:none}
 /* The menu sits above its scrim everywhere, the landing included (mainPage.css pins it to 310 there,
    under the scrim, which dimmed the open menu along with the page). */
 html body .header-hidden,html body.landing-state .header-hidden.active{z-index:610!important}
 html body #site-header-controls{z-index:620!important}
 /* A fluid editorial index, with its own scroll area on short windows. */
-html body:has(.post-panel-viewer.active-state) #post-toc-sidebar{
+html body:is(.reader-open.reader-open) #post-toc-sidebar{
     padding:0 0 18px 16px;border:0;
     background:transparent;mix-blend-mode:normal;overflow:hidden;
     transition:opacity 360ms ease,transform 460ms cubic-bezier(.22,1,.36,1)!important;
@@ -216,7 +216,7 @@ html body #post-toc-sidebar .toc-list{
     overflow-y:auto;overscroll-behavior:contain;max-height:calc(100dvh - 340px);
     scrollbar-width:thin;scrollbar-color:#c7c7cc transparent;padding:0 8px 0 0;
 }
-html body:has(.post-panel-viewer.active-state) #post-toc-sidebar .toc-list li{
+html body:is(.reader-open.reader-open) #post-toc-sidebar .toc-list li{
     position:relative;grid-template-columns:24px minmax(0,1fr);gap:8px;
     padding:12px 6px;min-height:44px;box-sizing:border-box;
     font-size:14px;line-height:1.55;
@@ -224,7 +224,7 @@ html body:has(.post-panel-viewer.active-state) #post-toc-sidebar .toc-list li{
     transition:background-color 240ms ease,color 240ms ease;
 }
 html body #post-toc-sidebar .toc-list li::before{content:counter(chapter,decimal-leading-zero)!important;font:500 12px/1.9 'Circular Std',Arial,sans-serif;color:#a1a1a6!important}
-html body:has(.post-panel-viewer.active-state) #post-toc-sidebar .toc-list li.active{color:#121212!important;background:rgba(86,154,255,.09)}
+html body:is(.reader-open.reader-open) #post-toc-sidebar .toc-list li.active{color:#121212!important;background:rgba(86,154,255,.09)}
 html body #post-toc-sidebar .toc-list li.active::before{color:#397bd5!important}
 html body #post-toc-sidebar .toc-list li:is(:hover,:focus-visible){background:rgba(18,18,18,.045);color:#121212!important}
 html body #post-toc-sidebar .toc-list li:focus-visible{outline:1px solid #569aff;outline-offset:-1px}
@@ -233,7 +233,7 @@ html body #post-toc-sidebar .toc-progress-meta strong{font:500 24px/1 'Circular 
 html body #post-toc-sidebar .toc-reading-progress{height:2px;margin-top:10px;background:rgba(18,18,18,.1)}
 html body #post-toc-sidebar .toc-reading-bar{background:#569aff;transition:transform 180ms linear}
 @media(min-width:1181px){
-    html body:has(.post-panel-viewer.active-state) #post-toc-sidebar{top:clamp(110px,16vh,160px)!important;left:100px!important;width:clamp(180px,16vw,240px);max-height:calc(100dvh - 160px)}
+    html body:is(.reader-open.reader-open) #post-toc-sidebar{top:clamp(110px,16vh,160px)!important;left:100px!important;width:clamp(180px,16vw,240px);max-height:calc(100dvh - 160px)}
 }
 @media(max-width:1180px){
     html body.contents-open #post-toc-sidebar:not([hidden]){padding:24px!important;background:var(--bg)!important;border:1px solid var(--rule);box-shadow:0 16px 50px #12121214}
@@ -242,12 +242,12 @@ html body #post-toc-sidebar .toc-reading-bar{background:#569aff;transition:trans
 .reading-complete{position:relative;isolation:isolate}
 /* Clip at the moving ending edge: no fade, jump, or timed exit. */
 @media(min-width:1181px){
-    html body:has(.post-panel-viewer.active-state) #post-toc-sidebar{clip-path:inset(0 0 var(--toc-ending-cover,0px) 0)}
-    html body.post-end-stage:has(.post-panel-viewer.active-state) #post-toc-sidebar{opacity:1;pointer-events:auto}
+    html body:is(.reader-open.reader-open) #post-toc-sidebar{clip-path:inset(0 0 var(--toc-ending-cover,0px) 0)}
+    html body.post-end-stage:is(.reader-open.reader-open) #post-toc-sidebar{opacity:1;pointer-events:auto}
 }
 @media(prefers-reduced-motion:reduce){html body #post-toc-sidebar,html body #post-toc-sidebar *{transition:none!important}}
 /* Stable, generous hit target; only the icon rotates on hover. */
-html body:has(.post-panel-viewer.active-state) .panel-close-btn{
+html body:is(.reader-open.reader-open) .panel-close-btn{
     width:64px!important;height:64px!important;margin:-8px 0 0 -8px;padding:0!important;
     box-sizing:border-box;align-items:center;justify-content:center;cursor:pointer;
 }
@@ -258,9 +258,9 @@ html body .panel-close-btn svg{
 }
 html body .panel-close-btn:is(:hover,:focus-visible) svg{transform:scale(1.14) rotate(90deg)}
 @media(prefers-reduced-motion:reduce){html body .panel-close-btn svg{transition:none;transform:none!important}}
-html body:has(.post-panel-viewer.active-state) #site-header-controls{pointer-events:none}
-html body:has(.post-panel-viewer.active-state) #site-header-controls .logo{pointer-events:none!important}
-html body:has(.post-panel-viewer.active-state) #site-header-controls button{pointer-events:auto}
+html body:is(.reader-open.reader-open) #site-header-controls{pointer-events:none}
+html body:is(.reader-open.reader-open) #site-header-controls .logo{pointer-events:none!important}
+html body:is(.reader-open.reader-open) #site-header-controls button{pointer-events:auto}
 
 /* Reader close choreography: article folds away while the index unfurls beneath it. */
 html body.reader-closing{cursor:progress}
@@ -289,12 +289,12 @@ html body.reader-list-revealing .post-list-item{
     100%{opacity:1;transform:translate3d(0,0,0);clip-path:inset(0)}
 }
 @media(min-width:1181px){
-    html body.reader-closing:has(.post-panel-viewer.active-state) .split-layout>#archive-panel{
+    html body.reader-closing:is(.reader-open.reader-open) .split-layout>#archive-panel{
         display:block!important;width:50vw!important;min-width:50vw!important;max-width:50vw!important;flex-basis:50vw!important;
         clip-path:inset(0)!important;overflow:hidden!important;
         transition:clip-path 780ms cubic-bezier(.76,0,.18,1),width 780ms cubic-bezier(.76,0,.18,1),min-width 780ms cubic-bezier(.76,0,.18,1),max-width 780ms cubic-bezier(.76,0,.18,1),flex-basis 780ms cubic-bezier(.76,0,.18,1)!important;
     }
-    html body.reader-closing:has(.post-panel-viewer.active-state) #archive-panel .post-list-content{opacity:1!important;visibility:visible!important}
+    html body.reader-closing:is(.reader-open.reader-open) #archive-panel .post-list-content{opacity:1!important;visibility:visible!important}
 }
 @media(prefers-reduced-motion:reduce){
     html body.reader-closing .post-panel-viewer::after{display:none}
@@ -332,9 +332,9 @@ html body.reader-list-revealing .post-list-item{
     }
     .mobile-signal .signal-field{display:grid!important;width:100%;height:100%;min-height:0;touch-action:pan-y}
     .mobile-signal .ascii-volume-canvas{width:100%!important;height:100%!important}
-    html body:not(.landing-state):not(:has(.post-panel-viewer.active-state)) #post-panel{display:none!important}
+    html body:not(.landing-state):not(:is(.reader-open.reader-open)) #post-panel{display:none!important}
 
-    html body:has(.post-panel-viewer.active-state) .panel-close-btn{
+    html body:is(.reader-open.reader-open) .panel-close-btn{
         top:max(10px,env(safe-area-inset-top))!important;left:max(10px,env(safe-area-inset-left))!important;
         right:auto!important;margin:0!important;width:56px!important;height:56px!important;
         display:flex!important;background:color-mix(in srgb,var(--bg) 90%,transparent)!important;
@@ -393,8 +393,11 @@ html body.content-resolving .panel-close-btn{visibility:hidden!important}
    are drawn on the words themselves, since they do not carry into inline blocks. */
 .rl-block:not(.rl-split){opacity:0}
 .rl-m{display:inline-block;clip-path:inset(-.05em -.12em -.12em -.12em);vertical-align:baseline}
-.rl-i{display:inline-block;transform:translate3d(0,108%,0);transition:transform 900ms cubic-bezier(.19,1,.22,1)}
+/* Keep the original raster/compositing for visible words. Unrevealed words and completed
+   words outside the viewport do not need permanent 3D layers. */
+.rl-i{display:inline-block;transform:translateY(108%);transition:transform 900ms cubic-bezier(.19,1,.22,1)}
 .rl-in .rl-i{transform:translate3d(0,0,0)}
+.rl-in.rl-offscreen .rl-i{transform:translateY(0);transition:none}
 :where(a,u,ins) .rl-i{text-decoration:underline;text-decoration-color:inherit}
 :where(s,del) .rl-i{text-decoration:line-through}
 @media(prefers-reduced-motion:reduce){.rl-block:not(.rl-split){opacity:1}.rl-i{transform:none;transition:none}}

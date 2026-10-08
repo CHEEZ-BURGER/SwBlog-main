@@ -27,14 +27,24 @@
     });
     observer.observe(viewer,{attributes:true,attributeFilter:['class']});
     observer.observe(document.getElementById('panel-title'),{childList:true});
-    let ticking=false;
-    panel.addEventListener('scroll',()=>{
-        if(ticking) return; ticking=true;
-        requestAnimationFrame(()=>{
-            ticking=false;
-            if(!viewer.classList.contains('active-state')) return;
-            const end=continuation.getBoundingClientRect().top-panel.getBoundingClientRect().top;
-            document.body.classList.toggle('post-end-stage',end<panel.clientHeight*.38);
-        });
-    },{passive:true});
+    // The ending's position changes with content and viewport size, not with each scroll.
+    let frame=0,dirty=true,endingTop=Infinity,threshold=0;
+    const updateEnding=()=>{
+        frame=0;
+        if(!viewer.classList.contains('active-state')){dirty=true;return;}
+        const scrollTop=panel.scrollTop;
+        if(dirty){
+            endingTop=continuation.getBoundingClientRect().top-panel.getBoundingClientRect().top+scrollTop;
+            threshold=panel.clientHeight*.38;
+            dirty=false;
+        }
+        document.body.classList.toggle('post-end-stage',endingTop-scrollTop<threshold);
+    };
+    const queueEnding=()=>{if(!frame)frame=requestAnimationFrame(updateEnding);};
+    const invalidateEnding=()=>{dirty=true;queueEnding();};
+    panel.addEventListener('scroll',queueEnding,{passive:true});
+    const sizes=new ResizeObserver(invalidateEnding);
+    [panel,document.getElementById('panel-post-body'),continuation].filter(Boolean).forEach(el=>sizes.observe(el));
+    new MutationObserver(invalidateEnding).observe(viewer,{attributes:true,attributeFilter:['class']});
+    window.addEventListener('resize',invalidateEnding,{passive:true});
 })();

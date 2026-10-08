@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "node tools/preview-server.mjs",
     "check": "node tools/check-scripts.mjs",
+    "test": "node tools/test-post-type.mjs && node tools/test-post-tags.mjs && node tools/test-panel-field.mjs && node tools/test-smooth-scroll.cjs && node tools/test-motion.cjs",
     "build": "npm run check && node tools/build.mjs"
   }
 }

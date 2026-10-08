@@ -304,7 +304,7 @@
     let raf = 0, last = 0;
     let swapAt = 0;                 // when a filter change lays the new set (0: none waiting)
     function wake() {
-        if (raf || view !== 'field' || !field) return;
+        if (raf || document.hidden || view !== 'field' || !field) return;
         last = performance.now();
         raf = requestAnimationFrame(frame);
     }
@@ -315,6 +315,7 @@
 
     function frame(now) {
         raf = 0;
+        if (document.hidden) return;
         const dt = Math.min(48, Math.max(1, now - last));
         last = now;
         if (swapAt && now >= swapAt) lay(true);
@@ -324,6 +325,8 @@
         if (!moving && !fading) rest();
         else if (!raf) raf = requestAnimationFrame(frame);   // lay() may have asked already
     }
+
+    document.addEventListener('visibilitychange', () => document.hidden ? sleep() : wake());
 
     // Moves the camera towards its target and eases the draw-back. Returns false once at rest.
     function step(dt) {

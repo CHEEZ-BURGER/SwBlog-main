@@ -60,6 +60,7 @@
         queued = false;
         const y = Math.max(0, window.scrollY);
         const away = y > TOP;
+        const surface = away ? surfaceUnder() : '';
         nav.classList.toggle('is-scrolled', away);
         if (!away) {
             nav.classList.remove('is-tucked');
@@ -70,7 +71,7 @@
             nav.classList.toggle('is-tucked', down && y > TUCK && !isOpen() && !nav.contains(document.activeElement));
             last = y;
         }
-        nav.dataset.surface = away ? surfaceUnder() : '';
+        if (nav.dataset.surface !== surface) nav.dataset.surface = surface;
     }
 
     function queue() {

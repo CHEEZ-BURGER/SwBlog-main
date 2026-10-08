@@ -1064,21 +1064,21 @@ body.menu-open .post-panel-placeholder::after {
     pointer-events: auto;
 }
 
-body:has(.post-panel-viewer.active-state) .masthead {
+body:is(.reader-open.reader-open) .masthead {
     display: none !important;
 }
 
-body:has(.post-panel-viewer.active-state) .headerBtn-box {
+body:is(.reader-open.reader-open) .headerBtn-box {
     z-index: 320 !important;
     pointer-events: none;
 }
 
-body:has(.post-panel-viewer.active-state) .hamburger-btn,
-body:has(.post-panel-viewer.active-state) .logo {
+body:is(.reader-open.reader-open) .hamburger-btn,
+body:is(.reader-open.reader-open) .logo {
     pointer-events: auto;
 }
 
-body:has(.post-panel-viewer.active-state) .post-panel,
+body:is(.reader-open.reader-open) .post-panel,
 .post-panel-viewer.active-state {
     transform: none;
     will-change: auto;
@@ -1989,14 +1989,14 @@ body.landing-state .scroll-down-btn:hover {
         width: 50vw; 
     }
 
-    .split-layout:has(.post-panel-viewer.active-state) .masthead {
+    .split-layout:is(.reader-open.reader-open) .masthead {
         display: none !important;
     }
 
-    .split-layout:has(.post-panel-viewer.active-state) .headerBtn-start,
-    .split-layout:has(.post-panel-viewer.active-state) .headerBtn-end,
-    .split-layout:has(.post-panel-viewer.active-state) .footer,
-    .split-layout:has(.post-panel-viewer.active-state) .main-inner:has(.section-title) {
+    .split-layout:is(.reader-open.reader-open) .headerBtn-start,
+    .split-layout:is(.reader-open.reader-open) .headerBtn-end,
+    .split-layout:is(.reader-open.reader-open) .footer,
+    .split-layout:is(.reader-open.reader-open) .main-inner:has(.section-title) {
         opacity: 0 !important;
         visibility: hidden !important;
         pointer-events: none !important;
@@ -2006,7 +2006,7 @@ body.landing-state .scroll-down-btn:hover {
         overflow: hidden !important;
     }
 
-    .split-layout:has(.post-panel-viewer.active-state) .index-panel {
+    .split-layout:is(.reader-open.reader-open) .index-panel {
         flex: 0 0 4rem !important;
         max-width: 4rem !important;
         border-right: 1px solid var(--color-border-alt) !important;
@@ -2015,23 +2015,23 @@ body.landing-state .scroll-down-btn:hover {
         cursor: pointer;
     }
 
-    .split-layout:has(.post-panel-viewer.active-state) .index-panel:not(.disable-hover):hover {
+    .split-layout:is(.reader-open.reader-open) .index-panel:not(.disable-hover):hover {
         flex: 0 0 32vw !important;
         max-width: 32vw !important;
     }
 
-    .split-layout:has(.post-panel-viewer.active-state) .index-panel .page {
+    .split-layout:is(.reader-open.reader-open) .index-panel .page {
         width: 32vw !important;
         min-width: 450px !important;
     }
 
-    .split-layout:has(.post-panel-viewer.active-state) .post-panel {
+    .split-layout:is(.reader-open.reader-open) .post-panel {
         flex: 1 !important;
         max-width: calc(100vw - 4rem) !important;
         transition: flex 0.75s var(--ease-panel), max-width 0.75s var(--ease-panel) !important;
     }
 
-    body:has(.post-panel-viewer.active-state) .logo {
+    body:is(.reader-open.reader-open) .logo {
         left: clamp(1.2rem, 13vw, 7rem);
         right: auto !important;
         transform: none !important;
@@ -2040,42 +2040,42 @@ body.landing-state .scroll-down-btn:hover {
         transition: 0.75s var(--ease-panel) !important;
     }
 
-    body:has(.post-panel-viewer.active-state):has(.index-panel:not(.disable-hover):hover) .logo {
+    body:is(.reader-open.reader-open):has(.index-panel:not(.disable-hover):hover) .logo {
         left: clamp(1.2rem, 13vw, 12rem);
     }
     
-    .split-layout:has(.post-panel-viewer.active-state) .main-line {
+    .split-layout:is(.reader-open.reader-open) .main-line {
         padding-top: 5rem !important;
     }
 
-    .split-layout:has(.post-panel-viewer.active-state) .post-list-content.main,
-    .split-layout:has(.post-panel-viewer.active-state) .post-list-content.clone {
+    .split-layout:is(.reader-open.reader-open) .post-list-content.main,
+    .split-layout:is(.reader-open.reader-open) .post-list-content.clone {
         padding: 1rem 1rem 1rem 5.5rem !important; 
         gap: 1rem !important;
         min-height: 85px !important;
     }
 
-    .split-layout:has(.post-panel-viewer.active-state) .post-list-title {
+    .split-layout:is(.reader-open.reader-open) .post-list-title {
         font-size: 1.25rem !important;
         padding: 2px 0 !important;
         margin: -2px 0 !important;
     }
 
-    .split-layout:has(.post-panel-viewer.active-state) .post-list-item {
+    .split-layout:is(.reader-open.reader-open) .post-list-item {
         opacity: 0.4 !important;
         transition: opacity 0.3s ease, background-color 0.3s ease !important;
     }
 
-    .split-layout:has(.post-panel-viewer.active-state) .post-list-item:hover {
+    .split-layout:is(.reader-open.reader-open) .post-list-item:hover {
         opacity: 0.8 !important;
     }
 
-    .split-layout:has(.post-panel-viewer.active-state) .post-list-item.active {
+    .split-layout:is(.reader-open.reader-open) .post-list-item.active {
         opacity: 1 !important;
         background-color: var(--color-bg-line) !important;
     }
 
-    .split-layout:has(.post-panel-viewer.active-state) .post-list-item.active .post-list-num {
+    .split-layout:is(.reader-open.reader-open) .post-list-item.active .post-list-num {
         font-size: 2.6rem !important;
         transform: scale(1) !important;
     }
@@ -2098,36 +2098,36 @@ body.landing-state .scroll-down-btn:hover {
         padding-left: clamp(1rem, 3vw, 3rem);
     }
 
-    body:has(.post-panel-viewer.active-state) .post-viewer-toc-sidebar {
+    body:is(.reader-open.reader-open) .post-viewer-toc-sidebar {
         left: clamp(5.25rem, 9vw, 9rem);
     }
 
-    body:has(.post-panel-viewer.active-state):has(.index-panel:not(.disable-hover):hover) .post-viewer-toc-sidebar,
-    body:has(.post-panel-viewer.active-state):has(.post-list-content.main:hover) .post-viewer-toc-sidebar {
+    body:is(.reader-open.reader-open):has(.index-panel:not(.disable-hover):hover) .post-viewer-toc-sidebar,
+    body:is(.reader-open.reader-open):has(.post-list-content.main:hover) .post-viewer-toc-sidebar {
         visibility: hidden;
         opacity: 0;
         pointer-events: none;
         transform: translate3d(-6.25rem, -50%, 0);
     }
 
-    body:has(.post-panel-viewer.active-state):has(.index-panel:not(.disable-hover):hover) .post-panel-viewer.active-state .panel-post-body,
-    body:has(.post-panel-viewer.active-state):has(.post-list-content.main:hover) .post-panel-viewer.active-state .panel-post-body {
+    body:is(.reader-open.reader-open):has(.index-panel:not(.disable-hover):hover) .post-panel-viewer.active-state .panel-post-body,
+    body:is(.reader-open.reader-open):has(.post-list-content.main:hover) .post-panel-viewer.active-state .panel-post-body {
         width: min(1000px, calc(100% - 4rem)) !important;
         margin: 0 auto !important;
         padding-left: 2.5rem !important;
     }
 
-    body:has(.post-panel-viewer.active-state):has(.index-panel:not(.disable-hover):hover) .post-panel-viewer.active-state .panel-post-layout,
-    body:has(.post-panel-viewer.active-state):has(.post-list-content.main:hover) .post-panel-viewer.active-state .panel-post-layout {
+    body:is(.reader-open.reader-open):has(.index-panel:not(.disable-hover):hover) .post-panel-viewer.active-state .panel-post-layout,
+    body:is(.reader-open.reader-open):has(.post-list-content.main:hover) .post-panel-viewer.active-state .panel-post-layout {
         padding-left: 1rem;
         padding-right: 1rem;
     }
 
-    body:has(.post-panel-viewer.active-state) .panel-close-btn {
+    body:is(.reader-open.reader-open) .panel-close-btn {
         left: 5.25rem;
     }
 
-    body:has(.post-panel-viewer.active-state):has(.index-panel:not(.disable-hover):hover) .panel-close-btn {
+    body:is(.reader-open.reader-open):has(.index-panel:not(.disable-hover):hover) .panel-close-btn {
         left: calc(32vw + 1.25rem);
         transition: left 0.75s var(--ease-panel), transform 0.4s var(--ease-smooth), color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
     }
@@ -2174,7 +2174,7 @@ body.landing-state .scroll-down-btn:hover {
 }
 
 @media (min-width: 1181px) and (max-width: 1320px) {
-    body:has(.post-panel-viewer.active-state) .post-viewer-toc-sidebar {
+    body:is(.reader-open.reader-open) .post-viewer-toc-sidebar {
         display: none !important;
     }
 
@@ -2188,13 +2188,13 @@ body.landing-state .scroll-down-btn:hover {
 }
 
 @media (max-width: 1180px) {
-    body:has(.post-panel-viewer.active-state) .logo {
+    body:is(.reader-open.reader-open) .logo {
         opacity: 0 !important;
         visibility: hidden !important;
         pointer-events: none;
     }
 
-    .post-panel:has(.post-panel-viewer.active-state) {
+    .post-panel:is(.reader-open.reader-open) {
         position: fixed !important;
         inset: 0 !important;
         width: 100vw !important;
@@ -2258,7 +2258,7 @@ body.landing-state .scroll-down-btn:hover {
         box-shadow: none;
     }
 
-    body:not(.landing-state) .post-panel:has(.post-panel-viewer.active-state) {
+    body:not(.landing-state) .post-panel:is(.reader-open.reader-open) {
         position: fixed;
         inset: 0;
         width: 100vw;
@@ -2332,7 +2332,7 @@ body.landing-state .scroll-down-btn:hover {
         grid-template-columns: 1fr !important;
     }
 
-    body:not(.landing-state):has(.post-panel-viewer.active-state) .panel-close-btn {
+    body:not(.landing-state):is(.reader-open.reader-open) .panel-close-btn {
         position: fixed !important;
         top: 0.9rem;
         right: auto;

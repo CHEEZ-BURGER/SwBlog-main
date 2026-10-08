@@ -12,31 +12,33 @@
     // One preview physics implementation, shared by index and continuation.
     const preview=document.createElement('div'); preview.className='publication-preview';preview.setAttribute('aria-hidden','true');
     const previewImage=new Image();previewImage.alt='';preview.append(previewImage);document.body.append(preview);
-    const pointer={x:0,y:0,tx:0,ty:0,rotation:0};let previewActive=false,previewWidth=0,previewHeight=0,rowBounds=null;
-    function previewTick(){
+    const pointer={x:0,y:0,tx:0,ty:0,rotation:0};let previewActive=false,previewWidth=0,previewHeight=0,rowBounds=null,previewTime=null;
+    function previewTick(now){
         previewRAF=0;if(!previewActive||document.hidden)return;
+        const dt=previewTime===null?1000/60:Math.max(0,Math.min(64,now-previewTime));previewTime=now;
+        const step=dt/(1000/60),follow=1-Math.pow(.82,step),turn=1-Math.pow(.85,step);
         const dx=pointer.tx-pointer.x,dy=pointer.ty-pointer.y;
-        pointer.x+=dx*.18;pointer.y+=dy*.18;pointer.rotation+=(Math.max(-5,Math.min(5,dx*.06))-pointer.rotation)*.15;
+        pointer.x+=dx*follow;pointer.y+=dy*follow;pointer.rotation+=(Math.max(-5,Math.min(5,dx*.06))-pointer.rotation)*turn;
         preview.style.transform=`translate3d(${pointer.x}px,${pointer.y}px,0) rotate(${pointer.rotation}deg)`;
         if(Math.abs(dx)+Math.abs(dy)+Math.abs(pointer.rotation)>.08)previewRAF=requestAnimationFrame(previewTick);else preview.style.willChange='auto';
     }
-    function hidePreview(){previewActive=false;cancelAnimationFrame(previewRAF);previewRAF=0;preview.classList.remove('is-visible');preview.style.willChange='auto';}
+    function hidePreview(){previewActive=false;cancelAnimationFrame(previewRAF);previewRAF=0;previewTime=null;preview.classList.remove('is-visible');preview.style.willChange='auto';}
     function showPreview(src,e){
         if(!src||mobile.matches||reduced.matches){hidePreview();return;}
-        if(!previewActive){pointer.x=e.clientX+24;pointer.y=e.clientY+24;}
+        if(!previewActive){pointer.x=e.clientX+24;pointer.y=e.clientY+24;previewTime=null;}
         previewImage.src=src;previewActive=true;preview.classList.add('is-visible');
         previewWidth=preview.offsetWidth;previewHeight=preview.offsetHeight;movePreview(e);
     }
     function movePreview(e){
         if(!previewActive)return;pointer.tx=Math.max(12,Math.min(innerWidth-previewWidth-16,e.clientX+24));pointer.ty=Math.max(12,Math.min(innerHeight-previewHeight-16,e.clientY+24));
-        preview.style.willChange='transform';if(!previewRAF)previewRAF=requestAnimationFrame(previewTick);
+        preview.style.willChange='transform';if(!previewRAF){previewTime=null;previewRAF=requestAnimationFrame(previewTick);}
     }
     function select(row){
         if(row===activeRow)return;activeRow?.classList.remove('signal-active');activeRow=row;rowBounds=null;row?.classList.add('signal-active');clearTimeout(hoverTimer);
         if(!row)window.globalPanelScene?.setRowPointer(null,null);
         hoverTimer=setTimeout(()=>window.globalPanelScene?.setPost(source(row)),reduced.matches?0:60);
     }
-    function tiltRaster(e,row=e.target.closest('.post-list-item')){
+    function tiltRaster(e,row=e.target instanceof Element?e.target.closest('.post-list-item'):null){
         if(!row||e.pointerType==='touch')return;
         const bounds=rowBounds||(rowBounds=row.getBoundingClientRect());
         if(bounds.width&&bounds.height)window.globalPanelScene?.setRowPointer(
@@ -46,11 +48,12 @@
     // the collapsed list beside an open post.
     const readerOpen=()=>!!$('#post-panel-viewer')?.classList.contains('active-state');
     document.addEventListener('pointerover',e=>{
+        if(!(e.target instanceof Element))return;
         const row=e.target.closest('.post-list-item');if(row){select(row);tiltRaster(e,row);if(readerOpen())showPreview(row.dataset.previewImg,e);else hidePreview();return;}
         const next=e.target.closest('.post-continuation-link');if(next)showPreview(next.querySelector('img:not([hidden])')?.src,e);
     });
     document.addEventListener('pointerout',e=>{
-        const target=e.target.closest('.post-list-item,.post-continuation-link');if(!target||target.contains(e.relatedTarget))return;
+        const target=e.target instanceof Element?e.target.closest('.post-list-item,.post-continuation-link'):null;if(!target||target.contains(e.relatedTarget))return;
         hidePreview();if(!e.relatedTarget?.closest?.('.post-list-item'))select(null);
     });
     document.addEventListener('pointermove',e=>{movePreview(e);tiltRaster(e);},{passive:true});
@@ -148,7 +151,7 @@
         document.body.classList.remove('content-resolving');state.scene.classList.add('is-resolved');
         await sleep(reduced.matches?80:860);if(state.ticket===entryId){state.scene.remove();entry=null;document.body.classList.remove('content-pointer-locked');}
     }
-    let revealObserver, completionObserver, coverObserver, decodeObserver, linePrepObserver, lineRevealObserver;
+    let revealObserver, completionObserver, coverObserver, decodeObserver, linePrepObserver, lineRevealObserver, lineVisibilityObserver, lineVersion=0;
     // Reading: the text comes up line by line as it scrolls into view, each line rising from
     // below through a mask of its own height. Every word is put in a mask (an inline-block clipped
     // to its line) with the word inside it; when a block comes into view its words are grouped
@@ -184,30 +187,54 @@
         });
         block.classList.add('rl-split');
     }
-    function revealLines(block){
-        let line=-1,last=null;
-        block.querySelectorAll('.rl-m').forEach(mask=>{
-            const top=Math.round(mask.getBoundingClientRect().top);
-            if(last===null||Math.abs(top-last)>4){line++;last=top;}
-            mask.firstElementChild.style.transitionDelay=Math.min(line,12)*70+'ms';
+    function revealLines(blocks){
+        // Read every line position before writing any delay. Interleaving these used to force
+        // style recalculation once per word, right in the middle of a scroll frame.
+        const lines=blocks.map(block=>{
+            let line=-1,last=null;
+            return [...block.querySelectorAll('.rl-m')].map(mask=>{
+                const top=Math.round(mask.getBoundingClientRect().top);
+                if(last===null||Math.abs(top-last)>4){line++;last=top;}
+                return {word:mask.firstElementChild,delay:Math.min(line,12)*70+'ms'};
+            });
         });
-        block.classList.add('rl-in');
+        lines.forEach(words=>words.forEach(({word,delay})=>{word.style.transitionDelay=delay;}));
+        blocks.forEach(block=>block.classList.add('rl-in'));
     }
     function setupLines(content){
-        linePrepObserver?.disconnect();lineRevealObserver?.disconnect();
+        linePrepObserver?.disconnect();lineRevealObserver?.disconnect();lineVisibilityObserver?.disconnect();
+        const version=++lineVersion,visible=new Set();
         if(reduced.matches)return;
         const blocks=[$('#panel-title'),...lineBlocks(content)].filter(Boolean);
-        lineRevealObserver=new IntersectionObserver(entries=>entries.forEach(e=>{
-            if(!e.isIntersecting)return;lineRevealObserver.unobserve(e.target);
-            if(!e.target.classList.contains('rl-split'))splitWords(e.target);
-            revealLines(e.target);
-        }),{rootMargin:'0px 0px -6% 0px'});
+        lineVisibilityObserver=new IntersectionObserver(entries=>entries.forEach(({target:block,isIntersecting})=>{
+            if(isIntersecting){visible.add(block);block.classList.remove('rl-offscreen');return;}
+            visible.delete(block);
+            if(!block.classList.contains('rl-in'))return;
+            const release=()=>{
+                if(version===lineVersion&&block.isConnected&&!visible.has(block))block.classList.add('rl-offscreen');
+            };
+            // Finish the existing rise even if it leaves the screen. A fast scroll back still
+            // sees precisely the same animation phase; only completed, invisible words shed layers.
+            const running=block.getAnimations({subtree:true}).filter(animation=>
+                animation.effect?.target?.classList.contains('rl-i')&&animation.playState!=='finished');
+            if(running.length)Promise.allSettled(running.map(animation=>animation.finished)).then(release);
+            else release();
+        }));
+        lineRevealObserver=new IntersectionObserver(entries=>{
+            const arriving=entries.filter(e=>e.isIntersecting).map(e=>e.target);
+            arriving.forEach(block=>{
+                lineRevealObserver.unobserve(block);
+                if(!block.classList.contains('rl-split'))splitWords(block);
+            });
+            revealLines(arriving);
+        },{rootMargin:'0px 0px -6% 0px'});
         linePrepObserver=new IntersectionObserver(entries=>entries.forEach(e=>{
             if(!e.isIntersecting)return;linePrepObserver.unobserve(e.target);
             if(!e.target.classList.contains('rl-split'))splitWords(e.target);
         }),{rootMargin:'0px 0px 60% 0px'});
         blocks.forEach(block=>{
-            block.classList.remove('rl-split','rl-in');block.classList.add('rl-block');
+            block.classList.remove('rl-split','rl-in','rl-offscreen');block.classList.add('rl-block');
+            lineVisibilityObserver.observe(block);
             linePrepObserver.observe(block);lineRevealObserver.observe(block);
         });
     }

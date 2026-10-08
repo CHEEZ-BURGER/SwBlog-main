@@ -23,14 +23,14 @@ body.dark {
     color: var(--post-ink);
 }
 
-body:has(.post-panel-viewer.active-state) {
+body:is(.reader-open.reader-open) {
     --color-hamburger-bar1: #111111;
     --color-hamburger-bar2: #111111;
 }
 
 /* Reader: retain the archive as a quiet, fixed navigation rail. */
 @media (min-width: 1181px) {
-    html body:has(.post-panel-viewer.active-state) .split-layout > .index-panel {
+    html body:is(.reader-open.reader-open) .split-layout > .index-panel {
         position: fixed !important;
         inset: 0 auto 0 0 !important;
         display: block !important;
@@ -45,7 +45,7 @@ body:has(.post-panel-viewer.active-state) {
         transition: width 0.75s var(--ease-panel), min-width 0.75s var(--ease-panel), max-width 0.75s var(--ease-panel), flex 0.75s var(--ease-panel) !important;
     }
 
-    body:has(.post-panel-viewer.active-state) .index-panel {
+    body:is(.reader-open.reader-open) .index-panel {
         position: fixed !important;
         inset: 0 auto 0 0 !important;
         display: block !important;
@@ -63,7 +63,7 @@ body:has(.post-panel-viewer.active-state) {
         backdrop-filter: blur(18px);
     }
 
-    html body:has(.post-panel-viewer.active-state) .split-layout > .index-panel:not(.disable-hover):is(:hover, :focus-within) {
+    html body:is(.reader-open.reader-open) .split-layout > .index-panel:not(.disable-hover):is(:hover, :focus-within) {
         width: var(--reader-rail-expanded) !important;
         min-width: var(--reader-rail-expanded) !important;
         max-width: var(--reader-rail-expanded) !important;
@@ -71,11 +71,11 @@ body:has(.post-panel-viewer.active-state) {
         box-shadow: 18px 0 42px rgba(30, 24, 20, 0.12);
     }
 
-    body:has(.post-panel-viewer.active-state) .index-panel :is(.masthead, .footer, .pg-lode-box1, .pg-lode-box2) {
+    body:is(.reader-open.reader-open) .index-panel :is(.masthead, .footer, .pg-lode-box1, .pg-lode-box2) {
         display: none !important;
     }
 
-    body:has(.post-panel-viewer.active-state) .index-panel .main-cont-back {
+    body:is(.reader-open.reader-open) .index-panel .main-cont-back {
         display: block !important;
         width: 100% !important;
         min-height: 100%;
@@ -83,13 +83,13 @@ body:has(.post-panel-viewer.active-state) {
         background: transparent;
     }
 
-    body:has(.post-panel-viewer.active-state) .index-panel .main-line,
-    body:has(.post-panel-viewer.active-state) .index-panel .main-inner {
+    body:is(.reader-open.reader-open) .index-panel .main-line,
+    body:is(.reader-open.reader-open) .index-panel .main-inner {
         width: 100% !important;
         max-width: none !important;
     }
 
-    body:has(.post-panel-viewer.active-state) .index-panel .section-title {
+    body:is(.reader-open.reader-open) .index-panel .section-title {
         margin: 0;
         padding: 0 1.15rem 1.2rem;
         color: var(--post-muted);
@@ -99,66 +99,66 @@ body:has(.post-panel-viewer.active-state) {
         text-transform: uppercase;
     }
 
-    body:has(.post-panel-viewer.active-state) .index-panel .post-list-item {
+    body:is(.reader-open.reader-open) .index-panel .post-list-item {
         color: var(--post-ink) !important;
         border-color: rgba(17, 17, 17, 0.1) !important;
     }
 
-    body:has(.post-panel-viewer.active-state) .index-panel .post-list-content {
+    body:is(.reader-open.reader-open) .index-panel .post-list-content {
         opacity: 0;
         visibility: hidden;
         transition: transform 0.5s var(--ease-smooth), opacity 0.22s ease, visibility 0.22s ease;
     }
 
-    body:has(.post-panel-viewer.active-state) .index-panel:not(.disable-hover):is(:hover, :focus-within) .post-list-content {
+    body:is(.reader-open.reader-open) .index-panel:not(.disable-hover):is(:hover, :focus-within) .post-list-content {
         opacity: 1;
         visibility: visible;
     }
 
-    body:has(.post-panel-viewer.active-state) .index-panel .post-list-title {
+    body:is(.reader-open.reader-open) .index-panel .post-list-title {
         color: var(--post-ink) !important;
         font-size: clamp(0.95rem, 1.08vw, 1.15rem) !important;
         font-weight: 600;
         line-height: 1.25;
     }
 
-    body:has(.post-panel-viewer.active-state) .index-panel .post-list-category,
-    body:has(.post-panel-viewer.active-state) .index-panel .post-list-date {
+    body:is(.reader-open.reader-open) .index-panel .post-list-category,
+    body:is(.reader-open.reader-open) .index-panel .post-list-date {
         color: var(--post-muted) !important;
         font-size: 0.7rem;
     }
 
-    body:has(.post-panel-viewer.active-state) .index-panel .post-list-num,
-    body:has(.post-panel-viewer.active-state) .index-panel .post-list-item.active .post-list-num {
+    body:is(.reader-open.reader-open) .index-panel .post-list-num,
+    body:is(.reader-open.reader-open) .index-panel .post-list-item.active .post-list-num {
         color: var(--post-muted) !important;
         font-size: 0.72rem !important;
         transform: none !important;
     }
 
-    body:has(.post-panel-viewer.active-state) .index-panel .post-list-item.active {
+    body:is(.reader-open.reader-open) .index-panel .post-list-item.active {
         background: var(--post-ink) !important;
     }
 
-    body:has(.post-panel-viewer.active-state) .index-panel .post-list-item.active :is(.post-list-title, .post-list-num, .post-list-category, .post-list-date) {
+    body:is(.reader-open.reader-open) .index-panel .post-list-item.active :is(.post-list-title, .post-list-num, .post-list-category, .post-list-date) {
         color: var(--post-canvas) !important;
     }
 
-    body:has(.post-panel-viewer.active-state) .index-panel .post-list-item.active .post-list-dot {
+    body:is(.reader-open.reader-open) .index-panel .post-list-item.active .post-list-dot {
         filter: brightness(0) invert(1) !important;
     }
 
 
-    body:has(.post-panel-viewer.active-state) .index-panel .post-list-item:hover:not(.active) {
+    body:is(.reader-open.reader-open) .index-panel .post-list-item:hover:not(.active) {
         background: rgba(255, 255, 255, 0.58) !important;
     }
 
-    body:has(.post-panel-viewer.active-state) .panel-close-btn {
+    body:is(.reader-open.reader-open) .panel-close-btn {
         top: 1.2rem;
         left: calc(var(--reader-rail) + 1.15rem);
         transition: left 0.75s var(--ease-panel), transform 0.4s var(--ease-smooth), color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
     }
 
-    body:has(.post-panel-viewer.active-state):has(.index-panel:not(.disable-hover):is(:hover, :focus-within)) .panel-close-btn {
+    body:is(.reader-open.reader-open):has(.index-panel:not(.disable-hover):is(:hover, :focus-within)) .panel-close-btn {
         left: calc(var(--reader-rail-expanded) + 1.15rem);
     }
 
@@ -170,43 +170,43 @@ body:has(.post-panel-viewer.active-state) {
         100% { transform: translateY(0); color: var(--post-canvas); }
     }
 
-    body:has(.post-panel-viewer.active-state) .post-viewer-header,
-    body:has(.post-panel-viewer.active-state) .post-viewer-content {
+    body:is(.reader-open.reader-open) .post-viewer-header,
+    body:is(.reader-open.reader-open) .post-viewer-content {
         padding-left: calc(var(--reader-rail) + clamp(2.5rem, 5vw, 5.5rem)) !important;
     }
 
-    body:has(.post-panel-viewer.active-state) .post-viewer-toc-sidebar {
+    body:is(.reader-open.reader-open) .post-viewer-toc-sidebar {
         top: 7rem !important;
         right: clamp(1.25rem, 2.4vw, 2.5rem);
         left: auto !important;
         width: min(13rem, 15vw);
     }
 
-    body:has(.post-panel-viewer.active-state) .panel-post-layout .post-continuation-inner,
-    body:has(.post-panel-viewer.active-state) .panel-post-layout > .post-page-footer .footer-shell {
+    body:is(.reader-open.reader-open) .panel-post-layout .post-continuation-inner,
+    body:is(.reader-open.reader-open) .panel-post-layout > .post-page-footer .footer-shell {
         padding-left: var(--reader-rail);
     }
 }
 
-body:has(.post-panel-viewer.active-state) .post-panel,
-html body:has(.post-panel-viewer.active-state) .split-layout .post-panel {
+body:is(.reader-open.reader-open) .post-panel,
+html body:is(.reader-open.reader-open) .split-layout .post-panel {
     background: var(--post-canvas) !important;
 }
 
 /* Let the full-bleed ending cover the sticky reader chrome, instead of looking inset. */
 @media (min-width: 1181px) {
-    body.post-end-stage:has(.post-panel-viewer.active-state) .index-panel {
+    body.post-end-stage:is(.reader-open.reader-open) .index-panel {
         z-index: 150;
         pointer-events: none !important;
     }
 
-    body.post-end-stage:has(.post-panel-viewer.active-state) :is(.panel-close-btn, .post-viewer-toc-sidebar) {
+    body.post-end-stage:is(.reader-open.reader-open) :is(.panel-close-btn, .post-viewer-toc-sidebar) {
         opacity: 0;
         pointer-events: none;
     }
 }
 
-body:has(.post-panel-viewer.active-state) .post-panel-viewer,
+body:is(.reader-open.reader-open) .post-panel-viewer,
 .post-article,
 .post-article-header,
 .post-viewer-header,
@@ -264,20 +264,20 @@ body:has(.post-panel-viewer.active-state) .post-panel-viewer,
     color: var(--post-muted);
 }
 
-body:has(.post-panel-viewer.active-state) :is(.hamburger-btn::before, .panel-close-btn),
+body:is(.reader-open.reader-open) :is(.hamburger-btn::before, .panel-close-btn),
 .post-nav {
     border-color: rgba(17, 17, 17, 0.14) !important;
     background: rgba(255,255,255, 0.9) !important;
     color: var(--post-ink) !important;
 }
 
-body:has(.post-panel-viewer.active-state) .panel-close-btn {
+body:is(.reader-open.reader-open) .panel-close-btn {
     color: var(--post-ink) !important;
     border-color: rgba(17, 17, 17, 0.14) !important;
     background: rgba(255,255,255, 0.96) !important;
 }
 
-body:has(.post-panel-viewer.active-state) .post-viewer-toc-sidebar {
+body:is(.reader-open.reader-open) .post-viewer-toc-sidebar {
     padding: 0 0 0 1rem;
     border: 0;
     border-radius: 0;
@@ -286,7 +286,7 @@ body:has(.post-panel-viewer.active-state) .post-viewer-toc-sidebar {
     backdrop-filter: none;
 }
 
-body:has(.post-panel-viewer.active-state) .post-viewer-toc-sidebar :is(.toc-title, .toc-current, .toc-list li, .toc-progress-meta strong) {
+body:is(.reader-open.reader-open) .post-viewer-toc-sidebar :is(.toc-title, .toc-current, .toc-list li, .toc-progress-meta strong) {
     color: var(--post-ink) !important;
 }
 
@@ -403,7 +403,7 @@ body:has(.post-panel-viewer.active-state) .post-viewer-toc-sidebar :is(.toc-titl
 }
 
 @media (max-width: 1180px) {
-    body:has(.post-panel-viewer.active-state) .index-panel {
+    body:is(.reader-open.reader-open) .index-panel {
         display: none !important;
     }
 }

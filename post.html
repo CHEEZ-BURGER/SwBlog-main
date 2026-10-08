@@ -594,10 +594,13 @@
         const rawHtml = window.PostContent
             ? PostContent.toRenderableHtml(rawContent, window.marked)
             : marked.parse(rawContent);
-        body.innerHTML = DOMPurify.sanitize(rawHtml, {
+        const safeContent = DOMPurify.sanitize(rawHtml, {
+            RETURN_DOM_FRAGMENT: true,
             ADD_TAGS: ['svg', 'polyline', 'circle', 'line', 'path', 'blockquote', 'button', 'table', 'tr', 'td', 'th', 'tbody', 'thead', 'tfoot', 'caption', 'colgroup', 'col', 'figure', 'figcaption'],
             ADD_ATTR: ['stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'fill', 'viewBox', 'points', 'cx', 'cy', 'r', 'x1', 'y1', 'x2', 'y2', 'id', 'class', 'data-layout', 'd', 'data-initialized', 'contenteditable']
         });
+        body.replaceChildren(safeContent);
+        body.querySelectorAll('img').forEach(image => { image.decoding = 'async'; });
 
         // 이미지 슬라이더 및 확대 기능 활성화
         window.PostContent?.enhanceEditorialLayout?.(body, { title: data.title || '' });
@@ -683,18 +686,24 @@
         let currentIndex = 0, progress = 0, isPaused = false, isProgrammaticScroll = false, scrollTimeout = null, lastTime = null;
         const DURATION = 3500;
 
-        segments.forEach(seg => {
+        const fills = Array.from(segments, seg => {
             if(!seg.querySelector('.story-segment-fill')) {
                 const fill = document.createElement('div');
                 fill.className = 'story-segment-fill';
                 seg.appendChild(fill);
             }
-            seg.querySelector('.story-segment-fill').style.width = '0%';
+            const fill = seg.querySelector('.story-segment-fill');
+            fill.style.width = '0%';
+            return fill;
         });
 
-        const updateUI = () => {
+        const updateUI = (updateStates = true) => {
+            if (!updateStates) {
+                if (fills[currentIndex]) fills[currentIndex].style.width = `${progress}%`;
+                return;
+            }
             segments.forEach((seg, idx) => {
-                const fill = seg.querySelector('.story-segment-fill');
+                const fill = fills[idx];
                 if (!fill) return;
                 if (idx < currentIndex) { seg.className = 'story-segment viewed'; fill.style.width = '100%'; }
                 else if (idx === currentIndex) { seg.className = 'story-segment active'; fill.style.width = `${progress}%`; }
@@ -721,19 +730,21 @@
             }
         };
 
+        let frame = 0, isVisible = false;
+        const playbackMotion = matchMedia('(prefers-reduced-motion: reduce)');
+        const canPlay = () => slider.isConnected && isVisible && !isPaused && !document.hidden && !playbackMotion.matches && !document.getElementById('fullscreen-viewer')?.classList.contains('visible');
+        const wake = () => { if (!frame && canPlay()) frame = requestAnimationFrame(animate); };
+        const syncPlayback = () => { if (frame) cancelAnimationFrame(frame); frame = 0; lastTime = null; wake(); };
         const animate = (timestamp) => {
+            frame = 0;
+            if (!canPlay()) return;
             if (!lastTime) lastTime = timestamp;
             const dt = timestamp - lastTime;
             lastTime = timestamp;
-            if (!document.body.contains(slider)) return;
-            const rect = slider.getBoundingClientRect();
-            const isVisible = (rect.top < window.innerHeight && rect.bottom > 0 && rect.width > 0);
-            if (!isPaused && isVisible) {
-                progress += (dt / DURATION) * 100;
-                if (progress >= 100) goToSlide(currentIndex + 1);
-                else updateUI();
-            }
-            requestAnimationFrame(animate);
+            progress += (dt / DURATION) * 100;
+            if (progress >= 100) goToSlide(currentIndex + 1);
+            else updateUI(false);
+            wake();
         };
 
         if (prevBtn) prevBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); goToSlide(currentIndex - 1); });
@@ -759,12 +770,23 @@
             }
         }, { passive: true });
 
-        slider.addEventListener('mouseenter', () => isPaused = true);
-        slider.addEventListener('mouseleave', () => { isPaused = false; lastTime = performance.now(); });
+        slider.addEventListener('mouseenter', () => { isPaused = true; syncPlayback(); });
+        slider.addEventListener('mouseleave', () => { isPaused = false; syncPlayback(); });
         const resizeObserver = new ResizeObserver(() => updateContainerHeight());
         images.forEach(img => resizeObserver.observe(img));
+        const visibilityObserver = new IntersectionObserver(([entry]) => { isVisible = entry.isIntersecting; syncPlayback(); }, { threshold: .01 });
+        visibilityObserver.observe(slider);
+        document.addEventListener('visibilitychange', syncPlayback);
+        playbackMotion.addEventListener('change', syncPlayback);
+        const fullscreenObserver = new MutationObserver(syncPlayback);
+        if (document.getElementById('fullscreen-viewer')) fullscreenObserver.observe(document.getElementById('fullscreen-viewer'), { attributes: true, attributeFilter: ['class'] });
+        slider._disposeStory = () => {
+            if (frame) cancelAnimationFrame(frame);
+            clearTimeout(scrollTimeout);resizeObserver.disconnect();visibilityObserver.disconnect();fullscreenObserver.disconnect();
+            document.removeEventListener('visibilitychange', syncPlayback);playbackMotion.removeEventListener('change', syncPlayback);
+        };
         updateUI();
-        requestAnimationFrame((time) => { lastTime = time; animate(time); });
+        wake();
     }
 
     /* ─── 일반 이미지 확대 설정 ─── */
