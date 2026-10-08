@@ -5,7 +5,7 @@ import vm from 'node:vm';
 // The post type rule, exercised without a browser.
 const context = {window: {}};
 vm.runInNewContext(readFileSync('js/postType.js', 'utf8'), context);
-const {postType, mark, TYPE_MARK_ALL} = context.window.SwblogPostType;
+const {postType, mark, TYPE_MARK_ALL, isPrivate, setPrivate} = context.window.SwblogPostType;
 const pics = n => Array.from({length: n}, (_, i) => `<p><img src="${i}.jpg"></p>`).join('');
 
 // The editor's mark wins over anything the content suggests.
@@ -27,3 +27,15 @@ const saved = (mark('blog') + '\n<p>본문</p>').replace(TYPE_MARK_ALL, '');
 assert.equal(saved, '<p>본문</p>');
 assert.equal(mark('anything'), '<!--swblog:type blog-->', 'an unknown type is written as blog');
 console.log('PASS: marks are replaced cleanly.');
+
+// Private posts: the mark goes in after the leading thumbnail and marks, comes out cleanly, and
+// never doubles.
+const stored = '<img class="hidden-thumbnail" src="t.png" alt="thumbnail">\n<!--swblog:panel p.png-->\n<!--swblog:type blog-->\n<p>본문</p>';
+const hidden = setPrivate(stored, true);
+assert.ok(isPrivate({content: hidden}));
+assert.ok(hidden.startsWith('<img class="hidden-thumbnail" src="t.png" alt="thumbnail">\n<!--swblog:panel p.png-->\n<!--swblog:type blog-->\n<!--swblog:private-->\n<p>본문</p>'));
+assert.equal(setPrivate(hidden, true), hidden, 'setting private twice changes nothing');
+assert.equal(setPrivate(hidden, false), stored, 'making it public restores the content exactly');
+assert.equal(postType({content: hidden}), 'blog', 'the private mark leaves the type alone');
+assert.ok(!isPrivate({content: '<p>본문</p>'}) && !isPrivate(null));
+console.log('PASS: private mark goes in after the leading marks and comes out cleanly.');

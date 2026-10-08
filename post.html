@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="./js/postContent.js?v=code-2"></script>
     <script src="./js/postTags.js?v=2"></script>
+    <script src="./js/postType.js?v=3"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reset-css@5.0.1/reset.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -588,6 +589,14 @@
             new Date(data.created_at).toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' });
         header.style.display = '';
 
+        // 비공개 글은 제목과 자물쇠만 보이고 본문은 열리지 않습니다.
+        if (window.SwblogPostType?.isPrivate(data)) {
+            document.getElementById('post-cat').replaceChildren();
+            body.innerHTML = '<p style="color:#6e6e73">비공개 글입니다.</p>';
+            document.getElementById('post-reading-meta').textContent = '비공개';
+            return;
+        }
+
         // 마크다운 → HTML
         let rawContent = data.content || '';
         rawContent = rawContent.replace(/^[ \t]+(<div[^>]*class="[^"]*story-[a-zA-Z0-9-]+"[^>]*>)/gm, '$1')
@@ -618,8 +627,8 @@
             .select('id,title,category,created_at,content')
             .neq('id', postId)
             .order('created_at', { ascending: false })
-            .limit(1);
-        renderStandaloneContinuation(latestPosts?.[0]);
+            .limit(8);
+        renderStandaloneContinuation(latestPosts?.find(post => !window.SwblogPostType?.isPrivate(post)));
         window.Publication2026?.enhance(body, data);
     }
 

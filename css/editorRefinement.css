@@ -236,3 +236,17 @@
     .preview-frame-stage { padding: 0; }
     #publication-preview-frame { border-radius: 0; }
 }
+
+/* ---------- 공개 / 비공개 (DB 관리) ---------- */
+.col-visibility { width: 1%; white-space: nowrap; }
+.visibility-toggle { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 11px; border: 1px solid var(--line, rgba(18,18,18,.14)); border-radius: 999px; background: none; color: var(--muted-strong); font: 400 11px/1 var(--font-ui); white-space: nowrap; cursor: pointer; transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease); }
+.visibility-toggle:hover { border-color: var(--ink); color: var(--ink); }
+.visibility-toggle[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: var(--bg); }
+.visibility-toggle:disabled { opacity: .5; cursor: progress; }
+.visibility-toggle:focus-visible { outline: 1.5px solid var(--ink); outline-offset: 2px; }
+.visibility-toggle .lock-icon { width: 10px; height: 10px; }
+.admin-table tr.is-private .row-title { color: var(--muted-strong); }
+@media (max-width: 719px) {
+    .admin-table tr { grid-template-areas: "thumb title title title" "thumb type category date" "thumb visibility visibility visibility" "actions actions actions actions"; }
+    .col-visibility { grid-area: visibility; width: auto; }
+}

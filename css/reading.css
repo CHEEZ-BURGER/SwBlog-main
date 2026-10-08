@@ -273,3 +273,20 @@ html body #panel-header.post-viewer-header :is(#panel-date,#panel-reading-meta,#
     html body .section-rail-pill{opacity:.5;transition:width 420ms cubic-bezier(.19,1,.22,1),opacity 300ms ease}
     html body .section-rail.is-held .section-rail-pill{opacity:1}
 }
+
+/* Private posts (js/postType.js, set in the editor's DB view). In the list: a lock before the
+   title and an empty plate with a lock where the picture was; the row does not open and its lock
+   shakes once when pressed. In the reader (reached by address): the title and a lock only. */
+html body .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+html body .post-lock{display:inline-flex;align-items:center;margin-right:.32em;color:#86868b;vertical-align:.04em}
+html body .post-lock .lock-icon{width:.6em;height:.6em}
+html body .post-list-item.is-private{cursor:not-allowed}
+html body .post-list-item.is-private .post-list-title{color:#6e6e73}
+html body .post-list-thumb-lock{position:absolute;inset:0;display:grid;place-items:center;color:#a1a1a6}
+html body .post-list-thumb-lock .lock-icon{width:clamp(22px,2.2vw,34px);height:auto}
+html body .post-list-item.is-denied :is(.post-lock,.post-list-thumb-lock) .lock-icon{animation:lock-deny 520ms cubic-bezier(.36,.07,.19,.97)}
+@keyframes lock-deny{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+html body #panel-content .post-locked{display:flex;flex-direction:column;align-items:flex-start;gap:14px;max-width:var(--publication-measure,720px);margin:40px auto 80px;color:#86868b}
+html body #panel-content .post-locked .lock-icon{width:28px;height:28px}
+html body #panel-content .post-locked p{margin:0!important;color:#6e6e73;font-size:var(--read-size)!important}
+@media(prefers-reduced-motion:reduce){html body .post-list-item.is-denied .lock-icon{animation:none}}

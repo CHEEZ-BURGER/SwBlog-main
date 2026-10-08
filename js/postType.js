@@ -25,11 +25,31 @@
         return marked ? marked[1] : inferType(post);
     }
 
+    // Private posts. The editor's DB view sets a post private with another invisible comment,
+    // <!--swblog:private-->. The site still lists a private post, with a lock, but shows neither
+    // its pictures nor its words and will not open it.
+    const PRIVATE_MARK = /<!--\s*swblog:private\s*-->/;
+    const PRIVATE_MARK_ALL = /<!--\s*swblog:private\s*-->\n?/g;
+    const isPrivate = post => PRIVATE_MARK.test(String(post?.content || ''));
+    // Puts the mark in (after the leading thumbnail and marks, where the others sit) or takes it out.
+    function setPrivate(content, on) {
+        const text = String(content || '').replace(PRIVATE_MARK_ALL, '');
+        if (!on) return text;
+        const lead = text.match(/^(?:\s*<img\b[^>]*\bhidden-thumbnail\b[^>]*>\s*|\s*<!--[\s\S]*?-->\s*)*/)[0];
+        return lead + '<!--swblog:private-->\n' + text.slice(lead.length);
+    }
+    const LOCK_SVG = '<svg class="lock-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4.5 7V5a3.5 3.5 0 0 1 7 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="2.5" y="7" width="11" height="8" rx="2" fill="currentColor"/></svg>';
+
     window.SwblogPostType = {
         postType,
         inferType,
         TYPE_MARK,
         TYPE_MARK_ALL,
-        mark: type => `<!--swblog:type ${type === 'gallery' ? 'gallery' : 'blog'}-->`
+        mark: type => `<!--swblog:type ${type === 'gallery' ? 'gallery' : 'blog'}-->`,
+        PRIVATE_MARK_ALL,
+        isPrivate,
+        setPrivate,
+        privateMark: '<!--swblog:private-->',
+        LOCK_SVG
     };
 }());

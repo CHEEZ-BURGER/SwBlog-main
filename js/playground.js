@@ -915,7 +915,8 @@
         status('불러오는 중');
         try {
             if (!window.supabase || !window.SwblogData) throw new Error('The posts library did not load.');
-            posts = await window.SwblogData.fetchPosts();
+            // Private posts stay out of the field: it is made of their pictures.
+            posts = (await window.SwblogData.fetchPosts()).filter(post => !post.locked);
         } catch (error) {
             console.warn('[playground] posts could not be read', error);
             status('글을 불러오지 못했어요.', true);
