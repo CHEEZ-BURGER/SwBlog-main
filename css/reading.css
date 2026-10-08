@@ -268,3 +268,8 @@ html body #panel-header.post-viewer-header :is(#panel-date,#panel-reading-meta,#
 @media(max-width:1180px) and (prefers-reduced-motion:reduce){
     html body :is(.section-rail,.section-rail-pill,.section-rail-label){transition:none!important}
 }
+/* The rail rests at half strength while reading and comes up to full while held. */
+@media(max-width:1180px){
+    html body .section-rail-pill{opacity:.5;transition:width 420ms cubic-bezier(.19,1,.22,1),opacity 300ms ease}
+    html body .section-rail.is-held .section-rail-pill{opacity:1}
+}
