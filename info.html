@@ -22,14 +22,16 @@
     <link rel="stylesheet" href="./css/site.css">
     <link rel="stylesheet" href="./css/pageTransition.css?v=2">
     <script src="./js/pageTransition.js?v=2"></script>
-    <link rel="stylesheet" href="./css/infoPage.css">
+    <link rel="stylesheet" href="./css/infoPage.css?v=2">
+    <link rel="stylesheet" href="./css/tags.css?v=1">
+    <link rel="stylesheet" href="./css/siteFooter.css?v=3">
     <!-- infoPage.js first, so the opening never waits on the posts table's scripts. -->
-    <script src="./js/infoPage.js" defer></script>
+    <script src="./js/infoPage.js?v=3" defer></script>
     <script src="./js/siteNav.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-    <script src="./js/postTags.js" defer></script>
-    <script src="./js/postType.js" defer></script>
-    <script src="./js/siteData.js" defer></script>
+    <script src="./js/postTags.js?v=2" defer></script>
+    <script src="./js/postType.js?v=3" defer></script>
+    <script src="./js/siteData.js?v=3" defer></script>
 </head>
 <body class="site-page info-page">
     <header class="site-nav">
@@ -155,16 +157,16 @@
                 <p class="info-intro" data-lines>이 사이트에서 다루는 열 가지 주제입니다. 글마다 이 가운데 최대 세 개의 해시태그가 붙습니다.</p>
             </div>
             <ul class="info-tags" data-reveal>
-                <li class="info-tag"><span class="ln"><span class="ln-in">#디자인</span></span><span class="info-tag-count ln ln-wait"><span class="ln-in" data-tag-count="디자인"></span></span></li>
-                <li class="info-tag"><span class="ln"><span class="ln-in">#개발</span></span><span class="info-tag-count ln ln-wait"><span class="ln-in" data-tag-count="개발"></span></span></li>
-                <li class="info-tag"><span class="ln"><span class="ln-in">#인터랙션</span></span><span class="info-tag-count ln ln-wait"><span class="ln-in" data-tag-count="인터랙션"></span></span></li>
-                <li class="info-tag"><span class="ln"><span class="ln-in">#브랜딩</span></span><span class="info-tag-count ln ln-wait"><span class="ln-in" data-tag-count="브랜딩"></span></span></li>
-                <li class="info-tag"><span class="ln"><span class="ln-in">#타이포그래피</span></span><span class="info-tag-count ln ln-wait"><span class="ln-in" data-tag-count="타이포그래피"></span></span></li>
-                <li class="info-tag"><span class="ln"><span class="ln-in">#사진</span></span><span class="info-tag-count ln ln-wait"><span class="ln-in" data-tag-count="사진"></span></span></li>
-                <li class="info-tag"><span class="ln"><span class="ln-in">#프로젝트</span></span><span class="info-tag-count ln ln-wait"><span class="ln-in" data-tag-count="프로젝트"></span></span></li>
-                <li class="info-tag"><span class="ln"><span class="ln-in">#회고</span></span><span class="info-tag-count ln ln-wait"><span class="ln-in" data-tag-count="회고"></span></span></li>
-                <li class="info-tag"><span class="ln"><span class="ln-in">#일상</span></span><span class="info-tag-count ln ln-wait"><span class="ln-in" data-tag-count="일상"></span></span></li>
-                <li class="info-tag"><span class="ln"><span class="ln-in">#실험</span></span><span class="info-tag-count ln ln-wait"><span class="ln-in" data-tag-count="실험"></span></span></li>
+                <li class="info-tag"><span class="ln"><span class="ln-in"><span class="tag-pill">디자인</span></span></span><span class="info-tag-count ln ln-wait"><span class="ln-in" data-tag-count="디자인"></span></span></li>
+                <li class="info-tag"><span class="ln"><span class="ln-in"><span class="tag-pill">개발</span></span></span><span class="info-tag-count ln ln-wait"><span class="ln-in" data-tag-count="개발"></span></span></li>
+                <li class="info-tag"><span class="ln"><span class="ln-in"><span class="tag-pill">인터랙션</span></span></span><span class="info-tag-count ln ln-wait"><span class="ln-in" data-tag-count="인터랙션"></span></span></li>
+                <li class="info-tag"><span class="ln"><span class="ln-in"><span class="tag-pill">브랜딩</span></span></span><span class="info-tag-count ln ln-wait"><span class="ln-in" data-tag-count="브랜딩"></span></span></li>
+                <li class="info-tag"><span class="ln"><span class="ln-in"><span class="tag-pill">타이포그래피</span></span></span><span class="info-tag-count ln ln-wait"><span class="ln-in" data-tag-count="타이포그래피"></span></span></li>
+                <li class="info-tag"><span class="ln"><span class="ln-in"><span class="tag-pill">사진</span></span></span><span class="info-tag-count ln ln-wait"><span class="ln-in" data-tag-count="사진"></span></span></li>
+                <li class="info-tag"><span class="ln"><span class="ln-in"><span class="tag-pill">프로젝트</span></span></span><span class="info-tag-count ln ln-wait"><span class="ln-in" data-tag-count="프로젝트"></span></span></li>
+                <li class="info-tag"><span class="ln"><span class="ln-in"><span class="tag-pill">회고</span></span></span><span class="info-tag-count ln ln-wait"><span class="ln-in" data-tag-count="회고"></span></span></li>
+                <li class="info-tag"><span class="ln"><span class="ln-in"><span class="tag-pill">일상</span></span></span><span class="info-tag-count ln ln-wait"><span class="ln-in" data-tag-count="일상"></span></span></li>
+                <li class="info-tag"><span class="ln"><span class="ln-in"><span class="tag-pill">실험</span></span></span><span class="info-tag-count ln ln-wait"><span class="ln-in" data-tag-count="실험"></span></span></li>
             </ul>
         </section>
 
@@ -190,11 +192,9 @@
                     </div>
                 </div>
             </div>
-            <footer class="info-foot">
-                <span class="ln"><span class="ln-in">© <span data-year>2026</span> Kim Sungwoo</span></span>
-                <span class="ln"><span class="ln-in"><button class="info-top" type="button" data-top>맨 위로</button></span></span>
-            </footer>
         </section>
     </main>
+    <footer data-site-footer></footer>
+    <script src="./js/siteFooter.js?v=5" defer></script>
 </body>
 </html>

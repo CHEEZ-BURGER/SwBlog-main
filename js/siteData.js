@@ -43,6 +43,9 @@
     function enrich(post, index = 0) {
         const tags = window.SwblogTags?.tagsOf(post) || [];
         const created = post.created_at ? new Date(post.created_at) : null;
+        // A private post (set in the editor's DB view) keeps its place in the lists with a lock,
+        // but none of its pictures or words, and it does not open.
+        const locked = Boolean(window.SwblogPostType?.isPrivate(post));
         return {
             ...post,
             index,
@@ -50,10 +53,12 @@
             type: window.SwblogPostType?.postType(post) || 'blog',
             tags,
             tagLabel: window.SwblogTags?.label(tags) || '',
-            image: firstImage(post.content),
+            locked,
+            image: locked ? null : firstImage(post.content),
             minutes: readMinutes(post.content),
-            excerpt: excerpt(post.content),
-            date: created ? created.toISOString().slice(0, 10).replace(/-/g, '.') : '',
+            excerpt: locked ? '' : excerpt(post.content),
+            // The reader's own day (as the post header shows it), not the UTC one.
+            date: created ? [created.getFullYear(), created.getMonth() + 1, created.getDate()].map(n => String(n).padStart(2, '0')).join('.') : '',
             url: postUrl(post.id)
         };
     }

@@ -130,6 +130,8 @@
         // the caption under it (number and title).
         label(view) {
             const [category, date, read] = this.tags;
+            // Plain words here, unlike elsewhere ("개발 · 디자인", no pills): the panel's three
+            // labels are text only.
             this.swap(category, line => { line.textContent = view.category || ''; }, 0);
             this.swap(date, line => { line.textContent = view.date || ''; }, 60);
             this.swap(read, line => { line.textContent = view.read ? `약 ${view.read}분 읽기` : ''; }, 120);

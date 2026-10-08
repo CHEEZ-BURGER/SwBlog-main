@@ -634,9 +634,10 @@
 
     // Words leave upwards out of their mask and the new ones rise in from below. A line that
     // changes again mid-roll sends its words out from wherever they had got to.
-    function roll(mask, text, delay) {
+    // `fill`, when given, builds the line's contents (the hashtag pills); `text` then only names it.
+    function roll(mask, text, delay, fill) {
         const current = mask.lastElementChild;
-        if (current && !current.dataset.leaving && current.textContent === text) return;
+        if (current && !current.dataset.leaving && current.dataset.key === text) return;
         // When names change quickly (a pointer sweeping across the field), words that have all
         // but left are dropped, so no more than two lines are ever on their way out.
         const leaving = mask.querySelectorAll('[data-leaving]');
@@ -651,7 +652,9 @@
             out.onfinish = () => old.remove();
         }
         const span = document.createElement('span');
-        span.textContent = text;
+        span.dataset.key = text;
+        if (fill) fill(span);
+        else span.textContent = text;
         mask.append(span);
         if (still()) return;
         const enter = span.animate([{ transform: 'translateY(110%)' }, { transform: 'translateY(0)' }], { duration: 950, delay, easing: EXPO, fill: 'backwards' });
@@ -668,7 +671,12 @@
         roll(lines.number, `${post.number} / ${total}`, 0);
         roll(lines.type, kindOf(post), 30);
         roll(lines.title, post.title || '', 50);
-        roll(lines.tags, [post.tagLabel, post.date, post.minutes + ' min read'].filter(Boolean).join('   ·   '), 90);
+        // Hashtags as pills (css/tags.css), then the date and reading time.
+        const rest = [post.date, post.minutes + ' min read'].filter(Boolean).join('   ·   ');
+        roll(lines.tags, [post.tagLabel, rest].join('|'), 90, span => {
+            if (post.tags.length) span.append(window.SwblogTags.pills(post.tags));
+            span.append(Object.assign(document.createElement('span'), { className: 'pg-cap-rest', textContent: rest }));
+        });
     }
 
     // ---- Filters -------------------------------------------------------------------------
@@ -694,7 +702,7 @@
 
     function buildChips() {
         typeChips.replaceChildren(...KINDS.map(([value, label]) => chip('type', value, label)));
-        tagChips.replaceChildren(...window.SwblogTags.TAGS.map(tag => chip('tag', tag, '#' + tag)));
+        tagChips.replaceChildren(...window.SwblogTags.TAGS.map(tag => chip('tag', tag, tag)));
         updateChips();
     }
 
@@ -771,11 +779,14 @@
             thumb.append(img);
         }
         thumb.setAttribute('aria-hidden', 'true');
+        // The hashtags as pills (css/tags.css).
+        const tagsCell = cell('pg-row-tags', '');
+        tagsCell.append(window.SwblogTags.pills(post.tags));
         link.append(
             cell('pg-row-num', post.number),
             thumb,
             cell('pg-row-title', post.title || ''),
-            cell('pg-row-tags', post.tagLabel),
+            tagsCell,
             cell('pg-row-type', kindOf(post)),
             cell('pg-row-date', post.date, 'time')
         );
@@ -904,7 +915,8 @@
         status('불러오는 중');
         try {
             if (!window.supabase || !window.SwblogData) throw new Error('The posts library did not load.');
-            posts = await window.SwblogData.fetchPosts();
+            // Private posts stay out of the field: it is made of their pictures.
+            posts = (await window.SwblogData.fetchPosts()).filter(post => !post.locked);
         } catch (error) {
             console.warn('[playground] posts could not be read', error);
             status('글을 불러오지 못했어요.', true);

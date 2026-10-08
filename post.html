@@ -8,7 +8,9 @@
     <script src="./js/pageTransition.js?v=2"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="./js/postContent.js?v=editorial-layout-3"></script>
+    <script src="./js/postContent.js?v=code-2"></script>
+    <script src="./js/postTags.js?v=2"></script>
+    <script src="./js/postType.js?v=3"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reset-css@5.0.1/reset.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -422,7 +424,10 @@
     <link rel="stylesheet" href="./css/editorial.css?v=journal-2">
     <link rel="stylesheet" href="./css/exhibition.css?v=journal-2">
 <link rel="stylesheet" href="./css/publication2026.css?v=2026-15">
-<script src="./js/publication2026.js?v=2026-17" defer></script>
+<link rel="stylesheet" href="./css/codeBlock.css?v=1">
+<link rel="stylesheet" href="./css/tags.css?v=1">
+<link rel="stylesheet" href="./css/siteFooter.css?v=3">
+<script src="./js/publication2026.js?v=2026-18" defer></script>
 </head>
 <body>
 
@@ -454,7 +459,7 @@
 
 <section class="post-continuation" id="post-continuation" aria-labelledby="post-continuation-label">
     <div class="post-continuation-inner">
-        <span class="post-continuation-label" id="post-continuation-label">Read more / 최신 포스트</span>
+        <span class="post-continuation-label" id="post-continuation-label">다음으로 읽을 글</span>
         <a class="post-continuation-link" id="post-continuation-link" href="./index.html">
             <span class="post-continuation-media">
                 <img id="post-continuation-image" src="" alt="" loading="lazy" hidden>
@@ -467,26 +472,7 @@
     </div>
 </section>
 
-<footer class="post-page-footer" data-random-footer>
-    <div class="footer-shell">
-        <div class="footer-main">
-            <div>
-                <span class="footer-kicker">SWBLOG / FIELD NOTES</span>
-                <h2 class="footer-statement">좋은 질문은 다음 글로 이어집니다.</h2>
-            </div>
-            <nav class="footer-nav" aria-label="푸터 탐색">
-                <span class="footer-nav-label">Explore</span>
-                <a href="./index.html">전체 글</a>
-                <a href="./info.html">소개</a>
-                <a href="./editor.html">에디터</a>
-            </nav>
-        </div>
-        <div class="footer-bottom">
-            <strong class="footer-wordmark">SWBLOG</strong>
-            <span class="footer-meta">SEOUL · © <span id="post-current-year">2026</span> KIMSUNGWOO</span>
-        </div>
-    </div>
-</footer>
+<footer class="post-page-footer" data-site-footer></footer>
 
 <!-- ── Fullscreen Image Viewer Modal ── -->
 <div id="fullscreen-viewer" class="fullscreen-viewer">
@@ -520,7 +506,8 @@
             : '';
         link.href = `./post.html?id=${encodeURIComponent(post.id)}`;
         title.textContent = post.title || '최신 포스트 보기';
-        meta.textContent = [post.category || 'POST', date].filter(Boolean).join(' · ');
+        const tags = window.SwblogTags?.tagsOf(post) || [];
+        meta.replaceChildren(tags.length ? window.SwblogTags.pills(tags) : 'POST', ...(date ? [' · ' + date] : []));
         const thumbnail = getPostImage(post.content);
         if (thumbnail) {
             image.src = thumbnail;
@@ -577,11 +564,20 @@
         document.title = `${data.title} – SW Blog`;
 
         // 헤더 채우기
-        document.getElementById('post-cat').textContent     = data.category || '';
+        // Hashtags as pills (css/tags.css), without "#".
+        document.getElementById('post-cat').replaceChildren(...(window.SwblogTags?.tagsOf(data).length ? [window.SwblogTags.pills(window.SwblogTags.tagsOf(data))] : []));
         document.getElementById('post-title-el').textContent = data.title   || '';
         document.getElementById('post-date-el').textContent  =
             new Date(data.created_at).toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' });
         header.style.display = '';
+
+        // 비공개 글은 제목과 자물쇠만 보이고 본문은 열리지 않습니다.
+        if (window.SwblogPostType?.isPrivate(data)) {
+            document.getElementById('post-cat').replaceChildren();
+            body.innerHTML = '<p style="color:#6e6e73">비공개 글입니다.</p>';
+            document.getElementById('post-reading-meta').textContent = '비공개';
+            return;
+        }
 
         // 마크다운 → HTML
         let rawContent = data.content || '';
@@ -613,8 +609,8 @@
             .select('id,title,category,created_at,content')
             .neq('id', postId)
             .order('created_at', { ascending: false })
-            .limit(1);
-        renderStandaloneContinuation(latestPosts?.[0]);
+            .limit(8);
+        renderStandaloneContinuation(latestPosts?.find(post => !window.SwblogPostType?.isPrivate(post)));
         window.Publication2026?.enhance(body, data);
     }
 
@@ -837,6 +833,6 @@
         setTimeout(() => { window.location.href = targetUrl; }, 350);
     }
 </script>
-<script src="./js/footerTheme.js?v=journal-2"></script>
+<script src="./js/siteFooter.js?v=5"></script>
 </body>
 </html>

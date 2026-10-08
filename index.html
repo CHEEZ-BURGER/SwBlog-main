@@ -30,19 +30,22 @@
     <script src="./js/main.js?v=landing-motion-sequence-12" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="./js/postContent.js?v=editorial-layout-3"></script>
+    <script src="./js/postContent.js?v=code-2"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
 
-    <script src="./js/postTags.js?v=1"></script>
-    <script src="./js/postType.js?v=2"></script>
-    <script src="./js/galleryReader.js?v=2"></script>
-    <script src="./js/panelField.js?v=6"></script>
+    <script src="./js/postTags.js?v=2"></script>
+    <script src="./js/postType.js?v=3"></script>
+    <script src="./js/galleryReader.js?v=4"></script>
+    <script src="./js/panelField.js?v=8"></script>
     <link rel="stylesheet" href="./css/editorial.css?v=journal-2">
     <link rel="stylesheet" href="./css/exhibition.css?v=journal-2">
     <link rel="stylesheet" href="./css/publication2026.css?v=2026-15">
-    <link rel="stylesheet" href="./css/indexReel.css?v=reel-54">
+    <link rel="stylesheet" href="./css/indexReel.css?v=reel-56">
     <link rel="stylesheet" href="./css/gallery.css?v=3">
-    <link rel="stylesheet" href="./css/reading.css?v=11">
+    <link rel="stylesheet" href="./css/reading.css?v=27">
+    <link rel="stylesheet" href="./css/codeBlock.css?v=1">
+    <link rel="stylesheet" href="./css/tags.css?v=1">
+    <link rel="stylesheet" href="./css/siteFooter.css?v=3">
 </head>
 <body class="landing-state">
 
@@ -126,28 +129,7 @@
                 </div>
             </div>
 
-            <footer class="footer" data-random-footer>
-                <div class="footer-shell">
-                    <div class="footer-main">
-                        <div>
-                            <span class="footer-kicker">SWBLOG / FIELD NOTES</span>
-                            <h2 class="footer-statement">관찰하고, 만들고, 다시 기록합니다.</h2>
-                        </div>
-                        <nav class="footer-nav" aria-label="푸터 탐색">
-                            <span class="footer-nav-label">Explore</span>
-                            <a href="./blog.html">블로그</a>
-                            <a href="./gallery.html">갤러리</a>
-                            <a href="./playground.html">플레이그라운드</a>
-                            <a href="./info.html">소개</a>
-                            <a href="./editor.html">에디터</a>
-                        </nav>
-                    </div>
-                    <div class="footer-bottom">
-                        <strong class="footer-wordmark">KIMSUNGWOO</strong>
-                        <span class="footer-meta">SEOUL · © <span class="current-year">2026</span> SWBLOG</span>
-                    </div>
-                </div>
-            </footer>
+            <footer class="footer" data-site-footer></footer>
             <div class="pg-lode-box1"></div>
             <div class="pg-lode-box2"></div>
         </div>
@@ -167,42 +149,16 @@
                     </div>
                     <div class="post-viewer-content" id="panel-content"></div>
                 </div>
-                <section class="post-continuation" id="panel-continuation" aria-labelledby="panel-continuation-label">
-                    <div class="post-continuation-inner">
-                        <span class="post-continuation-label" id="panel-continuation-label">Read more / 최신 포스트</span>
-                        <a class="post-continuation-link" id="panel-continuation-link" href="./index.html">
-                            <span class="post-continuation-media">
-                                <img id="panel-continuation-image" src="" alt="" loading="lazy" hidden>
-                            </span>
-                            <span class="post-continuation-copy">
-                                <span class="post-continuation-meta" id="panel-continuation-meta">SWBLOG ARCHIVE</span>
-                                <span class="post-continuation-title" id="panel-continuation-title">더 많은 포스트 보기</span>
-                            </span>
-                        </a>
+                <section class="next-flow" id="panel-continuation" aria-labelledby="panel-continuation-label">
+                    <div class="next-flow-head">
+                        <span class="next-flow-label" id="panel-continuation-label">다음으로 읽을 글</span>
+                        <a class="next-flow-all" href="./blog.html">모든 글 <span aria-hidden="true">→</span></a>
+                    </div>
+                    <div class="next-flow-window">
+                        <ul class="next-flow-track" id="next-flow-track"></ul>
                     </div>
                 </section>
-                <footer class="post-page-footer" data-random-footer>
-                    <div class="footer-shell">
-                        <div class="footer-main">
-                            <div>
-                                <span class="footer-kicker">SWBLOG / FIELD NOTES</span>
-                                <h2 class="footer-statement">좋은 질문은 다음 글로 이어집니다.</h2>
-                            </div>
-                            <nav class="footer-nav" aria-label="푸터 탐색">
-                                <span class="footer-nav-label">Explore</span>
-                                <a href="./blog.html">블로그</a>
-                                <a href="./gallery.html">갤러리</a>
-                                <a href="./playground.html">플레이그라운드</a>
-                                <a href="./info.html">소개</a>
-                                <a href="./editor.html">에디터</a>
-                            </nav>
-                        </div>
-                        <div class="footer-bottom">
-                            <strong class="footer-wordmark">SWBLOG</strong>
-                            <span class="footer-meta">SEOUL · © <span class="current-year">2026</span> KIMSUNGWOO</span>
-                        </div>
-                    </div>
-                </footer>
+                <footer class="post-page-footer" data-site-footer></footer>
             </div>
         </div>
     </div>
@@ -239,7 +195,7 @@
     </div>
 </div>
 
-<script src="./js/publication2026.js?v=2026-17"></script>
+<script src="./js/publication2026.js?v=2026-20"></script>
 <script>
     function isMobileLayout() {
         return window.matchMedia('(max-width: 1180px)').matches;
@@ -1003,51 +959,57 @@ function syncLandingChromeAlignment(force = false) {
     const displayLimit = 50;
     let currentRenderId = 0;
 
+    // After a post: a row of same-height boxes, its next reads, drifting slowly to the left in a
+    // loop (css/reading.css). First the post the reader is most likely to want next (same kind
+    // and a shared hashtag), then the rest of the same kind, then everything else; never the post
+    // itself or a private one. Pointing at the row holds it still; a box opens its post.
     function renderPanelContinuation(currentPostId) {
-        const link = document.getElementById('panel-continuation-link');
-        const title = document.getElementById('panel-continuation-title');
-        const meta = document.getElementById('panel-continuation-meta');
-        const image = document.getElementById('panel-continuation-image');
-        if (!link || !title || !meta || !image) return;
-
+        const track = document.getElementById('next-flow-track');
+        if (!track) return;
         const currentPost = allPosts.find(post => String(post.id) === String(currentPostId));
-        const candidates = allPosts.filter(post => String(post.id) !== String(currentPostId));
-        // Next: a post of the same kind that shares a hashtag, else the same kind, else the newest.
+        const candidates = allPosts.filter(post => String(post.id) !== String(currentPostId) && !window.SwblogPostType?.isPrivate(post));
         const kind = post => window.SwblogPostType?.postType(post) || 'blog';
         const tags = new Set(window.SwblogTags?.tagsOf(currentPost) || []);
-        const sameKind = candidates.filter(post => kind(post) === kind(currentPost));
-        const nextPost = sameKind.find(post => (window.SwblogTags?.tagsOf(post) || []).some(tag => tags.has(tag)))
-            || sameKind[0] || candidates[0];
-        if (!nextPost) {
-            link.href = './index.html';
-            delete link.dataset.postId;
-            title.textContent = '더 많은 포스트 보기';
-            meta.textContent = 'SWBLOG ARCHIVE';
-            image.hidden = true;
-            image.removeAttribute('src');
-            image.alt = '';
-            return;
-        }
+        const shares = post => (window.SwblogTags?.tagsOf(post) || []).some(tag => tags.has(tag));
+        const rank = post => (kind(post) === kind(currentPost) ? 0 : 2) + (shares(post) ? 0 : 1);
+        const picks = candidates.map((post, order) => ({ post, order }))
+            .sort((a, b) => rank(a.post) - rank(b.post) || a.order - b.order)
+            .slice(0, 10).map(item => item.post);
+        const section = document.getElementById('panel-continuation');
+        section.hidden = !picks.length;
+        if (!picks.length) { track.replaceChildren(); return; }
 
-        const date = nextPost.created_at
-            ? new Date(nextPost.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' })
-            : '';
-        const url = new URL(window.location.href);
-        url.searchParams.set('post', nextPost.id);
-        link.href = url.toString();
-        link.dataset.postId = String(nextPost.id);
-        title.textContent = nextPost.title || '최신 포스트 보기';
-        meta.textContent = [window.SwblogTags?.label(window.SwblogTags.tagsOf(nextPost)) || (kind(nextPost) === 'gallery' ? 'GALLERY' : 'BLOG'), date].filter(Boolean).join(' · ');
-        const thumbnail = getFirstImage(nextPost.content);
-        if (thumbnail) {
-            image.src = thumbnail;
-            image.alt = `${nextPost.title || '최신 포스트'} 썸네일`;
-            image.hidden = false;
-        } else {
-            image.hidden = true;
-            image.removeAttribute('src');
-            image.alt = '';
-        }
+        const card = (post, copy) => {
+            const created = new Date(post.created_at);
+            const date = [created.getFullYear(), created.getMonth() + 1, created.getDate()].map(n => String(n).padStart(2, '0')).join('.');
+            const picture = getFirstImage(post.content);
+            const url = new URL(window.location.href);
+            url.searchParams.set('post', post.id);
+            return `<li class="next-flow-item"${copy ? ' aria-hidden="true"' : ''}>
+                <a class="next-flow-card" href="${escapeHtml(url.toString())}" data-post-id="${escapeHtml(String(post.id))}"${copy ? ' tabindex="-1"' : ''}>
+                    <span class="next-flow-frame">${picture
+                        ? `<img src="${escapeHtml(picture)}" alt="" loading="lazy" decoding="async">`
+                        : `<span class="next-flow-plate">${escapeHtml(post.title || '')}</span>`}</span>
+                    <span class="next-flow-caption">
+                        <span class="next-flow-title">${escapeHtml(post.title || '제목 없음')}</span>
+                        <span class="next-flow-date">${date}</span>
+                    </span>
+                </a>
+            </li>`;
+        };
+        // The row loops by running the same run twice; a short run is repeated first so one run is
+        // always wider than the screen.
+        const run = [];
+        while (run.length < 8) run.push(...picks);
+        track.innerHTML = run.map(post => card(post, false)).join('') + run.map(post => card(post, true)).join('');
+        track.querySelectorAll('.next-flow-item').forEach((item, index) => {
+            if (index >= picks.length && index < run.length) {
+                item.setAttribute('aria-hidden', 'true');
+                item.querySelector('a').tabIndex = -1;
+            }
+        });
+        // About 5.5 seconds a box, so the drift reads the same whatever the number of posts.
+        track.style.setProperty('--flow-time', (run.length * 5.5).toFixed(1) + 's');
     }
 
     function setupStickyStages() {
@@ -1371,7 +1333,8 @@ function syncLandingChromeAlignment(force = false) {
 
         // 문자열을 한 번만 파싱해 반복적인 DOM 재구성과 레이아웃 무효화를 방지합니다.
         const postMarkup = postsToShow.map((post, index) => {
-            const date = new Date(post.created_at).toISOString().split('T')[0];
+            const created = new Date(post.created_at);
+            const date = [created.getFullYear(), created.getMonth() + 1, created.getDate()].map(n => String(n).padStart(2, '0')).join('-');
             const padIdx = String(index + 1).padStart(2, '0');
 
             // The mark of a post's kind (blog or gallery); its hashtags stand where the category was.
@@ -1382,10 +1345,14 @@ function syncLandingChromeAlignment(force = false) {
             const postIdEnc = encodeURIComponent(post.id);
             // (Gallery posts stand in the wide column, blog posts in the narrow one.)
             const postIdSafe = escapeHtml(String(post.id));
-            const firstImg = getFirstImage(post.content);
+            // A private post (set in the editor's DB view) keeps its place with a lock: no picture,
+            // no panel picture, and it does not open.
+            const locked = Boolean(window.SwblogPostType?.isPrivate(post));
+            const lockHtml = locked ? `<span class="post-lock">${window.SwblogPostType.LOCK_SVG}<span class="sr-only">비공개 글</span></span>` : '';
+            const firstImg = locked ? null : getFirstImage(post.content);
             const imgDataAttr = firstImg ? `data-preview-img="${escapeHtml(firstImg)}"` : '';
             // The picture made for the right-hand panel, if the post has one.
-            const panelImg = window.PanelScene?.panelImage(post.content);
+            const panelImg = locked ? null : window.PanelScene?.panelImage(post.content);
             const panelDataAttr = panelImg ? `data-panel-img="${escapeHtml(panelImg)}"` : '';
             // Reading time, counted as the reader counts it (characters without spaces, 500 a minute).
             const readMinutes = Math.max(1, Math.ceil(String(post.content || '').replace(/<[^>]*>/g, '').replace(/&[#\w]+;/g, ' ').replace(/\s/g, '').length / 500));
@@ -1395,15 +1362,15 @@ function syncLandingChromeAlignment(force = false) {
             const contentHtml = `
                 <img class="post-list-dot" src="./mainPage_img/${dotColor}" alt="${postKind === 'gallery' ? '갤러리' : '블로그'}">
                 <div class="post-list-text-wrap">
-                    <span class="post-list-category">${highlightText(tagLabel || (postKind === 'gallery' ? 'GALLERY' : 'BLOG'), query)}</span>
-                    <h3 class="post-list-title"><span class="post-list-title-run">${titleHtml}</span></h3>
+                    <span class="post-list-category">${tagLabel ? window.SwblogTags.pillsHTML(window.SwblogTags.tagsOf(post), tag => highlightText(tag, query)) : highlightText(postKind === 'gallery' ? 'GALLERY' : 'BLOG', query)}</span>
+                    <h3 class="post-list-title"><span class="post-list-title-run">${lockHtml}${titleHtml}</span></h3>
                 </div>
                 <time datetime="${escapeHtml(post.created_at)}" class="post-list-date">${date}</time>
             `;
 
             return `
-            <a href="?post=${postIdEnc}"
-               class="post-list-item is-${postKind}"
+            <a ${locked ? 'aria-disabled="true" title="비공개 글"' : `href="?post=${postIdEnc}"`}
+               class="post-list-item is-${postKind}${locked ? ' is-private' : ''}"
                data-post-id="${postIdSafe}"
                data-type="${postKind}"
                data-category="${escapeHtml(tagLabel)}"
@@ -1416,7 +1383,9 @@ function syncLandingChromeAlignment(force = false) {
                data-base-rot="${randomRot}"
                aria-label="${escapeHtml(post.title)}">
                 <div class="flap-line"></div>
-                <div class="post-list-thumb"><span class="post-list-thumb-pic">${firstImg
+                <div class="post-list-thumb"><span class="post-list-thumb-pic">${locked
+                    ? `<span class="post-list-thumb-lock">${window.SwblogPostType.LOCK_SVG}</span>`
+                    : firstImg
                     ? `<img src="${escapeHtml(firstImg)}" alt="" loading="lazy" decoding="async">`
                     : `<img class="post-list-thumb-glyph" src="./mainPage_img/${dotColor}" alt="">`}</span></div>
                 <div class="post-list-num" style="color: #00081c">${padIdx}</div>
@@ -1629,6 +1598,7 @@ function syncLandingChromeAlignment(force = false) {
 
     async function loadPanelPost(postId) {
         const renderId = ++currentRenderId;
+        window.SectionRail?.clear();
         const resolution = window.Publication2026?.begin(postId);
         document.body.classList.remove('post-end-stage', 'archive-pinned');
         const archiveToggle = document.querySelector('.archive-toggle');
@@ -1715,6 +1685,30 @@ function syncLandingChromeAlignment(force = false) {
 
         loading.style.display = 'none';
 
+        // A private post reached by its address: its title and a lock, never its content.
+        if (!error && data && window.SwblogPostType?.isPrivate(data)) {
+            document.body.classList.remove('reading-gallery');
+            window.GalleryReader?.stop();
+            document.getElementById('panel-cat').textContent = 'PRIVATE';
+            document.getElementById('panel-tags').replaceChildren();
+            document.getElementById('panel-title').textContent = data.title || '';
+            document.getElementById('panel-date').textContent =
+                new Date(data.created_at).toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' });
+            header.style.display = '';
+            content.innerHTML = `<div class="post-locked">${window.SwblogPostType.LOCK_SVG}<p>비공개 글입니다.</p></div>`;
+            generateTOC(content);
+            document.getElementById('panel-reading-meta').textContent = '비공개';
+            renderPanelContinuation(data.id);
+            window.Publication2026?.resolve(resolution, false);
+            requestAnimationFrame(() => {
+                if (renderId !== currentRenderId) return;
+                panelBody.style.transition = 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+                panelBody.style.opacity = '1';
+                panelBody.style.transform = 'translate3d(0, 0, 0)';
+            });
+            return;
+        }
+
         if (error || !data) {
             window.Publication2026?.resolve(resolution, false);
             content.innerHTML = '<p style="color:var(--color-text-muted);padding:2rem 0;">글을 불러올 수 없습니다.</p>';
@@ -1728,7 +1722,7 @@ function syncLandingChromeAlignment(force = false) {
             loadedPostData.set(String(postId), data);
             // The kind of post at the top right; its hashtags after the reading time.
             document.getElementById('panel-cat').textContent   = window.SwblogPostType?.postType(data) === 'gallery' ? 'GALLERY' : 'BLOG';
-            document.getElementById('panel-tags').textContent  = window.SwblogTags?.label(window.SwblogTags.tagsOf(data)) || '';
+            document.getElementById('panel-tags').replaceChildren(...(window.SwblogTags?.tagsOf(data).length ? [window.SwblogTags.pills(window.SwblogTags.tagsOf(data))] : []));
             document.getElementById('panel-title').textContent = data.title    || '';
             document.getElementById('panel-date').textContent  =
                 new Date(data.created_at).toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' });
@@ -1783,6 +1777,7 @@ function syncLandingChromeAlignment(force = false) {
                     }
                     generateTOC(content);
                     window.Publication2026?.enhance(content, data);
+                    window.SectionRail?.build(gallery ? null : content);
                     window.Publication2026?.resolve(resolution);
                 });
             };
@@ -1807,6 +1802,7 @@ function syncLandingChromeAlignment(force = false) {
         }
 
         currentRenderId++;
+        window.SectionRail?.clear();
         window.Publication2026?.cancel();
         window.GalleryReader?.stop();
         document.body.classList.remove('reading-gallery');
@@ -2410,6 +2406,13 @@ function syncLandingChromeAlignment(force = false) {
         const item = e.target.closest('.post-list-item');
         if (!item) return;
         e.preventDefault();
+        // A private post does not open; its lock gives a small shake instead.
+        if (item.classList.contains('is-private')) {
+            item.classList.remove('is-denied');
+            void item.offsetWidth;
+            item.classList.add('is-denied');
+            return;
+        }
         // The list is on its way in or out; nothing opens until it has landed.
         if (shift.active) return;
         openPanelPost(item.dataset.postId, item, 'push');
@@ -2428,11 +2431,11 @@ function syncLandingChromeAlignment(force = false) {
         openPanelPost(postId, null, 'push');
     });
 
-    document.getElementById('panel-continuation-link')?.addEventListener('click', function (event) {
-        const postId = this.dataset.postId;
-        if (!postId) return;
+    document.getElementById('next-flow-track')?.addEventListener('click', function (event) {
+        const card = event.target.closest('.next-flow-card');
+        if (!card || event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         event.preventDefault();
-        openPanelPost(postId, null, 'push');
+        openPanelPost(card.dataset.postId, null, 'push');
     });
 
     const clamp01 = value => Math.max(0, Math.min(1, value));
@@ -2616,7 +2619,8 @@ function syncLandingChromeAlignment(force = false) {
         }
 
         updateCards(posts) {
-            this.posts = (posts || []).filter(post => getFirstImage(post.content));
+            // Private posts stay off the landing rail: it is made of their pictures.
+            this.posts = (posts || []).filter(post => getFirstImage(post.content) && !window.SwblogPostType?.isPrivate(post));
             this.copies = -1;
             this.measure();
         }
@@ -2856,7 +2860,8 @@ function syncLandingChromeAlignment(force = false) {
         setupStickyStages();
     });
 </script>
-<script src="./js/footerTheme.js?v=journal-2"></script>
-<script src="./js/readingExperience.js?v=journal-2"></script>
+<script src="./js/siteFooter.js?v=5"></script>
+<script src="./js/readingExperience.js?v=mobile-1"></script>
+<script src="./js/sectionRail.js?v=3"></script>
 </body>
 </html>

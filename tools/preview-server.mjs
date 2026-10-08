@@ -12,4 +12,4 @@ http.createServer(async (req, res) => {
     res.writeHead(200, { 'Content-Type': mime[path.extname(file).toLowerCase()] || 'application/octet-stream', 'Cache-Control': 'no-store' });
     res.end(await readFile(file));
   } catch { res.writeHead(404); res.end('Not found'); }
-}).listen(4173, '127.0.0.1', () => console.log('Preview: http://127.0.0.1:4173'));
+}).listen(Number(process.env.PORT) || 4173, '127.0.0.1', () => console.log('Preview: http://127.0.0.1:' + (Number(process.env.PORT) || 4173)));

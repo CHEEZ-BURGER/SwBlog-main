@@ -161,3 +161,11 @@ html{background:#0a0a0b;overscroll-behavior-x:none}
     .pg-tile img,.pg-row-thumb img,.pg-chip,.pg-caption,.pg-status,.pg-ring{transition:none}
     .pg-tile.is-hover img,.pg-row a:is(:hover,:focus-visible) .pg-row-thumb img{scale:1}
 }
+
+/* Hashtags as pills (css/tags.css): in the caption the tags line is a pill tall, and in the list
+   the pills sit on the row's middle. */
+.pg-cap-tags{height:24px;line-height:24px}
+.pg-cap-tags>span{display:flex;align-items:center;gap:14px}
+.pg-cap-tags .tag-pill{height:22px;padding:0 9px}
+.pg-row-tags .tag-pills{flex-wrap:nowrap;vertical-align:middle}
+.pg-row-tags .tag-pill{height:24px;padding:0 9px}

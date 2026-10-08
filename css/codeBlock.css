@@ -1,0 +1,59 @@
+/* Code in a post (reader, post.html and the editor's preview). One quiet panel on the site's second
+   white, set in a monospace face and standing exactly on the text column. A small head carries the
+   language at the left and Copy at the right over one straight hairline; long lines scroll inside
+   the code while the head stays put. Comments are set back in grey. The markup comes from
+   PostContent.normalizeCodeBlocks (js/postContent.js), which also turns the old editor's
+   <pre><p>javascript</p><p>line</p>…</pre> into real code. Loaded last, so it outranks the older
+   layers (mainPage, editorial, publication2026) that drew a dark box with a curved rule. */
+:root{
+    --code-surface:#f5f5f7;
+    --code-ink:#1d1d1f;
+    --code-muted:#86868b;
+    --code-rule:rgba(18,18,18,.08);
+    --code-font:'SF Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono','D2Coding','Pretendard Variable','Pretendard',monospace;
+}
+
+html body :is(.post-viewer-content,.post-body,.publication-content,#markdown-content,#panel-content) pre{
+    position:relative;display:block;box-sizing:border-box;
+    width:100%!important;max-width:var(--publication-measure,720px)!important;
+    margin:36px auto!important;padding:0!important;overflow:hidden!important;
+    border:0!important;border-radius:6px!important;box-shadow:none!important;
+    background:var(--code-surface)!important;color:var(--code-ink)!important;
+    font:400 14px/1.75 var(--code-font)!important;letter-spacing:0!important;text-align:left;
+    white-space:normal!important;tab-size:4;-moz-tab-size:4
+}
+/* The old label and the traffic-light dots drawn on the box itself are gone. */
+html body :is(.post-viewer-content,.post-body,.publication-content,#markdown-content,#panel-content) pre::before,
+html body :is(.post-viewer-content,.post-body,.publication-content,#markdown-content,#panel-content) pre::after{content:none!important;display:none!important}
+
+html body pre>.code-head{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:44px;margin:0;padding:0 10px 0 22px;
+    border-bottom:1px solid var(--code-rule);color:var(--code-muted);
+    font:400 11px/1 'Helvetica Neue','Pretendard Variable','Pretendard',sans-serif;letter-spacing:.14em;text-transform:uppercase;
+    white-space:nowrap;-webkit-user-select:none;user-select:none
+}
+html body pre>.code-head .code-lang{min-width:0;overflow:hidden;text-overflow:ellipsis}
+html body pre>.code-head .code-copy{
+    flex:none;appearance:none;-webkit-appearance:none;margin:0;padding:9px 12px;border:0;border-radius:4px;background:none;
+    color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;
+    transition:color 380ms cubic-bezier(.19,1,.22,1),background-color 380ms cubic-bezier(.19,1,.22,1)
+}
+html body pre>.code-head .code-copy:is(:hover,:focus-visible),
+html body pre>.code-head .code-copy.is-done{color:var(--code-ink);background:rgba(18,18,18,.05)}
+html body pre>.code-head .code-copy:focus-visible{outline:1px solid var(--code-ink);outline-offset:2px}
+
+html body :is(.post-viewer-content,.post-body,.publication-content,#markdown-content,#panel-content) pre>code{
+    display:block;margin:0!important;padding:20px 24px 22px!important;overflow-x:auto;overscroll-behavior-x:contain;
+    border:0!important;border-radius:0!important;background:none!important;color:inherit!important;
+    font:inherit!important;letter-spacing:0!important;white-space:pre!important;word-break:normal!important;overflow-wrap:normal!important;
+    scrollbar-width:thin;scrollbar-color:rgba(18,18,18,.18) transparent;-webkit-overflow-scrolling:touch
+}
+html body pre>code .code-comment{color:var(--code-muted);font-style:normal}
+
+@media(max-width:820px){
+    html body :is(.post-viewer-content,.post-body,.publication-content,#markdown-content,#panel-content) pre{
+        margin:28px auto!important;border-radius:4px!important;font-size:12.5px!important;line-height:1.7!important
+    }
+    html body pre>.code-head{min-height:40px;padding:0 6px 0 16px}
+    html body :is(.post-viewer-content,.post-body,.publication-content,#markdown-content,#panel-content) pre>code{padding:16px 16px 18px!important}
+}

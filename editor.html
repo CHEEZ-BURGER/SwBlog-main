@@ -11,13 +11,13 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="./js/postContent.js?v=editorial-layout-3"></script>
-    <script src="./js/postTags.js?v=1"></script>
-    <script src="./js/postType.js?v=2"></script>
+    <script src="./js/postContent.js?v=code-2"></script>
+    <script src="./js/postTags.js?v=2"></script>
+    <script src="./js/postType.js?v=3"></script>
     <script src="./js/editorBlocks.js?v=studio-1"></script>
 
     <link rel="stylesheet" href="./css/editor.css?v=studio-1">
-    <link rel="stylesheet" href="./css/editorRefinement.css?v=studio-1">
+    <link rel="stylesheet" href="./css/editorRefinement.css?v=studio-2">
     <link rel="stylesheet" href="./css/editorStudio.css?v=studio-2">
 </head>
 <body data-tab="write" data-post-type="blog">
@@ -220,6 +220,7 @@
                                 <th class="col-thumb"><span class="sr-only">사진</span></th>
                                 <th class="col-title">제목</th>
                                 <th class="col-type">유형</th>
+                                <th class="col-visibility">공개</th>
                                 <th class="col-category">해시태그</th>
                                 <th class="col-date">작성일</th>
                                 <th class="col-actions"><span class="sr-only">동작</span></th>
@@ -295,6 +296,8 @@
     const previewDialog = $('publication-preview-dialog');
 
     let currentEditId = null;
+    // 공개/비공개: DB 관리의 버튼으로 정하고, 본문의 보이지 않는 주석(<!--swblog:private-->)으로 저장됩니다.
+    let currentPrivate = false;
     let allPostsData = [];
     let currentPostType = 'blog';
     let designatedThumbnailUrl = null;
@@ -456,7 +459,7 @@
     // 예전 카테고리(CODING, DESIGN, LIFE)는 불러올 때 해당 해시태그로 바뀝니다.
     const Tags = window.SwblogTags;
     const tagRow = $('post-tags');
-    tagRow.innerHTML = Tags.TAGS.map(tag => `<button type="button" class="tag-chip" data-tag="${tag}" aria-pressed="false">#${tag}</button>`).join('');
+    tagRow.innerHTML = Tags.TAGS.map(tag => `<button type="button" class="tag-chip" data-tag="${tag}" aria-pressed="false">${tag}</button>`).join('');
 
     function renderTags() {
         const chosen = Tags.parse(categorySelect.value);
@@ -927,6 +930,7 @@
     function resetWriteForm() {
         if (!isDraftBlank() && !confirm('새 글을 작성하시겠습니까? 현재 작성 중인 내용은 지워집니다.')) return;
         currentEditId = null;
+        currentPrivate = false;
         titleInput.value = '';
         setCategory('');
         setPostType('blog', { silent: true });
@@ -1005,8 +1009,10 @@
 
         let content = getCleanEditorHtml();
         // 기존 썸네일 태그와 표시용 주석 찌꺼기 제거
-        content = content.replace(HIDDEN_THUMBNAIL, '').replace(PANEL_MARK, '').replace(PostType.TYPE_MARK_ALL, '');
+        content = content.replace(HIDDEN_THUMBNAIL, '').replace(PANEL_MARK, '').replace(PostType.TYPE_MARK_ALL, '').replace(PostType.PRIVATE_MARK_ALL, '');
         if (!title || !content.trim()) return alert('제목과 내용을 모두 작성해주세요!');
+        // 비공개 글을 고쳐 올려도 비공개는 그대로입니다.
+        if (currentEditId && currentPrivate) content = PostType.privateMark + '\n' + content;
 
         // 순서: 숨김 썸네일 → 우측 패널 주석 → 글 유형 주석 → 본문
         content = PostType.mark(currentPostType) + '\n' + content;
@@ -1049,17 +1055,17 @@
     async function loadPostList() {
         const tbody = $('manage-tbody');
         const count = $('manage-count');
-        tbody.innerHTML = '<tr class="manage-state"><td colspan="6">불러오는 중…</td></tr>';
+        tbody.innerHTML = '<tr class="manage-state"><td colspan="7">불러오는 중…</td></tr>';
         const { data, error } = await sbClient.from('posts').select('*').order('created_at', { ascending: false });
         if (error || !data) {
             count.textContent = '';
-            tbody.innerHTML = `<tr class="manage-state"><td colspan="6">목록을 불러오지 못했습니다${error ? ' · ' + escapeHtml(error.message) : ''}</td></tr>`;
+            tbody.innerHTML = `<tr class="manage-state"><td colspan="7">목록을 불러오지 못했습니다${error ? ' · ' + escapeHtml(error.message) : ''}</td></tr>`;
             return;
         }
         allPostsData = data;
         count.textContent = `${data.length}개의 글`;
         if (!data.length) {
-            tbody.innerHTML = '<tr class="manage-state"><td colspan="6">아직 글이 없습니다.</td></tr>';
+            tbody.innerHTML = '<tr class="manage-state"><td colspan="7">아직 글이 없습니다.</td></tr>';
             return;
         }
         tbody.innerHTML = data.map((post, index) => {
@@ -1067,10 +1073,13 @@
             const type = PostType.postType(post);
             const date = String(post.created_at || '').split('T')[0];
             const current = currentEditId !== null && post.id === currentEditId;
-            return `<tr data-index="${index}"${current ? ' class="is-current"' : ''}>
+            const hidden = PostType.isPrivate(post);
+            const rowClass = [current ? 'is-current' : '', hidden ? 'is-private' : ''].filter(Boolean).join(' ');
+            return `<tr data-index="${index}"${rowClass ? ` class="${rowClass}"` : ''}>
                 <td class="col-thumb">${thumb ? `<img src="${escapeHtml(thumb)}" alt="" loading="lazy">` : '<span class="thumb-empty" aria-hidden="true"></span>'}</td>
                 <td class="col-title"><button type="button" class="row-title" data-row-action="edit">${escapeHtml(post.title || '제목 없음')}</button>${current ? '<span class="row-flag">편집 중</span>' : ''}</td>
                 <td class="col-type"><span class="type-badge" data-type="${type}">${TYPE_LABEL[type]}</span></td>
+                <td class="col-visibility"><button type="button" class="visibility-toggle" data-row-action="visibility" aria-pressed="${hidden}" title="눌러서 ${hidden ? '공개' : '비공개'}로 바꾸기">${hidden ? PostType.LOCK_SVG + '비공개' : '공개'}</button></td>
                 <td class="col-category">${escapeHtml(Tags.label(Tags.tagsOf(post)) || '—')}</td>
                 <td class="col-date">${escapeHtml(date)}</td>
                 <td class="col-actions"><button type="button" class="soft-btn" data-row-action="edit">수정</button><button type="button" class="soft-btn soft-btn--danger delete-btn" data-row-action="delete">삭제</button></td>
@@ -1085,6 +1094,7 @@
         const post = allPostsData[Number(row.dataset.index)];
         if (!post) return;
         if (button.dataset.rowAction === 'edit') editPost(post.id);
+        else if (button.dataset.rowAction === 'visibility') setVisibility(post, button);
         else removePost(post.id);
     });
 
@@ -1094,6 +1104,7 @@
         if (hasUnpublishedChanges && !isDraftBlank() && currentEditId !== id && !confirm('작성 중인 내용이 있습니다. 이 글을 불러오면 지금 편집 중인 내용은 사라집니다. 계속할까요?')) return;
 
         currentEditId = id;
+        currentPrivate = PostType.isPrivate(post);
         titleInput.value = post.title || '';
         setCategory(post.category);
         // 표시가 없는 예전 글도 사이트와 같은 기준으로 유형을 추정합니다.
@@ -1105,7 +1116,7 @@
         panelMatch ? showPanelPreview(panelMatch[1]) : clearPanelImage();
 
         // 숨김 썸네일과 표시용 주석은 편집 화면에서 빼고 불러옵니다.
-        const rawContent = (post.content || '').replace(HIDDEN_THUMBNAIL, '').replace(PANEL_MARK, '').replace(PostType.TYPE_MARK_ALL, '');
+        const rawContent = (post.content || '').replace(HIDDEN_THUMBNAIL, '').replace(PANEL_MARK, '').replace(PostType.TYPE_MARK_ALL, '').replace(PostType.PRIVATE_MARK_ALL, '');
         // 기존 마크다운 포스트 호환을 위해 HTML로 바꿔서 불러옵니다.
         const html = window.PostContent ? PostContent.toRenderableHtml(rawContent, window.marked) : marked.parse(rawContent);
         loadingContent = true;
@@ -1119,6 +1130,23 @@
         saveDraftNow({});
         setSaveState('loaded');
         window.scrollTo({ top: 0 });
+    }
+
+    // 공개 ↔ 비공개: 본문의 비공개 주석만 넣거나 빼서 저장합니다(제목·해시태그·본문은 그대로).
+    async function setVisibility(post, button) {
+        const toPrivate = !PostType.isPrivate(post);
+        button.disabled = true;
+        const content = PostType.setPrivate(post.content, toPrivate);
+        const { error } = await sbClient.from('posts').update({ content }).eq('id', post.id);
+        if (error) {
+            button.disabled = false;
+            alert('공개 설정 변경 실패: ' + error.message);
+            return;
+        }
+        post.content = content;
+        if (currentEditId === post.id) currentPrivate = toPrivate;
+        showToast(toPrivate ? '비공개로 바꿨습니다. 사이트에서 열 수 없습니다.' : '공개로 바꿨습니다.');
+        loadPostList();
     }
 
     async function removePost(id) {

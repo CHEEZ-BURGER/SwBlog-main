@@ -163,7 +163,7 @@
             if (count) fillLine(element, String(count));
         });
 
-        const latest = posts.find(post => post.title);
+        const latest = posts.find(post => post.title && !post.locked);
         const block = document.querySelector('[data-latest]');
         if (latest && block) {
             block.querySelector('[data-latest-title]').textContent = latest.title;
