@@ -8,7 +8,7 @@
    drag to run through the post (the article follows the finger and a label above it names the
    section); a tap jumps to that point.
 
-   Desktop (a mouse, and the contents column on the left): the rail stands in the right margin.
+   Desktop (a mouse): the rail stands on the left, where the contents box used to be.
    Pointing at it thickens the pills and a label beside the cursor names the section under it;
    a click glides there; pressing and dragging runs through the post as on a phone; the wheel over
    the rail steps a section at a time; with the keyboard, ↑/↓ (and Home/End) do the same. */
@@ -80,7 +80,7 @@
         return section.start + along * (section.end - section.start);
     };
 
-    // The label: above the finger on a phone, beside the cursor (to its left) on a desktop.
+    // The label: above the finger on a phone, beside the cursor (to its right) on a desktop.
     function showLabel(index, y) {
         label.style.transform = `translate3d(0,${clamp(y, desk.matches ? 24 : 78, innerHeight - 20).toFixed(1)}px,0) translateY(-50%)`;
         label.classList.add('is-on');

@@ -92,9 +92,7 @@ html body #post-toc-sidebar .toc-list li:is(:hover,:focus-visible){color:var(--r
 html body #post-toc-sidebar .toc-list li:focus-visible{outline:1px solid var(--read-ink);outline-offset:4px}
 /* The contents show as a grid only where they show at all: on wide screens, when the post has
    them (not [hidden]) and when it is not a gallery post. Phones keep their own contents button. */
-@media(min-width:1181px){
-    html body:not(.reading-gallery):is(.reader-open.reader-open) #post-toc-sidebar:not([hidden]){display:grid!important}
-}
+/* (Desktop used to show the contents box here; the section rail took its place.) */
 /* A gallery post has neither the contents nor the sidebar of posts. */
 html body.reading-gallery :is(#post-toc-sidebar,.mobile-contents){display:none!important}
 html body.reading-gallery:is(.reader-open.reader-open) #archive-panel{visibility:hidden!important;pointer-events:none!important}
@@ -291,14 +289,15 @@ html body #panel-content .post-locked .lock-icon{width:28px;height:28px}
 html body #panel-content .post-locked p{margin:0!important;color:#6e6e73;font-size:var(--read-size)!important}
 @media(prefers-reduced-motion:reduce){html body .post-list-item.is-denied .lock-icon{animation:none}}
 
-/* Desktop: the same rail in the right margin, made for a mouse (js/sectionRail.js). At rest the
-   pills are faint; pointing at the rail brings them up and thickens them, the one under the
-   cursor most, and a dark label to the left of the cursor names that section. A click glides
+/* Desktop: the same rail on the left, where the contents box stood (the box is gone on desktop),
+   made for a mouse (js/sectionRail.js). At rest the pills are faint; pointing at the rail brings
+   them up and thickens them, the one under the cursor most, and a dark label to the right of the
+   cursor names that section. It steps aside while the post sidebar is open over it. A click glides
    there, a drag runs through the post, the wheel over the rail steps a section at a time. */
 @media(min-width:1181px){
     html body:is(.reader-open.reader-open) .section-rail{
-        position:fixed;top:50%;right:clamp(16px,2vw,40px);z-index:460;display:flex!important;flex-direction:column;align-items:center;gap:5px;
-        height:min(56vh,520px);padding:0 12px 0 20px;transform:translateY(-50%);
+        position:fixed;top:50%;left:100px;z-index:460;display:flex!important;flex-direction:column;align-items:center;gap:5px;
+        height:min(56vh,520px);padding:0 20px 0 6px;transform:translateY(-50%);
         cursor:pointer;outline:none;-webkit-user-select:none;user-select:none;transition:opacity 300ms ease
     }
     html body .section-rail-pill{position:relative;display:block;flex:1 1 0;min-height:10px;width:3px;overflow:hidden;border-radius:999px;background:rgba(18,18,18,.12);opacity:.5;
@@ -310,7 +309,7 @@ html body #panel-content .post-locked p{margin:0!important;color:#6e6e73;font-si
     html body .section-rail.is-held{cursor:grabbing}
     html body .section-rail:focus-visible{outline:1px solid #1d1d1f;outline-offset:6px;border-radius:999px}
     html body:is(.reader-open.reader-open) .section-rail-label{
-        position:fixed;top:0;right:calc(clamp(16px,2vw,40px) + 44px);z-index:461;display:flex!important;align-items:center;gap:9px;max-width:min(360px,40vw);height:36px;padding:0 16px;
+        position:fixed;top:0;left:142px;z-index:461;display:flex!important;align-items:center;gap:9px;max-width:min(360px,40vw);height:36px;padding:0 16px;
         border-radius:999px;background:#1d1d1f;color:#fff;font:500 13px/1 'Pretendard Variable','Pretendard',sans-serif;letter-spacing:-.01em;white-space:nowrap;
         pointer-events:none;opacity:0;transition:opacity 180ms ease
     }
@@ -320,7 +319,11 @@ html body #panel-content .post-locked p{margin:0!important;color:#6e6e73;font-si
     html body .section-rail-title{overflow:hidden;text-overflow:ellipsis}
     html body :is(.section-rail,.section-rail-label).is-leaving,
     html body.post-end-stage .section-rail,
-    html body.content-resolving .section-rail{opacity:0!important;pointer-events:none}
+    html body.content-resolving .section-rail,
+    html body:is(.reader-open.reader-open):has(#archive-panel:is(:hover,:focus-within)) :is(.section-rail,.section-rail-label),
+    html body.archive-pinned :is(.section-rail,.section-rail-label){opacity:0!important;pointer-events:none}
+    /* The contents box is replaced by the rail on desktop too. */
+    html body:is(.reader-open.reader-open) #post-toc-sidebar{display:none!important}
 }
 @media(min-width:1181px) and (prefers-reduced-motion:reduce){
     html body :is(.section-rail,.section-rail-pill,.section-rail-label){transition:none!important}
