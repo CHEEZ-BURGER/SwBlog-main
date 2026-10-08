@@ -235,3 +235,36 @@ html body .post-continuation-meta .post-continuation-date{margin-left:.8em;verti
    align-self:end and the rest sat on the baseline; once the pills made the row taller than the
    text, the date dropped below the reading time. */
 html body #panel-header.post-viewer-header :is(#panel-date,#panel-reading-meta,#panel-tags){align-self:center!important}
+
+/* Phones and tablets: the section rail (js/sectionRail.js) takes the place of the CONTENTS
+   button. Long thin pills down the left edge, one per section and as tall as its share of the
+   post; a pill fills in as its section is read, the one being read in ink. Held, the pills widen
+   and a dark label above the finger names the section being run through. */
+.section-rail,.section-rail-label,html body .mobile-contents{display:none!important}
+@media(max-width:1180px){
+    html body:is(.reader-open.reader-open) .section-rail{
+        position:fixed;top:50%;left:0;z-index:460;display:flex!important;flex-direction:column;gap:4px;
+        height:min(48vh,400px);padding:0 18px 0 9px;transform:translateY(-50%);
+        touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;cursor:ns-resize;
+        transition:opacity 300ms ease
+    }
+    html body .section-rail-pill{position:relative;display:block;flex:1 1 0;min-height:10px;width:3px;overflow:hidden;border-radius:999px;background:rgba(18,18,18,.12);transition:width 420ms cubic-bezier(.19,1,.22,1)}
+    html body .section-rail-fill{position:absolute;inset:0;border-radius:inherit;background:#a1a1a6;transform:scaleY(0);transform-origin:top}
+    html body .section-rail-pill.is-active .section-rail-fill{background:#1d1d1f}
+    html body .section-rail.is-held .section-rail-pill{width:6px}
+    html body:is(.reader-open.reader-open) .section-rail-label{
+        position:fixed;top:0;left:14px;z-index:461;display:flex!important;align-items:center;gap:9px;max-width:calc(100vw - 28px);height:38px;margin-top:-50px;padding:0 16px;
+        border-radius:999px;background:#1d1d1f;color:#fff;font:500 14px/1 'Pretendard Variable','Pretendard',sans-serif;letter-spacing:-.01em;white-space:nowrap;
+        pointer-events:none;opacity:0;transition:opacity 200ms ease
+    }
+    html body:is(.reader-open.reader-open) .section-rail-label.is-on{opacity:1}
+    html body .section-rail-number{color:#a1a1a6;font:400 11px/1 'Helvetica Neue','Pretendard Variable','Pretendard',sans-serif;letter-spacing:.06em;font-variant-numeric:tabular-nums}
+    html body .section-rail-number:empty{display:none}
+    html body .section-rail-title{overflow:hidden;text-overflow:ellipsis}
+    html body :is(.section-rail,.section-rail-label).is-leaving,
+    html body.post-end-stage .section-rail,
+    html body.content-resolving .section-rail{opacity:0!important;pointer-events:none}
+}
+@media(max-width:1180px) and (prefers-reduced-motion:reduce){
+    html body :is(.section-rail,.section-rail-pill,.section-rail-label){transition:none!important}
+}

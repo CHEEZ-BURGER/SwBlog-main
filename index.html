@@ -42,7 +42,7 @@
     <link rel="stylesheet" href="./css/publication2026.css?v=2026-15">
     <link rel="stylesheet" href="./css/indexReel.css?v=reel-56">
     <link rel="stylesheet" href="./css/gallery.css?v=3">
-    <link rel="stylesheet" href="./css/reading.css?v=19">
+    <link rel="stylesheet" href="./css/reading.css?v=21">
     <link rel="stylesheet" href="./css/codeBlock.css?v=1">
     <link rel="stylesheet" href="./css/tags.css?v=1">
 </head>
@@ -241,7 +241,7 @@
     </div>
 </div>
 
-<script src="./js/publication2026.js?v=2026-18"></script>
+<script src="./js/publication2026.js?v=2026-19"></script>
 <script>
     function isMobileLayout() {
         return window.matchMedia('(max-width: 1180px)').matches;
@@ -1637,6 +1637,7 @@ function syncLandingChromeAlignment(force = false) {
 
     async function loadPanelPost(postId) {
         const renderId = ++currentRenderId;
+        window.SectionRail?.clear();
         const resolution = window.Publication2026?.begin(postId);
         document.body.classList.remove('post-end-stage', 'archive-pinned');
         const archiveToggle = document.querySelector('.archive-toggle');
@@ -1791,6 +1792,7 @@ function syncLandingChromeAlignment(force = false) {
                     }
                     generateTOC(content);
                     window.Publication2026?.enhance(content, data);
+                    window.SectionRail?.build(gallery ? null : content);
                     window.Publication2026?.resolve(resolution);
                 });
             };
@@ -1815,6 +1817,7 @@ function syncLandingChromeAlignment(force = false) {
         }
 
         currentRenderId++;
+        window.SectionRail?.clear();
         window.Publication2026?.cancel();
         window.GalleryReader?.stop();
         document.body.classList.remove('reading-gallery');
@@ -2866,5 +2869,6 @@ function syncLandingChromeAlignment(force = false) {
 </script>
 <script src="./js/footerTheme.js?v=journal-2"></script>
 <script src="./js/readingExperience.js?v=mobile-1"></script>
+<script src="./js/sectionRail.js?v=2"></script>
 </body>
 </html>

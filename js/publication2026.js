@@ -271,14 +271,11 @@
         setupContents();
         setupLines(content);
     }
+    // Phones and tablets used to get a CONTENTS button here; the section rail (js/sectionRail.js)
+    // has taken its place.
     function setupContents(){
-        const toc=$('#post-toc-sidebar');if(!toc)return;
-        let button=$('.mobile-contents');if(!button){button=document.createElement('button');button.type='button';button.className='mobile-contents';button.textContent='CONTENTS +';button.setAttribute('aria-controls',toc.id);button.setAttribute('aria-expanded','false');document.body.append(button);
-            button.addEventListener('click',()=>{const open=document.body.classList.toggle('contents-open');button.setAttribute('aria-expanded',String(open));button.textContent=open?'CONTENTS −':'CONTENTS +';});
-            const close=()=>{document.body.classList.remove('contents-open');button.setAttribute('aria-expanded','false');button.textContent='CONTENTS +';};
-            toc.addEventListener('click',e=>{if(e.target.closest('li,a,button'))close();});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('contents-open')){e.preventDefault();close();button.focus();}});
-        }
-        document.body.classList.remove('contents-open');button.setAttribute('aria-expanded','false');button.textContent='CONTENTS +';button.hidden=toc.hidden;
+        document.body.classList.remove('contents-open');
+        document.querySelectorAll('.mobile-contents').forEach(button=>button.remove());
     }
     let mobileFrame=0;
     function mobileActive(){
