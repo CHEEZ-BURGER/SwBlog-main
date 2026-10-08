@@ -1,56 +1,243 @@
-/* SWBLOG landing: a canvas ribbon of posts over a full-bleed wordmark, then a dense index. */
+/* SWBLOG landing: one row of posts over a full-bleed wordmark, then a two-column index. */
 :root{
     --reel-margin:clamp(18px,2.5vw,40px);
     /* KIMSUNGW + two glyph dots measure 7.34em wide in Circular Std. */
     --reel-wordmark:min(calc((100vw - var(--reel-margin) * 2) / 7.34),30svh);
     /* Distance from the viewport bottom to the wordmark baseline. */
     --reel-base:var(--reel-margin);
-    --reel-muted:#8a837e;
+    --reel-muted:#86868b;
     --reel-rule:rgba(18,18,18,.16);
-    --reel-font-meta:'Helvetica Neue',Helvetica,'Pretendard Variable','Pretendard',Arial,sans-serif;
+    /* The landing is laid on the same paper as the index. */
+    --reel-stage:var(--bg);
+    /* Light small type: Helvetica Neue where it exists, else Pretendard (which has every weight),
+       never Arial, which has no light cut. */
+    --reel-font-meta:'Helvetica Neue','Pretendard Variable','Pretendard',sans-serif;
 }
 
-/* The ribbon is drawn on one canvas; the links keep every card reachable by keyboard. */
-.rail-scene{position:absolute;inset:0;z-index:1;overflow:hidden}
-.rail-canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
-.rail-link{position:absolute;top:50%;left:50%;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* Behind everything on the landing: the stage and the row of posts on it. The rail's box is
+   also the window the row is wiped away through. */
+.rail-stage{position:fixed;inset:0;z-index:0;overflow:hidden;background:var(--reel-stage);pointer-events:none;contain:strict}
+.rail-layer{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+html body.landing-state:not(.landing-transition-active) .rail-layer{pointer-events:auto}
+html body:not(.landing-state):not(.landing-transition-active) .rail-stage{visibility:hidden}
+html body.landing-state #post-panel{visibility:hidden!important;pointer-events:none!important}
+
+/* One row of posts. The script sets each box's place and squeezes its window to the width the
+   lens gives it; the picture inside is stretched back by the same factor about its centre, so
+   it keeps its shape and is cropped evenly from both sides. Only the window takes the pointer. */
+.rail-scene{position:absolute;inset:0;opacity:0;transition:opacity 700ms ease;-webkit-user-select:none;user-select:none}
+.rail-scene.is-ready{opacity:1}
+.strip-card{position:absolute;top:0;left:0;display:block;width:var(--w);height:var(--h);color:inherit;text-decoration:none;visibility:hidden;pointer-events:none;-webkit-user-drag:none;will-change:transform}
+.strip-card-window{position:absolute;inset:0;display:block;overflow:hidden;background:#f5f5f7;transform-origin:0 0;cursor:pointer;pointer-events:auto;touch-action:pan-y;will-change:transform}
+.strip-card-pic{position:absolute;inset:0;display:block;transform-origin:50% 50%;will-change:transform}
+.strip-card-pic img{display:block;width:100%;height:100%;object-fit:cover;opacity:0;pointer-events:none;transition:opacity 420ms ease,transform 900ms cubic-bezier(.16,1,.3,1)}
+.strip-card-pic img.is-loaded{opacity:1}
+/* Hover: the picture grows a little inside its window and the title rises in below it. */
+.strip-card:is(:hover,:focus-visible) .strip-card-pic img{transform:scale(1.06)}
+.strip-card:focus-visible{outline:none}
+/* Rises over the landing when a post is opened from the row: the colour of an unloaded box. */
+.rail-exit-sheet{position:fixed;inset:0;z-index:10020;background:#f5f5f7;pointer-events:auto;will-change:transform,opacity}
+.strip-card:focus-visible .strip-card-window{outline:1px solid var(--text);outline-offset:4px}
+.strip-card-name{position:absolute;top:calc(100% + 14px);left:0;display:block;overflow:hidden;max-width:min(62vw,560px);color:var(--text);font:300 12px/1.3 var(--reel-font-meta);letter-spacing:.02em;text-transform:uppercase;white-space:nowrap;pointer-events:none}
+.strip-card-name>span{display:block;overflow:hidden;text-overflow:ellipsis;transform:translate3d(0,105%,0);transition:transform 600ms cubic-bezier(.16,1,.3,1)}
+.strip-card:is(:hover,:focus-visible) .strip-card-name>span{transform:translate3d(0,0,0);transition-duration:800ms}
+
+/* Until the opening has played, the page chrome stays hidden. */
+html.opening .hello-content-box h1,html.opening #site-header-controls .logo,html.opening .hamburger-btn{visibility:hidden!important;opacity:0!important}
 
 /* Landing shows only the rail, the wordmark, the logo and the menu arrow. */
-html body.landing-state .scroll-down-btn{display:none!important}
-html body.landing-state .scroll-progress-container{top:50%;right:var(--reel-margin);bottom:auto;transform:translateY(-50%)}
+html body .scroll-down-btn,html body.landing-state .scroll-down-btn,html body .scroll-progress-container,html body.landing-state .scroll-progress-container{display:none!important}
+
+/* The wordmark is plain ink over the row; it stays in front of it through the move. */
+html body:is(.landing-state,.landing-transition-active) #archive-panel{z-index:auto;transform:none}
+html body:is(.landing-state,.landing-transition-active) .hello-scene{z-index:3}
+html body .hello-dot{transition:none}
+/* The script sizes and sets the wordmark so its ink meets the edges: the margins on the
+   landing, the edges of the pictures on the index. */
+html body.landing-state .hello-content-box h1.fit-landing{font-size:var(--fit-landing-size);translate:var(--fit-landing-shift,0px) 0}
+html body:not(.landing-state) .hello-content-box h1.fit-index{font-size:var(--fit-index-size);translate:var(--fit-index-shift,0px) 0}
+/* The arrow button's face lines up with the end of the row on the landing. */
+html body.landing-state .headerBtn-box .hamburger-btn{right:var(--landing-menu-right,28px)!important}
+/* The panel lets the pointer through to the rail on the landing and during the move.
+   pointer-events is inherited, so switching it on the panel would restyle every post in the
+   list (tens of milliseconds, right as the move starts or ends); the list and footer are set
+   back to auto here and never change.
+   The list is also kept at its index width, so the move does not have to lay it out again. */
+html body:is(.landing-state,.landing-transition-active) #archive-panel :is(.main-cont-back,.footer){pointer-events:auto}
+@media(min-width:1181px){html body.landing-state #archive-panel .main-cont-back{width:50vw}}
+/* The list is its own layer from the start, so it is painted while the landing idles and the
+   move only has to slide it. */
+html body:is(.landing-state,.landing-transition-active) #archive-panel .main-cont-back{will-change:transform}
+/* During the move the row shows through the page until it is wiped away. */
+html body.landing-transition-active :is(#archive-panel,#archive-panel .page,.masthead){background:transparent!important}
 
 /* The wordmark runs margin to margin and sits on the bottom edge. */
 html body.landing-state .hello-scene{align-items:flex-end;justify-content:center;padding:0 var(--reel-margin) var(--reel-base)!important}
 html body.landing-state .hello-content-box{align-items:center;width:100%;max-width:none;margin:0;padding:0}
 html body.landing-state .hello-content-box h1{margin-bottom:-.35em;font-size:var(--reel-wordmark)}
 
-@media(min-width:1181px){
-    /* Index: a dense table instead of tall cards. */
-    html body:not(.landing-state) .hello-scene{padding:112px var(--reel-margin) 44px}
-    html body:not(:has(.post-panel-viewer.active-state)) .archive-heading{align-items:baseline;padding:0 var(--reel-margin) 18px}
-    html body:not(:has(.post-panel-viewer.active-state)) .archive-heading .section-title{font:600 15px/1.4 'Pretendard Variable','Pretendard',sans-serif;letter-spacing:-.02em}
-    html body:not(:has(.post-panel-viewer.active-state)) .archive-count{color:var(--text);font:500 13px/1.4 var(--reel-font-meta);font-variant-numeric:tabular-nums}
-    html body:not(:has(.post-panel-viewer.active-state)) .archive-count::before{content:'('}
-    html body:not(:has(.post-panel-viewer.active-state)) .archive-count::after{content:')'}
-    .archive-columns{display:grid;grid-template-columns:calc(94px + var(--reel-margin)) minmax(0,1fr) auto;padding:10px var(--reel-margin);border-top:1px solid var(--reel-rule);color:var(--reel-muted);font:500 11px/1.4 var(--reel-font-meta);letter-spacing:.06em;text-transform:uppercase}
-    html body:not(:has(.post-panel-viewer.active-state)) .main-line{padding-top:0}
-    html body:not(:has(.post-panel-viewer.active-state)) .post-list-container{border-top:1px solid var(--reel-rule)}
-    html body:not(:has(.post-panel-viewer.active-state)) .post-list-item{border-bottom-color:var(--reel-rule)}
-    html body:not(:has(.post-panel-viewer.active-state)) .post-list-content:is(.main,.clone){min-height:108px;padding:24px var(--reel-margin) 24px calc(44px + var(--reel-margin))!important;gap:20px}
-    html body:not(:has(.post-panel-viewer.active-state)) .post-list-num{justify-content:flex-start;width:calc(44px + var(--reel-margin));padding-left:var(--reel-margin);color:var(--reel-muted)!important;font:500 12px/1 var(--reel-font-meta);font-variant-numeric:tabular-nums}
-    html body:not(:has(.post-panel-viewer.active-state)) .post-list-dot{width:30px;height:30px}
-    html body:not(:has(.post-panel-viewer.active-state)) .post-list-text-wrap{gap:6px}
-    html body:not(:has(.post-panel-viewer.active-state)) .post-list-category{color:var(--reel-muted);font:500 11px/1.3 var(--reel-font-meta);letter-spacing:.06em}
-    html body:not(:has(.post-panel-viewer.active-state)) .post-list-title{display:-webkit-box;overflow:hidden;margin:0;padding:0;font-size:clamp(21px,1.8vw,30px);font-weight:600;line-height:1.3;letter-spacing:-.04em;-webkit-box-orient:vertical;-webkit-line-clamp:2}
-    html body:not(:has(.post-panel-viewer.active-state)) .post-list-date{color:var(--reel-muted);font:500 12px/1.4 var(--reel-font-meta);font-variant-numeric:tabular-nums}
-}
-html body:has(.post-panel-viewer.active-state) .archive-columns{display:none}
+/* Hovering a post rolls its title up and a second copy in after it, its letters rippling
+   through the category colours. The two copies share one transition, start at the same time
+   and are exactly one box apart, so they never overlap or part, however the pointer comes
+   and goes; the clip around them is never moved by anything else. The roll eases out
+   like everything else on the index (expo out). */
+html body .post-list-item .post-list-content:is(.main,.clone){transition:transform 750ms cubic-bezier(.19,1,.22,1),opacity 280ms ease!important;transition-delay:0ms!important}
 
-/* Titles wrap now, so the marquee edge fade and slide no longer apply. */
-html body .post-list-text-wrap.has-marquee{-webkit-mask-image:none;mask-image:none}
-html body .post-list-item .post-list-title.marquee{animation:none!important}
+/* Small type across the reader, the menu and the footer is light as well. */
+html body :is(.post-viewer-category,.post-viewer-date,.post-reading-meta,.toc-title,.toc-current,.toc-list,.toc-progress-meta,.footer-kicker,.footer-meta,.footer-nav,.post-continuation-label,.post-continuation-meta,.post-list-category,.post-list-date,.post-list-num,.archive-count,.mobile-contents,.social-contact){font-weight:300!important}
+
+/* Closing a post: a sheet of paper covers the article from the left and opens to the right
+   onto the finished index. Its two edges carry the category colours. */
+.reader-curtain{position:fixed;inset:0;z-index:10010;background:var(--bg);pointer-events:auto;transform:translate3d(-101%,0,0);will-change:transform}
+.reader-curtain::before,.reader-curtain::after{content:'';position:absolute;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#569aff 0 32%,#ff6e8e 32% 58%,#ffba59 58% 78%,#121212 78%)}
+.reader-curtain::before{left:0}
+.reader-curtain::after{right:0}
+
+/* The picture and the clip box for the swapping text only take part in the gallery below. */
+.post-list-thumb{display:none}
+.post-list-swap{position:relative;flex:1 1 auto;width:100%;min-width:0;overflow:hidden}
+
+/* Index, with no post open: two columns, a wide one for gallery posts and a narrow one for blog
+   posts (about 3 : 2), each stacked newest first. Each post is a portrait picture (1:1.2) with
+   only its title and its number under it. The script places the posts (--x, --y, --w) and sizes
+   the list (--list-h); the shorter column lags behind the scroll by just enough (--lag) to end
+   level with the other while the list passes, so it scrolls more slowly. */
+html body:not(:has(.post-panel-viewer.active-state)) .archive-heading{align-items:baseline;padding:0 var(--reel-margin) 14px}
+html body:not(:has(.post-panel-viewer.active-state)) .archive-heading .section-title{font:300 12px/1.3 'Pretendard Variable','Pretendard',sans-serif;letter-spacing:0}
+html body:not(:has(.post-panel-viewer.active-state)) .archive-count{color:var(--text);font:300 12px/1.3 var(--reel-font-meta);font-variant-numeric:tabular-nums}
+html body:not(:has(.post-panel-viewer.active-state)) .archive-count::before{content:'('}
+html body:not(:has(.post-panel-viewer.active-state)) .archive-count::after{content:')'}
+html body:not(:has(.post-panel-viewer.active-state)) .main-line{padding-top:0}
+html body:not(:has(.post-panel-viewer.active-state)) .post-list-container{display:block;position:relative;height:var(--list-h,auto);gap:56px clamp(18px,2vw,32px);padding:28px var(--reel-margin) 112px;border-top:0}
+html body:not(:has(.post-panel-viewer.active-state)) .post-list-item{display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:start;align-items:baseline;column-gap:16px;row-gap:14px;border:0}
+html body:not(:has(.post-panel-viewer.active-state)) .post-list-item:is(:hover,:focus-visible,.signal-active){background:transparent!important}
+html body:not(:has(.post-panel-viewer.active-state)) .post-list-item{position:absolute;top:var(--y,0px);left:var(--x,0px);width:var(--w,40%)}
+@keyframes post-list-lag{from{translate:0 0}to{translate:0 var(--lag,0px)}}
+@supports (animation-timeline:scroll()){
+    /* The list's scroller: the page on phones, the index panel on wide screens. */
+    html body:not(:has(.post-panel-viewer.active-state)) .post-list-item{animation:post-list-lag linear both;animation-timeline:scroll(root block);animation-range:var(--lag-start,0px) var(--lag-end,100%)}
+    @media(min-width:1181px){
+        html body .index-panel{scroll-timeline:--post-list block}
+        html body:not(:has(.post-panel-viewer.active-state)) .post-list-item{animation-timeline:--post-list}
+    }
+}
+html body:not(:has(.post-panel-viewer.active-state)) .flap-line{display:none}
+/* The thumb is only a window; the picture and its ground sit on the element inside it, so the
+   window can slide over the picture when a post is revealed. */
+html body:not(:has(.post-panel-viewer.active-state)) .post-list-thumb{display:block;position:relative;grid-column:1 / -1;grid-row:1;align-self:start;aspect-ratio:1 / 1.2;overflow:hidden}
+html body:not(:has(.post-panel-viewer.active-state)) .post-list-thumb-pic{display:block;position:absolute;inset:0;overflow:hidden;background:#f5f5f7}
+html body:not(:has(.post-panel-viewer.active-state)) .post-list-thumb-pic>img{display:block;width:100%;height:100%;object-fit:cover}
+html body:not(:has(.post-panel-viewer.active-state)) .post-list-thumb-pic>img.post-list-thumb-glyph{padding:31%;object-fit:contain;filter:invert(1);opacity:.42}
+/* Text: the title, and the number at the right on the title's first line. Category, mark and
+   date are left out. Both copies of the title (for the hover roll) are laid out alike. */
+html body:not(:has(.post-panel-viewer.active-state)) .post-list-swap{grid-column:1;grid-row:2}
+html body:not(:has(.post-panel-viewer.active-state)) .post-list-num{display:block;position:static;grid-column:2;grid-row:2;width:auto;height:auto;padding:0;color:var(--reel-muted)!important;font:300 11px/16px var(--reel-font-meta);letter-spacing:.04em;font-variant-numeric:tabular-nums;transition:color 500ms ease}
+html body:not(:has(.post-panel-viewer.active-state)) .post-list-item:is(:hover,:focus-visible) .post-list-num{color:var(--text)!important}
+html body:not(:has(.post-panel-viewer.active-state)) .post-list-content:is(.main,.clone){display:block;min-height:0;padding:0 0 3px!important}
+html body:not(:has(.post-panel-viewer.active-state)) .post-list-text-wrap{display:contents}
+html body:not(:has(.post-panel-viewer.active-state)) .post-list-content :is(.post-list-dot,.post-list-category,.post-list-date){display:none}
+html body:not(:has(.post-panel-viewer.active-state)) .post-list-title{display:-webkit-box;overflow:hidden;margin:0;padding:0;font-family:'Pretendard Variable','Pretendard',sans-serif;font-size:clamp(21px,1.8vw,30px);font-weight:400;line-height:1.3;letter-spacing:-.035em;word-break:keep-all;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+/* Hover touches only the post under the pointer: its picture grows a little inside the
+   frame (expo out). Nothing around it moves and nothing is dimmed. */
+html body:not(:has(.post-panel-viewer.active-state)) .post-list-thumb-pic>img{transform:scale(1);transition:transform 1100ms cubic-bezier(.19,1,.22,1)}
+html body:not(:has(.post-panel-viewer.active-state)) .post-list-item:is(:hover,:focus-visible) .post-list-thumb-pic>img{transform:scale(1.045)}
+/* The right-hand panel beside the index: the pointed-at post's panel picture, full bleed, with
+   its labels across the middle and a small caption (number, title) on a strip of paper at its
+   foot. */
+.post-panel-placeholder.panel-placeholder{background:var(--bg)!important;border-left:0}
+.post-panel-placeholder.panel-placeholder::after{display:none}
+.panel-field{position:absolute;inset:0;margin:0;overflow:hidden;background:var(--bg)}
+.panel-field-stack,.panel-field-layer,.panel-field-frame{position:absolute;inset:0;overflow:hidden}
+.panel-field-layer,.panel-field-frame{will-change:transform}
+.panel-field-frame img{display:block;width:100%;height:100%;object-fit:cover;transform-origin:50% 62%;-webkit-user-drag:none;user-select:none}
+.panel-field-caption{position:absolute;right:0;bottom:0;left:0;z-index:2;display:grid;overflow:hidden;margin:0;padding:11px clamp(18px,2vw,28px) 10px;background:var(--bg);color:var(--text);font:300 12px/16px var(--reel-font-meta);letter-spacing:.02em;text-align:left}
+.panel-field-mask{display:grid;overflow:hidden;height:16px}
+.panel-field-line{grid-area:1 / 1;display:flex;align-items:baseline;gap:12px;min-width:0;white-space:nowrap}
+.panel-field-number{flex:none;color:var(--reel-muted);font-variant-numeric:tabular-nums}
+.panel-field-title{overflow:hidden;min-width:0;font-family:'Pretendard Variable','Pretendard',sans-serif;text-overflow:ellipsis}
+/* Three words across the middle of the picture: the category, the date and the reading
+   time, at the left, a little left of the centre and the right. Plain white text set in
+   difference, so it inverts whatever lies under it and reads on light and dark pictures alike.
+   Each sits in a mask exactly one line tall, so the words rising out are gone as they leave. */
+.panel-field-meta{position:absolute;top:50%;right:0;left:0;z-index:2;height:0;color:#fff;mix-blend-mode:difference;pointer-events:none}
+.panel-field-tag{position:absolute;top:-8px;display:grid;overflow:hidden;width:15.8%;min-width:max-content;height:16px;font:300 12px/16px var(--reel-font-meta);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+.panel-field-tag.is-category{left:1.6%}
+.panel-field-tag.is-date{left:42.2%;font-variant-numeric:tabular-nums}
+.panel-field-tag.is-read{right:1.5%}
+.panel-field-tag .panel-field-line{height:16px;gap:0}
+/* Opening a post: the reader's layout snaps into place under the loading paper. */
+html body.reader-snap :is(.split-layout>.index-panel,#archive-panel,.post-panel,.panel-close-btn,.post-panel-viewer){transition:none!important}
+/* The picture already shows what the cursor preview would. */
+html body:not(:has(.post-panel-viewer.active-state)) .publication-preview{display:none}
+
+@media(min-width:1181px){
+    html body:not(.landing-state) .hello-scene{padding:104px var(--reel-margin) 56px}
+}
 
 @media(max-width:1180px){
     :root{--reel-base:max(22px,calc(env(safe-area-inset-bottom) + 14px))}
-    .archive-columns{display:none}
+    html body:not(:has(.post-panel-viewer.active-state)) .post-list-container{gap:36px 10px;padding:20px 18px 72px}
+    html body:not(:has(.post-panel-viewer.active-state)) .post-list-item{column-gap:8px;row-gap:10px}
+    html body:not(:has(.post-panel-viewer.active-state)) .post-list-title{font-size:clamp(16px,4.4vw,20px);line-height:1.28;letter-spacing:-.03em}
+    html body:not(:has(.post-panel-viewer.active-state)) .post-list-num{font-size:10px}
 }
+
+@media(prefers-reduced-motion:reduce){
+    html body .post-list-thumb img{transition:none}
+}
+
+/* Reader header: one quiet top line with the issue number at the left and the kind of post
+   (BLOG / GALLERY) at the right (no rule under it), the title below, then the date, the reading
+   time and the hashtags on one line, then the picture. */
+html body #panel-header.post-viewer-header{display:grid!important;grid-template-columns:auto auto minmax(0,1fr) auto;align-items:baseline;column-gap:0;border:0!important}
+html body #panel-header.post-viewer-header::before{grid-column:1 / 4;grid-row:1;margin:0!important;padding:0!important;border:0!important;color:var(--text);font:400 13px/1.4 var(--reel-font-meta)!important;letter-spacing:.06em;font-variant-numeric:tabular-nums}
+html body #panel-header #panel-cat{grid-column:4;grid-row:1;width:auto!important;margin:0!important;color:var(--reel-muted)!important;font:400 13px/1.4 var(--reel-font-meta)!important;letter-spacing:.08em;text-align:right;text-transform:uppercase}
+html body #panel-header #panel-title{grid-column:1 / -1;grid-row:2;margin:clamp(44px,7vh,80px) 0 0!important}
+html body #panel-header :is(#panel-date,#panel-reading-meta){grid-row:3;margin:clamp(28px,4.5vh,48px) 0 0!important;padding:0!important;border:0!important;color:var(--reel-muted)!important;font:300 15px/1.4 var(--reel-font-meta)!important;letter-spacing:.01em}
+html body #panel-header #panel-date{grid-column:1}
+html body #panel-header #panel-reading-meta{grid-column:2}
+html body #panel-header #panel-reading-meta::before{content:'·';margin:0 .7em}
+html body #panel-header #panel-tags{grid-column:3;grid-row:3;margin:clamp(28px,4.5vh,48px) 0 0 1.4em;color:var(--text);font:300 15px/1.4 var(--reel-font-meta);letter-spacing:.01em}
+html body #panel-header #panel-tags:empty{display:none}
+html body #panel-header .publication-hero{grid-column:1 / -1;grid-row:4}
+/* No rules inside the article: section headings, dividers and quotes stand on space alone. */
+html body #panel-content :is(.post-editorial-heading,blockquote,h1,h2,h3){border-top:0!important;border-bottom:0!important;border-left:0!important}
+html body #panel-content :is(.post-editorial-heading,hr)::before,html body #panel-content :is(.post-editorial-heading,hr)::after{border:0!important}
+
+/* Reader sidebar: a shade darker than the page, with no rules between its posts, and the
+   toggle's text (.li) cleared away; the close button stands in that corner instead. */
+html body:has(.post-panel-viewer.active-state) .split-layout>#archive-panel.index-panel,
+html body:has(.post-panel-viewer.active-state) #archive-panel :is(.page,.archive-toggle){background:#f5f5f7!important}
+html body:has(.post-panel-viewer.active-state) #archive-panel :is(.post-list-item,.archive-toggle,.archive-heading,.post-list-container){border-top:0!important;border-bottom:0!important}
+html body:has(.post-panel-viewer.active-state) #archive-panel .archive-toggle>span{visibility:hidden}
+/* The close button keeps one place beside the narrow rail, on the arrow's 72px paper square,
+   level with the arrow. It stands above the sidebar and never moves or hides for it. */
+@media(min-width:1181px){
+    html body:has(.post-panel-viewer.active-state) .panel-close-btn{z-index:545!important;margin-top:0!important;display:flex;align-items:center;justify-content:center;width:48px!important;height:48px!important;padding:0!important;opacity:1!important;pointer-events:auto!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+    html body:has(.post-panel-viewer.active-state) .panel-close-btn,
+    html body:has(.post-panel-viewer.active-state):has(#archive-panel:is(:hover,:focus-within)) .panel-close-btn,
+    html body.archive-pinned:has(.post-panel-viewer.active-state) .panel-close-btn{left:90px!important;top:25px!important;margin:0 0 0 -8px!important;transition:transform 400ms var(--ease-in-out)!important}
+    html body:has(.post-panel-viewer.active-state) .panel-close-btn::before{content:'';position:absolute;inset:-12px;z-index:-1;border-radius:5px;background:var(--bg)}
+    html body:has(.post-panel-viewer.active-state) .panel-close-btn svg{width:26px;height:26px}
+}
+/* The sidebar keeps its darker paper folded or open: nothing inside it paints the page colour. */
+html body:has(.post-panel-viewer.active-state) #archive-panel :is(.main-cont-back,.main-line,.post-list-container,.post-list-item,.post-list-content){background-color:transparent!important}
+/* The post being read is marked by colour alone, without the rule at its left. */
+html body:has(.post-panel-viewer.active-state) #archive-panel .post-list-item.active{box-shadow:none!important;border-left:0!important}
+/* Long titles in the sidebar stay on one line and drift from end to end and back, feathered
+   out at both edges (the script marks the ones that do not fit and sets how far they run). */
+html body:has(.post-panel-viewer.active-state) #archive-panel .post-list-title{display:block!important;overflow:hidden!important;white-space:nowrap!important;text-overflow:clip!important;-webkit-line-clamp:unset!important}
+html body:has(.post-panel-viewer.active-state) #archive-panel .post-list-title.is-running{margin-right:-14px!important;margin-left:-14px!important;-webkit-mask-image:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 14px),transparent);mask-image:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 14px),transparent)}
+.post-list-title-run{display:inline}
+html body:has(.post-panel-viewer.active-state) #archive-panel .post-list-title.is-running .post-list-title-run{display:inline-block;padding:0 14px;animation:post-title-run var(--run-time,6s) cubic-bezier(.65,0,.35,1) infinite alternate}
+@keyframes post-title-run{0%,14%{transform:translate3d(0,0,0)}86%,100%{transform:translate3d(var(--run,0px),0,0)}}
+@media(prefers-reduced-motion:reduce){.post-list-title-run{animation:none!important}}
+
+/* Reading a gallery post (js/galleryReader.js): the page opens wide, to the header's margins;
+   the outline and the header picture stand aside, since the plates are the post. */
+@media(min-width:1181px){
+    html body.reading-gallery:has(.post-panel-viewer.active-state) .post-viewer-content{padding-left:clamp(120px,11vw,180px)!important}
+}
+html body.reading-gallery :is(.post-viewer-toc-sidebar,#panel-header .publication-hero){display:none!important}
+html body:not(:has(.post-panel-viewer.active-state)) .gallery-counter{display:none}
+/* The plates, notes and counter themselves are in css/gallery.css (shared with the preview). */

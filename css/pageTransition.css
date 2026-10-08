@@ -1,0 +1,57 @@
+/* Moving between the pages of the site (index, post, info, blog, gallery, playground): the
+   browser's cross-document view transition. The new page is uncovered from the bottom as a window
+   that slides up while its contents slide up more slowly behind it (a mask, never a fade), and the
+   page being left is pushed up and away under it. Going back through history runs the same the
+   other way round (js/pageTransition.js marks it "back"). The curve is the one the index panel
+   folds on: long at both ends, quick through the middle.
+
+   The logo and the arrow button are the same on every page and stay where they are while the
+   pages change under them (gliding if they stand a little apart, as on the landing). Left from an
+   open menu, the menu stays too: the next page opens with it still open (html.menu-carry) and
+   shuts it once it has arrived, the arrow turning back. Browsers without cross-document view
+   transitions simply load the next page. */
+@view-transition{navigation:auto}
+@media(prefers-reduced-motion:reduce){@view-transition{navigation:none}}
+
+:root{--pt-duration:1100ms;--pt-ease:cubic-bezier(.92,.15,.1,.93)}
+::view-transition-group(root){animation-duration:var(--pt-duration)}
+::view-transition-old(root),::view-transition-new(root){mix-blend-mode:normal;animation-duration:var(--pt-duration);animation-timing-function:var(--pt-ease);animation-fill-mode:both}
+::view-transition-old(root){animation-name:pt-leave}
+::view-transition-new(root){animation-name:pt-arrive}
+html:active-view-transition-type(back)::view-transition-old(root){animation-name:pt-leave-back}
+html:active-view-transition-type(back)::view-transition-new(root){animation-name:pt-arrive-back}
+
+@keyframes pt-leave{to{transform:translate3d(0,-18vh,0)}}
+@keyframes pt-arrive{from{clip-path:inset(100% 0 0 0);transform:translate3d(0,24vh,0)}to{clip-path:inset(0);transform:none}}
+@keyframes pt-leave-back{to{transform:translate3d(0,18vh,0)}}
+@keyframes pt-arrive-back{from{clip-path:inset(0 0 100% 0);transform:translate3d(0,-24vh,0)}to{clip-path:inset(0);transform:none}}
+
+/* The logo and the arrow button hold still above the moving pages. Where they differ (light to
+   dark) the old look gives way to the new only as the wipe reaches the top of the screen: at the
+   end going forward, at the start going back. */
+:is(#site-header-controls .logo,.site-nav-logo){view-transition-name:site-logo}
+:is(.hamburger-btn,.site-menu-button){view-transition-name:site-menu-button}
+::view-transition-group(site-logo),::view-transition-group(site-menu-button),::view-transition-group(site-menu){animation-duration:var(--pt-duration);animation-timing-function:var(--pt-ease)}
+::view-transition-old(site-logo),::view-transition-old(site-menu-button){animation:pt-hand-over-out var(--pt-duration) linear both}
+::view-transition-new(site-logo),::view-transition-new(site-menu-button){animation:pt-hand-over-in var(--pt-duration) linear both}
+html:active-view-transition-type(back)::view-transition-old(site-logo),html:active-view-transition-type(back)::view-transition-old(site-menu-button){animation-name:pt-hand-over-out-early}
+html:active-view-transition-type(back)::view-transition-new(site-logo),html:active-view-transition-type(back)::view-transition-new(site-menu-button){animation-name:pt-hand-over-in-early}
+@keyframes pt-hand-over-out{0%,80%{opacity:1}to{opacity:0}}
+@keyframes pt-hand-over-in{0%,80%{opacity:0}to{opacity:1}}
+@keyframes pt-hand-over-out-early{0%{opacity:1}20%,to{opacity:0}}
+@keyframes pt-hand-over-in-early{0%{opacity:0}20%,to{opacity:1}}
+
+/* The open menu carried across: named on the page being left (html.pt-carry-out) and on the page
+   arriving, which shows it open from its first frame, without its entrance, until it shuts. */
+html.pt-carry-out :is(.header-hidden.active,.site-menu.is-open),html.menu-carry :is(.header-hidden,.site-menu){view-transition-name:site-menu}
+::view-transition-old(site-menu){animation:none;opacity:0}
+::view-transition-new(site-menu){animation:none}
+html.menu-carry :is(.header-hidden,.site-menu){opacity:1!important;visibility:visible!important;transform:none!important;transition:none!important}
+html.menu-carry :is(.header-hidden .typography-list a,.site-menu-list a,.header-hidden-footer,.site-menu-footer){opacity:1!important;transform:none!important;transition:none!important}
+html.menu-carry :is(.hamburger-btn,.site-menu-button) .menu-arrow{transform:rotate(-45deg)!important;transition:none!important}
+html.menu-carry :is(#menu-index-scrim,.site-menu-scrim){opacity:1!important;transition:none!important}
+html.menu-carry .site-nav::before{opacity:0!important}
+
+/* Arriving on the index from another page, the logo and the arrow are already in place: the
+   index's opening does not hide them and fade them in again. */
+html.opening.pt-arrived #site-header-controls .logo,html.opening.pt-arrived .hamburger-btn{visibility:visible!important;opacity:1!important}

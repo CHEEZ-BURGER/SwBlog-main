@@ -1,0 +1,99 @@
+/* The pages beside the index (info, blog, gallery, playground) share these: the palette, the
+   type, the motion curve and the top navigation. Two whites only: #ffffff for the page and
+   #f5f5f7 for surfaces. Playground sets body.theme-dark and gets the same navigation in light
+   on black. */
+:root{
+    --white:#ffffff;
+    --white-soft:#f5f5f7;
+    --ink:#121212;
+    --muted:#86868b;
+    --muted-strong:#6e6e73;
+    --rule-line:1px solid rgba(18,18,18,.14);
+    --font-ui:'Helvetica Neue','Pretendard Variable','Pretendard',sans-serif;
+    --font-text:'Pretendard Variable','Pretendard',sans-serif;
+    --font-mark:'Circular Std','Helvetica Neue','Pretendard Variable',sans-serif;
+    --ease-expo:cubic-bezier(.19,1,.22,1);
+    --margin:clamp(18px,2.5vw,40px);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+/* No page scrollbar, as on the index, so the arrow button stands exactly where the index has it. */
+html:has(body.site-page){scrollbar-width:none}
+html:has(body.site-page)::-webkit-scrollbar{display:none}
+body.site-page{margin:0;background:var(--white);color:var(--ink);font-family:var(--font-text);-webkit-font-smoothing:antialiased}
+body.site-page.theme-dark{--ink:#f5f5f7;--muted:#86868b;--muted-strong:#a1a1a6;--rule-line:1px solid rgba(245,245,247,.16);background:#0a0a0b;color:var(--ink)}
+.site-page img{display:block;max-width:100%}
+.site-page a{color:inherit}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Top of the page: the index's own controls, at the index's sizes and places, so moving between
+   the index and these pages leaves them where they are (css/pageTransition.css keeps them still
+   while the pages change under them): the 72px logo at the left, the arrow button at the right on
+   its 72px rounded square, and the same slide-in menu. js/siteNav.js runs the menu, and tucks the
+   bar up while the page scrolls down and brings it back on the way up, on a plain surface the
+   colour of what lies under it, so text and pictures never run under the logo. At the top it
+   stays bare. */
+.site-nav{--nav-surface:var(--white);--nav-chip:var(--white);position:fixed;top:0;right:0;left:0;z-index:620;height:116px;pointer-events:none;transition:transform 900ms var(--ease-expo)}
+.site-nav::before{content:'';position:absolute;inset:0;z-index:-1;background:var(--nav-surface);opacity:0;transition:opacity 500ms var(--ease-expo),background-color 500ms var(--ease-expo)}
+.site-nav.is-scrolled::before{opacity:1}
+.site-nav.is-tucked{transform:translate3d(0,-100%,0)}
+.site-nav[data-surface="soft"]{--nav-surface:var(--white-soft)}
+body.menu-open .site-nav::before{opacity:0}
+.theme-dark .site-nav{--nav-surface:#0a0a0b;--nav-chip:#0a0a0b}
+.site-nav>*{pointer-events:auto}
+@media(prefers-reduced-motion:reduce){.site-nav,.site-nav::before{transition:none}}
+
+.site-nav-logo{position:absolute;top:clamp(1rem,3vw,2rem);left:clamp(1.2rem,13vw,2.3rem);display:block;width:72px;height:72px}
+.site-nav-logo img{width:100%;height:100%;object-fit:cover;filter:grayscale(1)}
+.theme-dark .site-nav-logo img{filter:grayscale(1) invert(1)}
+.site-nav-logo:focus-visible{outline:1px solid var(--ink);outline-offset:4px}
+
+.site-menu-button{position:absolute;top:25px;right:28px;width:48px;height:48px;transition:transform .4s cubic-bezier(.16,1,.3,1)}
+.site-menu-button::before{content:'';position:absolute;inset:-12px;z-index:0;border-radius:5px;background:var(--nav-chip);transition:background-color .45s ease}
+.site-menu-button:hover{transform:scale(1.05)}
+.site-menu-hit{position:absolute;inset:0;z-index:11;width:100%;height:100%;margin:0;padding:0;border:0;background:transparent;cursor:pointer}
+.site-menu-hit:focus-visible{outline:1px solid var(--ink);outline-offset:14px;border-radius:5px}
+.site-menu-button .menu-arrow{position:absolute;inset:-2px;z-index:10;width:calc(100% + 4px);height:calc(100% + 4px);color:var(--ink);fill:none;stroke:currentColor;stroke-width:4px;stroke-linejoin:miter;stroke-linecap:butt;transform-origin:center;pointer-events:none;transition:transform 420ms cubic-bezier(0,.77,.14,.98),color .45s ease}
+.site-menu-button .menu-arrow-head{fill:currentColor;stroke:none}
+body.menu-open .site-menu-button .menu-arrow{transform:rotate(-45deg)}
+
+@media(max-width:1180px){
+    .site-nav{height:98px}
+    .site-nav-logo{top:clamp(.9rem,3vw,1.25rem);left:clamp(1rem,4.5%,2rem)}
+}
+@media(max-width:760px){.site-menu-button{right:20px}}
+
+/* The menu: a sheet from the right (40% of a wide screen, all of a narrow one) with the four
+   pages in the index menu's serif, rising into place one after another. */
+.site-menu{position:fixed;top:0;right:0;z-index:610;display:flex;align-items:center;justify-content:center;width:40vw;height:100vh;height:100dvh;overflow:hidden;background:var(--white);opacity:0;visibility:hidden;pointer-events:none;transform:translate3d(100%,0,0);transition:transform .6s cubic-bezier(.22,1,.36,1),opacity 5s cubic-bezier(.22,1,.36,1),visibility .6s cubic-bezier(.22,1,.36,1)}
+.site-menu.is-open{opacity:1;visibility:visible;pointer-events:auto;transform:none;transition:transform .6s cubic-bezier(.22,1,.36,1),opacity 0s,visibility 0s}
+/* The menu is the same white sheet on every page, Playground included, so it can be carried from
+   page to page unchanged; there the arrow and its square turn light with it while it is open. */
+.theme-dark .site-menu{--ink:#121212}
+:is(body.theme-dark.menu-open,html.menu-carry body.theme-dark) .site-nav{--nav-chip:var(--white)}
+:is(body.theme-dark.menu-open,html.menu-carry body.theme-dark) .site-menu-button .menu-arrow{color:#121212}
+.site-menu-inner{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;width:100%;height:100%;padding:2rem 4rem;text-align:right}
+.site-menu-list{display:flex;flex-direction:column;gap:1.5rem;align-items:flex-start;margin:0;padding:0;list-style:none}
+.site-menu-list li{overflow:hidden;padding:.5rem 0;transition:opacity .32s ease}
+.site-menu-list a{position:relative;display:inline-flex;align-items:center;gap:1rem;color:var(--ink);font:400 2.5rem/1.1 'Instrument Serif','Noto Serif KR',Georgia,serif;letter-spacing:0;text-decoration:none;text-transform:uppercase;opacity:0;transform:translateY(100%);transition:transform .8s cubic-bezier(.16,1,.3,1) var(--anim-delay),opacity .6s ease var(--anim-delay),color .3s ease}
+.site-menu.is-open .site-menu-list a{opacity:1;transform:none}
+.site-menu.is-open .site-menu-list:has(li:hover) li:not(:hover),.site-menu.is-open .site-menu-list:has(li:focus-within) li:not(:focus-within){opacity:.38}
+.site-menu-list a:focus-visible{outline:none}
+.site-menu-footer{margin-top:4rem;opacity:0;transform:translateY(20px);transition:transform .8s cubic-bezier(.16,1,.3,1),opacity .6s ease;transition-delay:var(--anim-delay)}
+.site-menu.is-open .site-menu-footer{opacity:1;transform:none}
+.site-menu .social-links{display:flex;align-items:center;justify-content:flex-end;gap:.75rem;margin-top:1.25rem}
+.site-menu .social-link{display:inline-flex;align-items:center;justify-content:center;color:var(--ink);font-family:'Instrument Serif','Noto Serif KR',Georgia,serif;opacity:.7;cursor:default}
+.site-menu .social-link svg{width:2rem;height:2rem;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.site-menu .social-link svg path,.site-menu .social-link .social-icon-fill{fill:currentColor;stroke:none}
+.site-menu .social-contact{font-size:1.05rem;font-weight:700;letter-spacing:.12em}
+@media(max-width:1180px){
+    .site-menu{width:100%}
+    .site-menu-inner{width:87%;margin:0 auto}
+}
+/* Behind the open menu the page is only faintly shaded; a click there shuts the menu. */
+.site-menu-scrim{position:fixed;inset:0;z-index:600;background:rgba(18,18,18,.1);opacity:0;pointer-events:none;transition:opacity .45s ease}
+.theme-dark .site-menu-scrim{background:rgba(0,0,0,.4)}
+body.menu-open .site-menu-scrim{opacity:1;pointer-events:auto}
+@media(prefers-reduced-motion:reduce){
+    .site-menu,.site-menu-list a,.site-menu-footer,.site-menu-scrim,.site-menu-button .menu-arrow{transition-duration:.01ms!important;transition-delay:0s!important}
+}

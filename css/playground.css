@@ -1,0 +1,163 @@
+/* Playground (playground.html): the posts as pictures on a dark field seen through a soft lens,
+   and the same posts as a plain list. The tiles are placed by js/playground.js with transform and
+   opacity only; nothing here animates layout. Palette, type and the motion curve come from
+   css/site.css (body.theme-dark). */
+html.pg-locked,
+html.pg-locked body{height:100%;overflow:hidden;overscroll-behavior:none}
+html{background:#0a0a0b;overscroll-behavior-x:none}
+.pg{
+    --pg-surface:#151517;
+    --pg-line:rgba(245,245,247,.16);
+    --pg-lw:240px;                  /* a tile at its largest (the middle of the lens) */
+    --pg-lh:288px;
+    --pg-bottom:30px;
+}
+
+/* ---- The field ------------------------------------------------------------------------- */
+/* The stage takes every pointer and keeps the browser from scrolling or zooming under a finger;
+   strict containment keeps the moving tiles from touching the rest of the page's layout. */
+.pg-stage{position:fixed;inset:0;z-index:1;overflow:hidden;contain:strict;touch-action:none;cursor:grab;outline:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.pg.is-dragging .pg-stage,
+.pg.is-dragging .pg-tile{cursor:grabbing}
+.pg-field{position:absolute;inset:0}
+
+/* A tile is laid out once, at its largest size, in the top-left corner; the script moves and
+   scales it from there. Its own layer keeps every frame on the compositor. */
+.pg-tile{position:absolute;top:0;left:0;display:block;width:var(--pg-lw);height:var(--pg-lh);overflow:hidden;background:var(--pg-surface);transform-origin:50% 50%;will-change:transform;contain:layout paint style;visibility:hidden;cursor:pointer;-webkit-user-drag:none;-webkit-touch-callout:none}
+.pg-tile img{display:block;width:100%;height:100%;object-fit:cover;transition:scale 1100ms var(--ease-expo);pointer-events:none;-webkit-user-drag:none}
+.pg-tile.is-hover img{scale:1.07}
+
+/* A post without a picture is set in type on a dark card: its number above, its title below. */
+.pg-face{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:9% 9% 10%;background:var(--pg-surface);color:var(--ink)}
+.pg-face-num{color:var(--muted);font:400 calc(var(--pg-lw) * .056)/1 var(--font-ui);letter-spacing:.08em;font-variant-numeric:tabular-nums}
+.pg-face-title{display:-webkit-box;overflow:hidden;font:400 calc(var(--pg-lw) * .094)/1.28 var(--font-text);letter-spacing:-.02em;word-break:keep-all;overflow-wrap:anywhere;-webkit-box-orient:vertical;-webkit-line-clamp:4}
+
+/* The edges of the lens fall into the dark, and bands at the top and foot keep the navigation,
+   filters and caption legible over moving pictures. One still layer, never repainted. */
+.pg-shade{position:fixed;inset:0;z-index:2;pointer-events:none;background:
+    linear-gradient(to bottom,rgba(10,10,11,.94) 0,rgba(10,10,11,.6) 96px,rgba(10,10,11,0) 180px),
+    linear-gradient(to top,rgba(10,10,11,.96) 0,rgba(10,10,11,.72) 120px,rgba(10,10,11,0) 270px),
+    radial-gradient(ellipse 70% 76% at 50% 50%,rgba(10,10,11,0) 42%,rgba(10,10,11,.55) 76%,rgba(10,10,11,.92) 100%)}
+
+/* Keyboard focus: four corner marks around the middle tile, like a viewfinder. */
+.pg-ring{position:fixed;top:50%;left:50%;z-index:3;width:calc(var(--pg-lw) + 28px);height:calc(var(--pg-lh) + 28px);translate:-50% -50%;color:var(--ink);opacity:0;pointer-events:none;transition:opacity 500ms var(--ease-expo);background:
+    linear-gradient(currentColor,currentColor) left top/16px 1px no-repeat,
+    linear-gradient(currentColor,currentColor) left top/1px 16px no-repeat,
+    linear-gradient(currentColor,currentColor) right top/16px 1px no-repeat,
+    linear-gradient(currentColor,currentColor) right top/1px 16px no-repeat,
+    linear-gradient(currentColor,currentColor) left bottom/16px 1px no-repeat,
+    linear-gradient(currentColor,currentColor) left bottom/1px 16px no-repeat,
+    linear-gradient(currentColor,currentColor) right bottom/16px 1px no-repeat,
+    linear-gradient(currentColor,currentColor) right bottom/1px 16px no-repeat}
+.pg-stage:focus-visible~.pg-ring{opacity:1}
+
+/* ---- Filters --------------------------------------------------------------------------- */
+/* Between the 72px logo and the arrow button (css/site.css), level with the arrow. */
+.pg-filters{position:fixed;top:34px;right:116px;left:calc(clamp(1.2rem,13vw,2.3rem) + 100px);z-index:10;display:flex;flex-wrap:wrap;align-items:center;gap:10px 20px;pointer-events:none}
+.pg-chips{display:flex;flex-wrap:wrap;gap:6px;pointer-events:auto}
+.pg-chip{display:inline-flex;align-items:center;gap:7px;height:30px;margin:0;padding:0 13px;border:1px solid var(--pg-line);border-radius:999px;background:rgba(10,10,11,.42);color:var(--muted-strong);font:400 13px/1 var(--font-text);letter-spacing:-.005em;white-space:nowrap;cursor:pointer;transition:color 500ms var(--ease-expo),background-color 500ms var(--ease-expo),border-color 500ms var(--ease-expo),box-shadow 900ms var(--ease-expo),opacity 500ms var(--ease-expo)}
+.pg-chips-type .pg-chip{font:400 11px/1 var(--font-ui);letter-spacing:.1em;text-transform:uppercase}
+.pg-chip-count{color:var(--muted);font:400 10px/1 var(--font-ui);letter-spacing:.02em;font-variant-numeric:tabular-nums;transition:color 500ms var(--ease-expo)}
+.pg-chip:hover:not(:disabled){border-color:rgba(245,245,247,.42);color:var(--ink)}
+/* The chosen filter is lit: ink on the dark, with a faint glow around it. */
+.pg-chip[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:#0a0a0b;box-shadow:0 0 0 1px rgba(245,245,247,.08),0 0 26px rgba(245,245,247,.2)}
+.pg-chip[aria-pressed="true"] .pg-chip-count{color:rgba(10,10,11,.5)}
+.pg-chip:disabled{opacity:.28;cursor:default}
+.pg-chip:focus-visible{outline:1px solid var(--ink);outline-offset:3px}
+
+/* ---- Caption: the post in the middle (or under the pointer) --------------------------- */
+/* Each line sits in a mask exactly one line tall, so words leaving are never seen. */
+.pg-caption{position:fixed;bottom:var(--pg-bottom);left:var(--margin);z-index:10;display:grid;gap:12px;width:min(60vw,860px);color:var(--ink);opacity:0;pointer-events:none;transition:opacity 900ms var(--ease-expo)}
+.pg-caption.is-on{opacity:1}
+.pg-mask{position:relative;display:block;overflow:hidden;height:1.24em;line-height:1.24}
+.pg-mask>span{position:absolute;inset:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.pg-cap-meta{display:flex;gap:16px;color:var(--muted);font:400 11px/1 var(--font-ui);letter-spacing:.1em;text-transform:uppercase;font-variant-numeric:tabular-nums}
+.pg-cap-meta [data-line="number"]{width:8ch}
+.pg-cap-meta [data-line="type"]{width:10ch}
+.pg-cap-title{font:400 clamp(26px,3vw,48px)/1.24 var(--font-text);letter-spacing:-.025em}
+.pg-cap-tags{color:var(--muted-strong);font:300 13px/1.24 var(--font-text);letter-spacing:.01em}
+
+/* ---- Legend and the Field / List switch ----------------------------------------------- */
+.pg-legend{position:fixed;right:var(--margin);bottom:var(--pg-bottom);z-index:10;display:flex;align-items:center;gap:26px;color:var(--muted);font:400 11px/1 var(--font-ui);letter-spacing:.08em}
+.pg-hint{margin:0;white-space:nowrap}
+.pg-hint-touch{display:none}
+.pg[data-view="list"] .pg-hint{display:none}
+.pg-views{display:flex;gap:14px}
+.pg-views button{position:relative;margin:0;padding:6px 0;border:0;background:none;color:var(--muted);font:inherit;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:color 400ms var(--ease-expo)}
+.pg-views button:hover,
+.pg-views button[aria-pressed="true"]{color:var(--ink)}
+.pg-views button[aria-pressed="true"]::after{content:'';position:absolute;right:0;bottom:0;left:0;height:1px;background:currentColor}
+.pg-views button:focus-visible{outline:1px solid var(--ink);outline-offset:5px}
+
+/* ---- Status: loading, nothing to show, or the posts could not be read ------------------ */
+.pg-status{position:fixed;inset:0;z-index:4;display:grid;place-content:center;justify-items:center;gap:18px;color:var(--muted);font:300 14px/1.5 var(--font-text);letter-spacing:.01em;text-align:center;opacity:0;pointer-events:none;transition:opacity 700ms var(--ease-expo)}
+.pg-status.is-on{opacity:1}
+.pg-status p{margin:0}
+.pg-status button{padding:9px 16px;border:1px solid var(--pg-line);border-radius:999px;background:none;color:var(--ink);font:400 11px/1 var(--font-ui);letter-spacing:.1em;text-transform:uppercase;cursor:pointer;pointer-events:auto}
+.pg-status button:focus-visible{outline:1px solid var(--ink);outline-offset:3px}
+
+/* ---- The list ------------------------------------------------------------------------- */
+.pg-list{display:none;margin:0;padding:156px var(--margin) 120px;list-style:none}
+.pg[data-view="list"] .pg-list{display:block}
+.pg[data-view="list"] :is(.pg-stage,.pg-ring,.pg-caption){display:none}
+/* Over the scrolling list the shade keeps only its top and foot bands. */
+.pg[data-view="list"] .pg-shade{background:
+    linear-gradient(to bottom,#0a0a0b 0,rgba(10,10,11,.86) 128px,rgba(10,10,11,0) 156px),
+    linear-gradient(to top,#0a0a0b 0,rgba(10,10,11,0) 96px)}
+.pg-row[hidden]{display:none}
+.pg-row a{display:grid;grid-template-columns:3.5ch 64px minmax(0,1fr) minmax(0,15rem) 6rem 6.5rem;gap:28px;align-items:center;padding:14px 0;border-top:var(--rule-line);text-decoration:none}
+.pg-row:last-child a{border-bottom:var(--rule-line)}
+.pg-row-num,.pg-row-type,.pg-row-date{color:var(--muted);font:400 11px/1.3 var(--font-ui);letter-spacing:.08em;font-variant-numeric:tabular-nums;text-transform:uppercase}
+.pg-row-date{text-align:right;letter-spacing:.04em}
+.pg-row-thumb{overflow:hidden;aspect-ratio:1 / 1.2;background:var(--pg-surface)}
+.pg-row-thumb img{width:100%;height:100%;object-fit:cover;transition:scale 1100ms var(--ease-expo)}
+.pg-row a:is(:hover,:focus-visible) .pg-row-thumb img{scale:1.07}
+.pg-row-title{overflow:hidden;font:400 clamp(18px,1.55vw,24px)/1.3 var(--font-text);letter-spacing:-.02em;white-space:nowrap;text-overflow:ellipsis}
+.pg-row-tags{overflow:hidden;color:var(--muted-strong);font:300 13px/1.3 var(--font-text);white-space:nowrap;text-overflow:ellipsis}
+.pg-row a:focus-visible{outline:1px solid var(--ink);outline-offset:4px}
+
+/* ---- Tablets and phones: touch first --------------------------------------------------- */
+@media (hover:none) and (pointer:coarse){
+    .pg-hint-fine{display:none}
+    .pg-hint-touch{display:inline}
+}
+/* Narrower than a laptop the caption takes the whole width, above the legend's own line. */
+@media (max-width:1100px){
+    .pg{--pg-bottom:22px}
+    .pg-caption{right:var(--margin);bottom:62px;left:var(--margin);width:auto}
+    /* The caption sits higher here, so the dark band at the foot reaches further up. */
+    .pg-shade{background:
+        linear-gradient(to bottom,rgba(10,10,11,.94) 0,rgba(10,10,11,.6) 96px,rgba(10,10,11,0) 180px),
+        linear-gradient(to top,rgba(10,10,11,.96) 0,rgba(10,10,11,.8) 160px,rgba(10,10,11,0) 330px),
+        radial-gradient(ellipse 70% 76% at 50% 50%,rgba(10,10,11,0) 42%,rgba(10,10,11,.55) 76%,rgba(10,10,11,.92) 100%)}
+    .pg-legend{right:var(--margin);left:var(--margin);justify-content:space-between}
+    .pg[data-view="list"] .pg-legend{justify-content:flex-end}
+    .pg-row a{grid-template-columns:3.5ch 56px minmax(0,1fr) minmax(0,10rem) 6.5rem;gap:20px}
+    .pg-row-type{display:none}
+}
+@media (max-width:760px){
+    .pg{--pg-bottom:20px}
+    /* One row of chips that scrolls sideways under the thumb, fading out at the right edge. */
+    .pg-filters{top:96px;right:0;left:0;flex-wrap:nowrap;gap:6px;padding:2px 18px;overflow-x:auto;scrollbar-width:none;pointer-events:auto;-webkit-mask-image:linear-gradient(to right,#000 82%,transparent);mask-image:linear-gradient(to right,#000 82%,transparent)}
+    .pg-filters::-webkit-scrollbar{display:none}
+    .pg-chips{flex-wrap:nowrap}
+    .pg-chips-type{padding-right:10px;border-right:var(--rule-line);margin-right:4px}
+    .pg-chip{height:32px}
+    .pg-caption{right:18px;bottom:58px;left:18px;gap:9px}
+    .pg-cap-title{font-size:24px}
+    .pg-cap-tags{font-size:12px}
+    .pg-legend{right:18px;left:18px}
+    .pg-list{padding:150px 18px 84px}
+    .pg-row a{grid-template-columns:52px minmax(0,1fr) auto;grid-template-areas:"thumb title num" "thumb tags date";gap:6px 16px;padding:12px 0}
+    .pg-row-thumb{grid-area:thumb}
+    .pg-row-title{grid-area:title;font-size:17px}
+    .pg-row-num{grid-area:num;text-align:right}
+    .pg-row-tags{grid-area:tags;font-size:12px}
+    .pg-row-date{grid-area:date}
+    .pg-row-type{display:none}
+}
+
+@media (prefers-reduced-motion:reduce){
+    .pg-tile img,.pg-row-thumb img,.pg-chip,.pg-caption,.pg-status,.pg-ring{transition:none}
+    .pg-tile.is-hover img,.pg-row a:is(:hover,:focus-visible) .pg-row-thumb img{scale:1}
+}

@@ -3,7 +3,7 @@
  --motion-instant:160ms;--motion-fast:280ms;--motion-base:520ms;--motion-scene:850ms;
  --ease-out:cubic-bezier(.16,1,.3,1);--ease-in-out:cubic-bezier(.65,0,.35,1);--ease-scene:cubic-bezier(.22,1,.36,1);
  --ease-panel:var(--ease-scene);--ease-smooth:var(--ease-out);
- --bg:#F7F1ED;--text:#121212;--muted:#777;--rule:rgba(18,18,18,.18);
+ --bg:#ffffff;--text:#121212;--muted:#777;--rule:rgba(18,18,18,.18);
  --publication-paper:var(--bg);--publication-ink:var(--text);--publication-rule:var(--rule);
  --post-canvas:var(--bg);--post-ink:var(--text);--color-bg:var(--bg);--color-bg-alt:var(--bg);--color-text:var(--text);
  --font-display:'Pretendard Variable','Pretendard',Arial,sans-serif;--font-meta:'Feature Deck Condensed','Helvetica Neue',Helvetica,Arial,sans-serif;
@@ -54,7 +54,7 @@ html body #archive-panel .post-list-item.active .post-list-dot{filter:invert(1)!
 .publication-preview{position:fixed;left:0;top:0;z-index:9999;pointer-events:none;width:clamp(220px,20vw,340px);aspect-ratio:16/9;overflow:hidden;visibility:hidden;opacity:0;clip-path:inset(100% 0 0);transition:clip-path var(--motion-base) var(--ease-out),opacity var(--motion-fast) var(--ease-out),visibility var(--motion-fast);transition-delay:0ms}
 .publication-preview.is-visible{visibility:visible;opacity:1;clip-path:inset(0);transition-delay:120ms}
 .publication-preview img{width:100%;height:100%;object-fit:cover}
-.post-panel-placeholder.ascii-placeholder,.signal-field{background:var(--bg)!important;color:var(--text);border-left:0.1px solid #e6e6e3}
+.post-panel-placeholder.ascii-placeholder,.signal-field{background:var(--bg)!important;color:var(--text);border-left:0.1px solid #f5f5f7}
 .signal-field{grid-template-rows:90px minmax(0,1fr) 100px}
 .signal-field .ascii-caption{color:var(--muted);padding-left:32px;font:18px/1.5 var(--font-meta)}
 .signal-field figcaption{border-top:1px solid var(--rule);margin:0 32px;padding:20px 0;color:var(--text);gap:20px}
@@ -158,7 +158,6 @@ html body .footer-nav a{color:var(--bg);border-color:#555}.footer-kicker,.footer
 .hello-content-box h1{width:max-content;max-width:none;transform-origin:0 0}
 body.landing-transition-active .index-panel{overflow:visible}
 body.landing-layout-snap :is(.hello-header,.hello-p,.logo,.hamburger-btn,.index-panel .page){transition:none!important}
-body.landing-layout-snap .hello-content-box h1{will-change:transform}
 body.landing-transition-active .index-panel{pointer-events:none}
 @font-face{font-family:'SWBLOG Diatype Heavy';src:local('ABC Diatype Heavy'),local('ABCDiatype-Heavy'),local('Diatype Heavy');font-weight:900;font-style:normal;font-display:swap}
 
@@ -197,8 +196,10 @@ html body .panel-close-btn:is(:hover,:focus-visible){transform:scale(1.14) rotat
 
 /* Reader rail stays above close control; the menu scrim covers both. */
 html body:has(.post-panel-viewer.active-state) .panel-close-btn{z-index:450}
-html body .menu-index-scrim{z-index:600}
-html body .header-hidden{z-index:610!important}
+html body .menu-index-scrim{z-index:600;background:rgba(18,18,18,.1);-webkit-backdrop-filter:none;backdrop-filter:none}
+/* The menu sits above its scrim everywhere, the landing included (mainPage.css pins it to 310 there,
+   under the scrim, which dimmed the open menu along with the page). */
+html body .header-hidden,html body.landing-state .header-hidden.active{z-index:610!important}
 html body #site-header-controls{z-index:620!important}
 /* A fluid editorial index, with its own scroll area on short windows. */
 html body:has(.post-panel-viewer.active-state) #post-toc-sidebar{
@@ -213,16 +214,16 @@ html body #post-toc-sidebar .toc-title{
 html body #post-toc-sidebar .toc-title span{font:12px/1.3 Helvetica,Arial,sans-serif;letter-spacing:.06em;white-space:nowrap}
 html body #post-toc-sidebar .toc-list{
     overflow-y:auto;overscroll-behavior:contain;max-height:calc(100dvh - 340px);
-    scrollbar-width:thin;scrollbar-color:#c6bdb7 transparent;padding:0 8px 0 0;
+    scrollbar-width:thin;scrollbar-color:#c7c7cc transparent;padding:0 8px 0 0;
 }
 html body:has(.post-panel-viewer.active-state) #post-toc-sidebar .toc-list li{
     position:relative;grid-template-columns:24px minmax(0,1fr);gap:8px;
     padding:12px 6px;min-height:44px;box-sizing:border-box;
     font-size:14px;line-height:1.55;
-    color:#77706b!important;transform:none;border-radius:2px;
+    color:#6e6e73!important;transform:none;border-radius:2px;
     transition:background-color 240ms ease,color 240ms ease;
 }
-html body #post-toc-sidebar .toc-list li::before{content:counter(chapter,decimal-leading-zero)!important;font:500 12px/1.9 'Circular Std',Arial,sans-serif;color:#a29a94!important}
+html body #post-toc-sidebar .toc-list li::before{content:counter(chapter,decimal-leading-zero)!important;font:500 12px/1.9 'Circular Std',Arial,sans-serif;color:#a1a1a6!important}
 html body:has(.post-panel-viewer.active-state) #post-toc-sidebar .toc-list li.active{color:#121212!important;background:rgba(86,154,255,.09)}
 html body #post-toc-sidebar .toc-list li.active::before{color:#397bd5!important}
 html body #post-toc-sidebar .toc-list li:is(:hover,:focus-visible){background:rgba(18,18,18,.045);color:#121212!important}
@@ -358,3 +359,42 @@ html body.reader-list-revealing .post-list-item{
     html body.landing-state .scroll-down-btn span{font-size:10px}
 }
 
+/* Loading, 2026-10. The logo stands in the middle of the paper, pale, and fills with the
+   category colours from the bottom up as the post loads; the title sits at the foot. The page
+   underneath is drawn down and back as the paper comes up, and the paper lifts away fast,
+   slowing as it clears the top. */
+.resolution-scene{transition:clip-path 900ms cubic-bezier(.16,1,.3,1),opacity 900ms cubic-bezier(.16,1,.3,1)}
+.resolution-scene::before{animation:resolution-background-rise 640ms cubic-bezier(.76,0,.24,1) both}
+.resolution-stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+/* The script sizes the mark to the header logo; the 300px logo file is only ever drawn smaller. */
+.resolution-mark{position:relative;width:72px;height:72px;-webkit-mask:var(--mark) center/contain no-repeat;mask:var(--mark) center/contain no-repeat;opacity:0;transform:translate3d(0,26px,0);animation:resolution-mark-in 1100ms cubic-bezier(.22,1,.36,1) 220ms forwards}
+@keyframes resolution-mark-in{to{opacity:1;transform:translate3d(0,0,0)}}
+.resolution-mark-base{position:absolute;inset:0;background:rgba(18,18,18,.13)}
+.resolution-mark-level{position:absolute;inset:0;overflow:hidden;transform:translate3d(0,100%,0);transition:transform 1000ms cubic-bezier(.65,0,.2,1);will-change:transform}
+/* Three logo-heights of colour, repeating every logo-height, scrolled up by one height in a
+   loop: the colours themselves keep rising through the letters. */
+.resolution-mark-colours{position:absolute;top:0;right:0;left:0;height:300%;background:repeating-linear-gradient(0deg,#569aff 0,#ff6e8e 11.111%,#ffba59 22.222%,#569aff 33.333%);animation:resolution-colours-rise 1600ms linear infinite;will-change:transform}
+@keyframes resolution-colours-rise{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,-33.333%,0)}}
+.resolution-scene .resolution-label{position:absolute;right:clamp(18px,2.5vw,40px);bottom:clamp(22px,4.5vh,48px);left:clamp(18px,2.5vw,40px);display:flex;justify-content:space-between;gap:24px;margin:0;color:#86868b;font:300 12px/1.3 'Helvetica Neue','Pretendard Variable','Pretendard',sans-serif;letter-spacing:.03em;text-transform:uppercase;opacity:0;animation:resolution-mark-in 700ms ease 360ms forwards}
+.resolution-scene .resolution-title{overflow:hidden;max-width:62vw;color:#121212;letter-spacing:0;text-overflow:ellipsis;text-transform:none;white-space:nowrap}
+/* The close button waits behind the paper until the post is ready. */
+html body.content-resolving .panel-close-btn{visibility:hidden!important}
+/* Moving to a post that is already loaded: the paper passes over the page without stopping.
+   Its edges carry the category colours. */
+.resolution-pass{position:fixed;inset:0;z-index:10020;background:var(--bg);pointer-events:none;transform:translate3d(0,100%,0);will-change:transform}
+.resolution-pass::before,.resolution-pass::after{content:'';position:absolute;right:0;left:0;height:2px;background:linear-gradient(90deg,#569aff 0 32%,#ff6e8e 32% 58%,#ffba59 58% 78%,#121212 78%)}
+.resolution-pass::before{top:0}
+.resolution-pass::after{bottom:0}
+@media(prefers-reduced-motion:reduce){.resolution-mark,.resolution-scene .resolution-label{animation:none;opacity:1;transform:none}.resolution-mark-level{transition:none}.resolution-mark-colours{animation:none}}
+
+/* Reading: text rises line by line through masks as it scrolls into view (publication2026.js,
+   setupLines). A block waits invisible until its words are split; each word then sits low in a
+   mask one line tall and rises (expo out) a beat after the line above. Underlines and strikes
+   are drawn on the words themselves, since they do not carry into inline blocks. */
+.rl-block:not(.rl-split){opacity:0}
+.rl-m{display:inline-block;clip-path:inset(-.05em -.12em -.12em -.12em);vertical-align:baseline}
+.rl-i{display:inline-block;transform:translate3d(0,108%,0);transition:transform 900ms cubic-bezier(.19,1,.22,1)}
+.rl-in .rl-i{transform:translate3d(0,0,0)}
+:where(a,u,ins) .rl-i{text-decoration:underline;text-decoration-color:inherit}
+:where(s,del) .rl-i{text-decoration:line-through}
+@media(prefers-reduced-motion:reduce){.rl-block:not(.rl-split){opacity:1}.rl-i{transform:none;transition:none}}

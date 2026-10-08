@@ -3,13 +3,13 @@
 body,
 body.dark {
     color-scheme: light;
-    --post-canvas: #f7f1ed;
+    --post-canvas: #ffffff;
     --post-ink: #111111;
-    --post-muted: #6f6a64;
+    --post-muted: #6e6e73;
     --post-blue: #3058f9;
-    --editorial-paper: #f7f1ed;
+    --editorial-paper: #ffffff;
     --editorial-ink: #111111;
-    --editorial-muted: #6f6a64;
+    --editorial-muted: #6e6e73;
     --reader-rail: 4rem;
     --reader-rail-expanded: clamp(28rem, 32vw, 34rem);
     --footer-accent: var(--color-point, #3058f9);
@@ -59,7 +59,7 @@ body:has(.post-panel-viewer.active-state) {
         pointer-events: auto !important;
         z-index: 460;
         border-right: 1px solid rgba(17, 17, 17, 0.14) !important;
-        background: rgba(247, 241, 237, 0.94);
+        background: rgba(255,255,255, 0.94);
         backdrop-filter: blur(18px);
     }
 
@@ -267,14 +267,14 @@ body:has(.post-panel-viewer.active-state) .post-panel-viewer,
 body:has(.post-panel-viewer.active-state) :is(.hamburger-btn::before, .panel-close-btn),
 .post-nav {
     border-color: rgba(17, 17, 17, 0.14) !important;
-    background: rgba(247, 241, 237, 0.9) !important;
+    background: rgba(255,255,255, 0.9) !important;
     color: var(--post-ink) !important;
 }
 
 body:has(.post-panel-viewer.active-state) .panel-close-btn {
     color: var(--post-ink) !important;
     border-color: rgba(17, 17, 17, 0.14) !important;
-    background: rgba(247, 241, 237, 0.96) !important;
+    background: rgba(255,255,255, 0.96) !important;
 }
 
 body:has(.post-panel-viewer.active-state) .post-viewer-toc-sidebar {
@@ -302,13 +302,13 @@ body:has(.post-panel-viewer.active-state) .post-viewer-toc-sidebar :is(.toc-titl
 }
 
 .post-continuation {
-    background: #fffdf9;
+    background: #ffffff;
     color: var(--post-ink);
     border-top: 1px solid rgba(17, 17, 17, 0.13);
 }
 
 .post-continuation-media {
-    background: #e8e0d9;
+    background: #f5f5f7;
 }
 
 .post-continuation-meta,

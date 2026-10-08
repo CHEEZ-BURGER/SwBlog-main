@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko" class="pg-locked">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a0b">
+    <meta name="color-scheme" content="dark">
+    <link rel="icon" href="./mainPage_img/logo_pav.ico">
+    <title>Playground — Kimsungwoo</title>
+    <meta name="description" content="SWBLOG의 모든 글을 끝없이 이어지는 어두운 들판 위에서 둘러봅니다.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;display=swap">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+    <link rel="stylesheet" href="./css/site.css">
+    <link rel="stylesheet" href="./css/pageTransition.css?v=2">
+    <script src="./js/pageTransition.js?v=2"></script>
+    <link rel="stylesheet" href="./css/playground.css">
+</head>
+<body class="site-page theme-dark">
+    <header class="site-nav">
+        <a class="site-nav-logo" href="./index.html" aria-label="SWBLOG 홈"><img src="./mainPage_img/Frame 2.png" alt=""></a>
+        <div class="site-menu-button">
+            <button type="button" class="site-menu-hit" aria-label="메뉴 열기" aria-expanded="false" aria-controls="site-menu"></button>
+            <svg class="menu-arrow" viewBox="0 0 40 40" fill="none" aria-hidden="true"><path class="menu-arrow-line" d="M2 20H33"/><path class="menu-arrow-head" d="M23 4L39 20L23 36L20 33L33 20L20 7Z"/></svg>
+        </div>
+    </header>
+    <div class="site-menu" id="site-menu" aria-hidden="true" inert>
+        <div class="site-menu-inner">
+            <nav aria-label="사이트">
+                <ul class="site-menu-list">
+                    <li style="--anim-delay:.1s"><a href="./info.html">INFO</a></li>
+                    <li style="--anim-delay:.2s"><a href="./blog.html">BLOG</a></li>
+                    <li style="--anim-delay:.3s"><a href="./gallery.html">GALLERY</a></li>
+                    <li style="--anim-delay:.4s"><a href="./playground.html" aria-current="page">PLAYGROUND</a></li>
+                </ul>
+            </nav>
+            <div class="site-menu-footer" style="--anim-delay:.4s">
+                <div class="social-links" aria-label="SNS 및 연락처">
+                    <span class="social-link is-unavailable" aria-label="YouTube, 준비 중" role="img">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.6 7.2a2.9 2.9 0 0 0-2-2C17.8 4.7 12 4.7 12 4.7s-5.8 0-7.6.5a2.9 2.9 0 0 0-2 2A30 30 0 0 0 1.9 12a30 30 0 0 0 .5 4.8 2.9 2.9 0 0 0 2 2c1.8.5 7.6.5 7.6.5s5.8 0 7.6-.5a2.9 2.9 0 0 0 2-2 30 30 0 0 0 .5-4.8 30 30 0 0 0-.5-4.8ZM10 15.2V8.8l5.5 3.2L10 15.2Z"></path></svg>
+                    </span>
+                    <span class="social-link is-unavailable" aria-label="Instagram, 준비 중" role="img">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1" class="social-icon-fill"></circle></svg>
+                    </span>
+                    <span class="social-link is-unavailable" aria-label="메일, 준비 중" role="img">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><polyline points="3 7 12 13 21 7"></polyline></svg>
+                    </span>
+                    <span class="social-link social-contact is-unavailable">CONTACT </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="site-menu-scrim" aria-hidden="true"></div>
+
+    <!-- The field: every post as a picture on a dark plane that wraps forever, seen through a
+         soft lens. The tiles are drawn by js/playground.js; the list below is the same posts as
+         plain rows (for reduced motion, or picked with the List switch). -->
+    <main class="pg" id="playground" data-view="field">
+        <h1 class="sr-only">Playground</h1>
+
+        <div class="pg-filters" aria-label="글 거르기">
+            <div class="pg-chips pg-chips-type" role="group" aria-label="종류"></div>
+            <div class="pg-chips pg-chips-tag" role="group" aria-label="해시태그"></div>
+        </div>
+
+        <div class="pg-stage" tabindex="0" role="group" aria-roledescription="필드"
+             aria-label="글 필드. 화살표 키로 움직이고 Enter로 가운데 글을 엽니다." aria-describedby="pg-live">
+            <div class="pg-field"></div>
+        </div>
+        <div class="pg-shade" aria-hidden="true"></div>
+        <div class="pg-ring" aria-hidden="true"></div>
+
+        <!-- What the middle post is; a readout only, so swipes that start on it still move the field. -->
+        <div class="pg-caption" aria-hidden="true">
+            <span class="pg-cap-meta">
+                <span class="pg-mask" data-line="number"></span>
+                <span class="pg-mask" data-line="type"></span>
+            </span>
+            <span class="pg-mask pg-cap-title" data-line="title"></span>
+            <span class="pg-mask pg-cap-tags" data-line="tags"></span>
+        </div>
+
+        <ol class="pg-list" aria-label="글 목록"></ol>
+
+        <footer class="pg-legend">
+            <p class="pg-hint">
+                <span class="pg-hint-fine">Drag to explore · Click to read</span>
+                <span class="pg-hint-touch">Swipe to explore · Tap the centre to read</span>
+            </p>
+            <div class="pg-views" role="group" aria-label="보기">
+                <button type="button" data-view="field" aria-pressed="true">Field</button>
+                <button type="button" data-view="list" aria-pressed="false">List</button>
+            </div>
+        </footer>
+
+        <div class="pg-status" role="status"></div>
+        <p class="sr-only" id="pg-live" aria-live="polite"></p>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./js/postTags.js"></script>
+    <script src="./js/postType.js"></script>
+    <script src="./js/siteData.js"></script>
+    <script src="./js/playground.js"></script>
+    <script src="./js/siteNav.js"></script>
+</body>
+</html>

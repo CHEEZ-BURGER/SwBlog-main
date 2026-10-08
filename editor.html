@@ -2,987 +2,1018 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SW Blog - 반응형 스마트 에디터</title>
-    
-    <!-- index.html과 완벽히 동일한 폰트 적용 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500&amp;display=swap">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#ffffff">
+    <title>SWBLOG — Writing room</title>
+
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="./js/postContent.js?v=editorial-layout-3"></script>
-    
-    <link rel="stylesheet" href="./css/blogLog.css">
-    <link rel="stylesheet" href="./css/editor.css">
-    <link rel="stylesheet" href="./css/postExperience.css?v=editorial-post-1">
-    <link rel="stylesheet" href="./css/postRefinement.css?v=editorial-post-2">
-    <link rel="stylesheet" href="./css/lightRefinement.css?v=light-system-1">
-    <link rel="stylesheet" href="./css/editorRefinement.css?v=editor-ux-1">
-    <link rel="stylesheet" href="./css/editorial.css?v=exhibition-1">
-    <link rel="stylesheet" href="./css/exhibition.css?v=exhibition-1">
+    <script src="./js/postTags.js?v=1"></script>
+    <script src="./js/postType.js?v=2"></script>
+    <script src="./js/editorBlocks.js?v=studio-1"></script>
+
+    <link rel="stylesheet" href="./css/editor.css?v=studio-1">
+    <link rel="stylesheet" href="./css/editorRefinement.css?v=studio-1">
+    <link rel="stylesheet" href="./css/editorStudio.css?v=studio-2">
 </head>
-<body>
+<body data-tab="write" data-post-type="blog">
 
-
-<!-- 로그인 화면 -->
+<!-- 로그인 -->
 <div id="login-section" class="login-wrapper">
-    <div class="login-box">
-        <span class="login-kicker">SWBLOG / WRITING ROOM</span>
-        <h2>기록을 시작하는 곳.</h2>
-        <input type="email" id="login-email" class="admin-input" style="margin-bottom:0;" placeholder="이메일 주소">
-        <input type="password" id="login-password" class="admin-input" style="margin-bottom:0;" placeholder="비밀번호">
-        <button onclick="handleLogin()" class="admin-submit">접속하기</button>
+    <form class="login-box" id="login-form" novalidate>
+        <p class="login-kicker">SWBLOG — Writing room</p>
+        <h1 class="login-title">기록을 시작하는 곳.</h1>
+        <label class="login-field">
+            <span>이메일</span>
+            <input type="email" id="login-email" autocomplete="username" placeholder="name@example.com">
+        </label>
+        <label class="login-field">
+            <span>비밀번호</span>
+            <input type="password" id="login-password" autocomplete="current-password">
+        </label>
+        <p class="login-message" id="login-message" role="alert"></p>
+        <button type="submit" class="login-submit" id="login-submit">접속하기</button>
         <button type="button" class="login-preview-link" onclick="openPublicationPreview({sample:true})">새 본문 레이아웃 살펴보기 ↗</button>
-    </div>
+    </form>
 </div>
 
-<div id="admin-app" style="display: none;">
-<div class="admin-header">
-    <div class="admin-brand"><h1>SWBLOG / Writing room</h1><small>Notes in the making</small></div>
-    <div class="admin-tabs">
-        <button id="tab-write" class="active" onclick="changeTab('write')">글쓰기</button>
-        <button id="tab-manage" onclick="changeTab('manage')">DB 관리</button>
-        <button onclick="resetWriteForm()">새 글</button>
-        <a href="./index.html" target="_blank" rel="noopener">사이트 보기</a>
-        <button onclick="handleLogout()" style="color: #c2293d;">로그아웃</button>
-    </div>
-</div>
-
-<div class="admin-container">
-    <div id="sec-write" class="admin-section active">
-        <div class="admin-pane">
-            <!-- 상단 고정 툴바 (Sticky) -->
-            <div class="editor-sticky-header">
-                <div class="editor-kicker-row">
-                    <span class="editor-kicker">SWBLOG / NEW POST</span>
-                    <span class="editor-live-stats" id="editor-live-stats">0자 · 약 0분</span>
-                </div>
-                <div class="editor-meta-row">
-                    <label class="editor-field">
-                        <span class="editor-field-label">제목</span>
-                        <input type="text" id="post-title" class="admin-input" placeholder="포스트 제목을 입력하세요" autocomplete="off">
-                    </label>
-                    <label class="editor-field">
-                        <span class="editor-field-label">카테고리</span>
-                        <select id="post-category" class="admin-input" aria-label="포스트 카테고리">
-                            <option value="CODING">CODING</option>
-                            <option value="DESIGN">DESIGN</option>
-                            <option value="LIFE">LIFE</option>
-                        </select>
-                    </label>
-                    <button class="admin-btn" onclick="document.getElementById('thumbnail-file-input').click()">대표 썸네일 지정</button>
-                    <input type="file" id="thumbnail-file-input" accept="image/*" style="display:none;" onchange="handleThumbnailUpload(event)">
-                </div>
-
-                <!-- 썸네일 지정 시 나타나는 미리보기 패널 -->
-                <div id="thumbnail-preview-container" style="display: none; align-items: center; gap: 1rem; margin-bottom: 0.5rem; padding: 0.5rem 1rem; background: var(--editor-bg-alt); border: 1px solid var(--editor-border); border-radius: 0.5rem;">
-                    <span style="font-size: 0.85rem; font-weight: bold; color: var(--editor-muted);">대표 썸네일:</span>
-                    <img id="thumbnail-preview-img" src="" style="height: 40px; width: auto; border-radius: 4px; object-fit: cover;">
-                    <button class="admin-btn" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" onclick="clearThumbnail()">삭제</button>
-                </div>
-
-                <div class="toolbar-group">
-                    <div class="admin-toolbar">
-                        <span class="toolbar-label">텍스트</span>
-                        <select id="block-format-select" class="admin-input" style="width: auto; padding: 0.4rem; margin: 0; font-size: 0.85rem;" onchange="changeTextFormat(this)">
-                            <option value="" disabled selected>문단(제목)</option>
-                            <option value="H1">제목 1 (가장 큼)</option>
-                            <option value="H2">제목 2 (큼)</option>
-                            <option value="H3">제목 3 (중간)</option>
-                            <option value="P">본문 (기본)</option>
-                        </select>
-                        <select class="admin-input" style="width: auto; padding: 0.4rem; margin: 0 0.5rem 0 0.2rem; font-size: 0.85rem;" onchange="changeFontSize(this)">
-                            <option value="" disabled selected>크기 지정</option>
-                            <option value="12px">12px (작게)</option>
-                            <option value="14px">14px</option>
-                            <option value="16px">16px (기본)</option>
-                            <option value="18px">18px</option>
-                            <option value="20px">20px</option>
-                            <option value="24px">24px</option>
-                            <option value="32px">32px</option>
-                            <option value="40px">40px</option>
-                            <option value="50px">50px (크게)</option>
-                        </select>
-                        <button type="button" class="admin-btn" data-inline-command="bold" onclick="execCmd('bold')"><b>B</b> 볼드</button>
-                        <button type="button" class="admin-btn" data-inline-command="italic" onclick="execCmd('italic')"><i style="font-family: serif;">I</i> 기울임</button>
-                        <button type="button" class="admin-btn" data-inline-command="underline" onclick="execCmd('underline')"><u>U</u> 밑줄</button>
-                        <button class="admin-btn" onclick="wrapSelectionWithClass('span', 'high')">형광</button>
-                        <button class="admin-btn" onclick="wrapSelectionWithClass('span', 'lead-text')">리드</button>
-                        <button class="admin-btn" onclick="wrapSelectionWithClass('span', 'muted-text')">보조</button>
-                        <button class="admin-btn" onclick="wrapSelectionWithClass('span', 'chip-blue')">칩</button>
-                        <button class="admin-btn btn-clear-format" onclick="removeCustomFormat()">지우기</button>
-                        <button type="button" class="admin-btn" onclick="execCmd('undo')" title="실행 취소 (Ctrl+Z)">Undo</button>
-                        <button type="button" class="admin-btn" onclick="execCmd('redo')" title="다시 실행 (Ctrl+Y)">Redo</button>
-                    </div>
-                    <div class="admin-toolbar">
-                        <span class="toolbar-label">삽입</span>
-                        <button class="admin-btn" onclick="insertHtmlAtCursor('<pre><code>// 여기에 자바스크립트 등 코드를 작성하세요.</code></pre><p><br></p>')">코드</button>
-                        <button class="admin-btn" onclick="insertHtmlAtCursor('<blockquote class=\'quote-box\'>인용문을 입력하세요.</blockquote><p><br></p>')">인용문</button>
-                        <button class="admin-btn" onclick="insertHtmlAtCursor('<div class=\'note-box\'>중요 메모.</div><p><br></p>')">노트</button>
-                        <button class="admin-btn" onclick="insertHtmlAtCursor('<hr class=\'line\'><p><br></p>')">선</button>
-                    </div>
-                    <div class="admin-toolbar structure-toolbar">
-                        <span class="toolbar-label">구조</span>
-                        <button type="button" class="admin-btn" onclick="insertSplitSection()">2열 섹션</button>
-                        <button type="button" class="admin-btn" onclick="insertPrincipleList()">번호 원칙</button>
-                        <span class="toolbar-divider" aria-hidden="true"></span>
-                        <button type="button" class="admin-btn structure-context-btn" onclick="addPrincipleItem()">항목 +</button>
-                        <button type="button" class="admin-btn structure-context-btn" onclick="removePrincipleItem()">항목 −</button>
-                        <button type="button" class="admin-btn structure-context-btn" onclick="movePrincipleItem(-1)" title="현재 번호 항목을 위로 이동">↑</button>
-                        <button type="button" class="admin-btn structure-context-btn" onclick="movePrincipleItem(1)" title="현재 번호 항목을 아래로 이동">↓</button>
-                        <button type="button" class="admin-btn structure-context-btn structure-delete-btn" onclick="removeStructureBlock()">블록 삭제</button>
-                    </div>
-                    <div class="admin-toolbar block-toolbar">
-                        <span class="toolbar-label">미디어</span>
-                        <button class="admin-btn" onclick="insertDropzone('big')">Big</button>
-                        <button class="admin-btn" onclick="insertDropzone('grid-2')">2열</button>
-                        <button class="admin-btn" onclick="insertDropzone('grid-3')">3열</button>
-                        <button class="admin-btn" onclick="insertDropzone('story')" style="border-color: #d81b60; color: #d81b60; font-weight: bold;">스토리</button>
-                    </div>
-                    <div class="admin-toolbar">
-                        <span class="toolbar-label">템플릿</span>
-                        <select id="template-select" class="admin-input" style="width: auto; padding: 0.4rem; margin: 0; font-size: 0.85rem;">
-                            <option value="" disabled selected>템플릿 선택...</option>
-                            <option value="basic">기본 포스트</option>
-                            <option value="portfolio">포트폴리오</option>
-                            <option value="gallery">이미지 갤러리</option>
-                            <option value="retrospective">KPT 회고록</option>
-                            <option value="news">뉴스 / 아티클</option>
-                            <option value="principles">원칙 / 가치</option>
-                        </select>
-                        <button class="admin-btn" onclick="applySelectedTemplate()" style="margin-left: 0.3rem;">적용</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 문서 작성 영역 (Word Style) -->
-            <div class="editor-document-area">
-                <div id="drop-zone" class="drop-zone" onclick="document.getElementById('global-file-input').click()"><b>이미지를 여기에 끌어다 놓거나 클릭하여 업로드하세요! (에디터에 바로 삽입됩니다)</b></div>
-                <input type="file" id="global-file-input" accept="image/*" style="display: none;" onchange="handleGlobalFileUpload(event)">
-                <input type="file" id="inline-file-input" accept="image/*" multiple style="display: none;" onchange="handleInlineFileUpload(event)">
-                <div id="post-content" class="admin-editor" contenteditable="true" data-placeholder="여기에 작성하세요. 실시간으로 반영됩니다. (Enter로 줄바꿈)"></div>
-                <div class="editor-publish-dock">
-                    <span id="autosave-status" style="font-size: 0.82rem; color: var(--editor-muted); font-weight: 500;">변경 사항 없음</span>
-                    <div class="editor-publish-actions">
-                        <button type="button" class="editor-secondary-action" onclick="openPublicationPreview()">독자 화면 미리보기 ↗</button>
-                        <button type="button" class="editor-secondary-action" onclick="saveDraftNow()">임시 저장</button>
-                        <button class="admin-submit" onclick="uploadPost()">서버에 퍼블리싱</button>
-                    </div>
-                </div>
+<div id="admin-app" hidden>
+    <header class="studio-bar" id="studio-bar">
+        <div class="studio-brand"><strong>SWBLOG</strong><span>Writing room</span></div>
+        <nav class="admin-tabs" role="tablist" aria-label="작업 공간">
+            <button type="button" id="tab-write" class="active" role="tab" data-tab="write" aria-selected="true" onclick="changeTab('write')">글쓰기</button>
+            <button type="button" id="tab-manage" role="tab" data-tab="manage" aria-selected="false" onclick="changeTab('manage')">DB 관리</button>
+        </nav>
+        <span class="bar-spacer" aria-hidden="true"></span>
+        <div class="studio-actions" id="studio-actions">
+            <span class="studio-status" id="studio-status" data-state="idle" data-tip="이 브라우저에 자동으로 임시 저장됩니다" data-key="Mod+S">
+                <i class="status-dot" aria-hidden="true"></i><span id="autosave-status" aria-live="polite">변경 없음</span>
+            </span>
+            <button type="button" class="bar-icon block-tool" id="dock-insert" aria-label="블록 추가" data-tip="블록 추가">
+                <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4.5v11M4.5 10h11"/></svg>
+            </button>
+            <button type="button" class="bar-icon block-tool" id="dock-block" aria-label="지금 블록의 메뉴" data-tip="블록 메뉴">
+                <svg class="icon icon-fill" viewBox="0 0 20 20" aria-hidden="true"><circle cx="7.5" cy="5" r="1.3"/><circle cx="12.5" cy="5" r="1.3"/><circle cx="7.5" cy="10" r="1.3"/><circle cx="12.5" cy="10" r="1.3"/><circle cx="7.5" cy="15" r="1.3"/><circle cx="12.5" cy="15" r="1.3"/></svg>
+            </button>
+            <button type="button" class="bar-icon history-btn undo-btn" onclick="editor.undo()" aria-label="실행 취소" data-tip="실행 취소" data-key="Mod+Z">
+                <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 5 4 8.5 7.5 12"/><path d="M4.5 8.5h7a4.5 4.5 0 0 1 0 9H9"/></svg>
+            </button>
+            <button type="button" class="bar-icon history-btn redo-btn" onclick="editor.redo()" aria-label="다시 실행" data-tip="다시 실행" data-key="Mod+Shift+Z">
+                <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 5 16 8.5 12.5 12"/><path d="M15.5 8.5h-7a4.5 4.5 0 0 0 0 9H11"/></svg>
+            </button>
+            <button type="button" class="bar-btn preview-btn" onclick="openPublicationPreview()" aria-label="독자 화면 미리보기" data-tip="독자 화면으로 미리보기">
+                <svg class="icon preview-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M2.5 10s2.8-5 7.5-5 7.5 5 7.5 5-2.8 5-7.5 5-7.5-5-7.5-5Z"/><circle cx="10" cy="10" r="2.2"/></svg><span class="preview-label">미리보기</span>
+            </button>
+            <button type="button" class="bar-btn bar-btn--primary" id="publish-btn" onclick="requestPublish()" data-tip="사이트에 올리기" data-key="Mod+Enter">퍼블리싱</button>
+        </div>
+        <button type="button" class="bar-icon settings-toggle" id="settings-toggle" aria-controls="studio-settings" aria-expanded="false" onclick="toggleSettings()" aria-label="글 설정 열기" data-tip="글 설정">
+            <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h9M15.5 6H17M3 14h2.5M9 14h8"/><circle cx="13.7" cy="6" r="1.7"/><circle cx="7.3" cy="14" r="1.7"/></svg>
+        </button>
+        <div class="studio-menu" id="studio-menu">
+            <button type="button" class="bar-icon" id="menu-toggle" aria-haspopup="menu" aria-expanded="false" aria-controls="studio-menu-panel" onclick="toggleMenu()" aria-label="더 보기">
+                <svg class="icon icon-fill" viewBox="0 0 20 20" aria-hidden="true"><circle cx="4.5" cy="10" r="1.4"/><circle cx="10" cy="10" r="1.4"/><circle cx="15.5" cy="10" r="1.4"/></svg>
+            </button>
+            <div class="studio-menu-panel" id="studio-menu-panel" role="menu">
+                <button type="button" class="menu-item" role="menuitem" onclick="toggleMenu(false); resetWriteForm()"><span>새 글</span></button>
+                <button type="button" class="menu-item" role="menuitem" onclick="toggleMenu(false); saveDraftNow({ manual: true })"><span>임시 저장</span><span class="menu-keys" data-kbd="Mod+S"></span></button>
+                <a class="menu-item" role="menuitem" href="./index.html" target="_blank" rel="noopener"><span>사이트 보기</span><span class="menu-keys">↗</span></a>
+                <span class="menu-gap" aria-hidden="true"></span>
+                <button type="button" class="menu-item menu-item--quiet" role="menuitem" onclick="toggleMenu(false); handleLogout()"><span>로그아웃</span></button>
             </div>
         </div>
-    </div>
+    </header>
 
-    <div id="sec-manage" class="admin-section">
-        <div class="admin-pane">
-            <h2>데이터베이스 (DB) 관리</h2>
-            <div class="table-scroll">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 60px;">사진</th>
-                            <th>제목</th>
-                            <th>카테고리</th>
-                            <th>작성일</th>
-                            <th>동작</th>
-                        </tr>
-                    </thead>
-                    <tbody id="manage-tbody"></tbody>
-                </table>
+    <main class="admin-container">
+        <section id="sec-write" class="admin-section active" aria-label="글쓰기">
+            <div class="studio-layout">
+                <div class="studio-main">
+                    <article class="studio-document" id="studio-document">
+                        <div class="doc-meta">
+                            <div class="type-switch" role="radiogroup" aria-label="글 유형">
+                                <label class="type-option" data-tip="글 중심 — 지금의 본문 레이아웃"><input type="radio" name="post-type" value="blog" checked><span>블로그</span></label>
+                                <label class="type-option" data-tip="큰 이미지와 짧은 글 — 목록의 넓은 열"><input type="radio" name="post-type" value="gallery"><span>갤러리</span></label>
+                                <span class="type-switch-thumb" aria-hidden="true"></span>
+                            </div>
+                            <input type="hidden" id="post-category" value="">
+                            <span class="doc-state" id="doc-state">새 글</span>
+                        </div>
+                        <div class="doc-tags" id="post-tags" role="group" aria-label="해시태그 (최대 3개)"></div>
+
+                        <textarea id="post-title" class="doc-title" rows="1" placeholder="제목" aria-label="제목" autocomplete="off" spellcheck="false"></textarea>
+                        <p class="doc-title-hint" id="title-hint" role="alert"></p>
+
+                        <div class="gallery-strip" id="gallery-strip" aria-hidden="true" inert>
+                            <div class="gallery-strip-inner">
+                                <div class="gallery-strip-body">
+                                    <p>갤러리 글은 이미지를 화면 너비로 크게 보여 주고, 이미지 사이의 글은 짧은 메모로 놓입니다. 첫 이미지 앞의 글은 소개가 됩니다.</p>
+                                    <button type="button" class="bar-btn bar-btn--primary" onclick="pickGalleryImages()">이미지 여러 장 올리기</button>
+                                </div>
+                            </div>
+                            <input type="file" id="gallery-file-input" accept="image/*" multiple hidden onchange="handleGalleryUpload(event)">
+                        </div>
+
+                        <div id="post-content" class="block-editor" aria-label="본문"></div>
+                    </article>
+                </div>
+
+                <aside class="studio-settings" id="studio-settings" aria-label="글 설정">
+                    <div class="settings-head">
+                        <h2 class="settings-title">글 설정</h2>
+                        <button type="button" class="bar-icon settings-close" onclick="toggleSettings(false)" aria-label="글 설정 닫기">
+                            <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="m5.5 5.5 9 9M14.5 5.5l-9 9"/></svg>
+                        </button>
+                    </div>
+
+                    <section class="settings-block">
+                        <h3 class="settings-label">지금 이 글</h3>
+                        <dl class="stat-grid" id="editor-live-stats">
+                            <div><dt>글자</dt><dd id="stat-chars">0</dd></div>
+                            <div><dt>읽는 시간</dt><dd id="stat-minutes">0분</dd></div>
+                            <div><dt>이미지</dt><dd id="stat-images">0</dd></div>
+                        </dl>
+                    </section>
+
+                    <section class="settings-block">
+                        <h3 class="settings-label">대표 썸네일</h3>
+                        <div class="asset-slot" id="thumbnail-preview-container" data-state="empty">
+                            <button type="button" class="asset-pick" onclick="pickAsset('thumbnail')" aria-label="대표 썸네일 고르기">
+                                <img id="thumbnail-preview-img" alt="">
+                                <span class="asset-empty-label"><span class="asset-plus" aria-hidden="true">+</span>썸네일 추가</span>
+                                <span class="asset-busy">업로드 중</span>
+                            </button>
+                            <div class="asset-actions">
+                                <button type="button" class="soft-btn" onclick="pickAsset('thumbnail')">바꾸기</button>
+                                <button type="button" class="soft-btn soft-btn--danger" onclick="removeThumbnail()">삭제</button>
+                            </div>
+                        </div>
+                        <p class="settings-note">글 목록에 쓰이는 대표 이미지입니다.</p>
+                        <input type="file" id="thumbnail-file-input" accept="image/*" hidden onchange="handleThumbnailUpload(event)">
+                    </section>
+
+                    <section class="settings-block">
+                        <h3 class="settings-label">우측 패널 이미지</h3>
+                        <div class="asset-slot asset-slot--tall" id="panel-preview-container" data-state="empty">
+                            <button type="button" class="asset-pick" onclick="pickAsset('panel')" aria-label="우측 패널 이미지 고르기">
+                                <img id="panel-preview-img" alt="">
+                                <span class="asset-empty-label"><span class="asset-plus" aria-hidden="true">+</span>패널 이미지 추가</span>
+                                <span class="asset-busy">업로드 중</span>
+                            </button>
+                            <div class="asset-actions">
+                                <button type="button" class="soft-btn" onclick="pickAsset('panel')">바꾸기</button>
+                                <button type="button" class="soft-btn soft-btn--danger" onclick="removePanelImage()">삭제</button>
+                            </div>
+                        </div>
+                        <p class="settings-note">글 목록에서 이 글을 가리키면 오른쪽 패널을 채웁니다. 세로로 긴 이미지가 잘 어울립니다.</p>
+                        <input type="file" id="panel-file-input" accept="image/*" hidden onchange="handlePanelUpload(event)">
+                    </section>
+
+                    <section class="settings-block">
+                        <h3 class="settings-label">템플릿</h3>
+                        <div class="template-list" id="template-list">
+                            <button type="button" class="template-item" data-template="basic"><strong>기본 글</strong><span>도입, 이미지, 두 개의 섹션</span></button>
+                            <button type="button" class="template-item" data-template="portfolio"><strong>포트폴리오</strong><span>배경 · 과정 · 결과</span></button>
+                            <button type="button" class="template-item" data-template="gallery"><strong>이미지 갤러리</strong><span>큰 사진과 짧은 메모</span></button>
+                            <button type="button" class="template-item" data-template="retrospective"><strong>KPT 회고</strong><span>Keep · Problem · Try</span></button>
+                            <button type="button" class="template-item" data-template="news"><strong>아티클</strong><span>요약, 인용, 세부 내용</span></button>
+                            <button type="button" class="template-item" data-template="principles"><strong>원칙 / 가치</strong><span>2열 섹션과 번호 원칙</span></button>
+                        </div>
+                        <p class="settings-note">본문을 템플릿으로 바꿉니다. 실행 취소로 되돌릴 수 있습니다.</p>
+                    </section>
+
+                    <section class="settings-block">
+                        <h3 class="settings-label">쓰는 법</h3>
+                        <ul class="key-list">
+                            <li><span>블록 추가</span><span class="key-set"><kbd>/</kbd></span></li>
+                            <li><span>제목 · 목록 · 인용</span><span class="key-set"><kbd>#</kbd><kbd>-</kbd><kbd>&gt;</kbd></span></li>
+                            <li><span>굵게 · 기울임 · 밑줄</span><span class="key-set" data-kbd="Mod+B/I/U"></span></li>
+                            <li><span>링크</span><span class="key-set" data-kbd="Mod+K"></span></li>
+                            <li><span>블록 옮기기</span><span class="key-set" data-kbd="Mod+Shift+↑/↓"></span></li>
+                            <li><span>표 칸 이동 · 아래 칸</span><span class="key-set"><kbd>Tab</kbd><kbd>Enter</kbd></span></li>
+                            <li><span>임시 저장</span><span class="key-set" data-kbd="Mod+S"></span></li>
+                            <li><span>퍼블리싱</span><span class="key-set" data-kbd="Mod+Enter"></span></li>
+                        </ul>
+                        <p class="settings-note">이미지는 본문 어디에나 끌어다 놓거나 붙여 넣을 수 있습니다.</p>
+                    </section>
+                </aside>
+                <div class="studio-scrim" id="studio-scrim" onclick="toggleSettings(false)"></div>
             </div>
-        </div>
-    </div>
-</div>
+        </section>
+
+        <section id="sec-manage" class="admin-section" aria-label="DB 관리">
+            <div class="manage-shell">
+                <header class="manage-head">
+                    <div>
+                        <p class="manage-kicker">Database</p>
+                        <h2 class="manage-title">글 목록</h2>
+                    </div>
+                    <span class="manage-count" id="manage-count"></span>
+                    <button type="button" class="bar-btn" onclick="loadPostList()">새로고침</button>
+                </header>
+                <div class="table-scroll">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th class="col-thumb"><span class="sr-only">사진</span></th>
+                                <th class="col-title">제목</th>
+                                <th class="col-type">유형</th>
+                                <th class="col-category">해시태그</th>
+                                <th class="col-date">작성일</th>
+                                <th class="col-actions"><span class="sr-only">동작</span></th>
+                            </tr>
+                        </thead>
+                        <tbody id="manage-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
 </div>
 
-<!-- 스크립트 영역 -->
+<dialog id="publish-dialog" class="studio-dialog" aria-labelledby="publish-dialog-title">
+    <p class="dialog-kicker" id="publish-dialog-kicker">퍼블리싱</p>
+    <h2 id="publish-dialog-title">이 글을 사이트에 올릴까요?</h2>
+    <dl class="publish-summary">
+        <div><dt>제목</dt><dd id="publish-sum-title"></dd></div>
+        <div><dt>유형</dt><dd id="publish-sum-type"></dd></div>
+        <div><dt>해시태그</dt><dd id="publish-sum-category"></dd></div>
+        <div><dt>분량</dt><dd id="publish-sum-size"></dd></div>
+        <div><dt>썸네일</dt><dd id="publish-sum-thumb"></dd></div>
+    </dl>
+    <p class="dialog-note" id="publish-note" hidden></p>
+    <div class="dialog-actions">
+        <button type="button" class="bar-btn" onclick="publishDialog.close()">취소</button>
+        <button type="button" class="bar-btn bar-btn--primary" id="publish-confirm" onclick="confirmPublish()">퍼블리싱</button>
+    </div>
+</dialog>
+
+<dialog id="publication-preview-dialog" class="publication-preview-dialog" aria-label="독자 화면 미리보기">
+    <div class="preview-toolbar">
+        <div class="preview-heading"><strong>독자 화면 미리보기</strong><span>작성 중인 내용을 실제 본문 규칙으로 확인합니다.</span></div>
+        <div class="preview-size-options" role="group" aria-label="미리보기 화면 크기">
+            <button type="button" data-preview-size="desktop" aria-pressed="true">데스크톱</button>
+            <button type="button" data-preview-size="mobile" aria-pressed="false">모바일</button>
+        </div>
+        <button type="button" class="bar-icon preview-close" aria-label="미리보기 닫기">
+            <svg class="icon" viewBox="0 0 20 20" aria-hidden="true"><path d="m5.5 5.5 9 9M14.5 5.5l-9 9"/></svg>
+        </button>
+    </div>
+    <div class="preview-frame-stage"><iframe id="publication-preview-frame" title="작성 중인 글의 독자 화면" src="about:blank"></iframe></div>
+</dialog>
+
+<div class="studio-toast" id="studio-toast" role="status" aria-live="polite"></div>
+<div class="studio-tip" id="studio-tip" role="tooltip"></div>
+
 <script>
-    // Supabase 설정 (키 확인)
-    const S_URL = 'https://dwyoitvmforukvdikzqo.supabase.co'; 
+    // Supabase 설정
+    const S_URL = 'https://dwyoitvmforukvdikzqo.supabase.co';
     const S_KEY = 'sb_publishable_c5y0L6D5oRgoEV_MzedQQQ_nCJfKHb0';
     const sbClient = window.supabase.createClient(S_URL, S_KEY);
 
-    // --- 자동저장 관련 전역 변수 ---
+    const PostType = window.SwblogPostType;
     const AUTOSAVE_KEY = 'swblog_autosave';
-    let autoSaveInterval = null;
-    
-    // --- 대표 썸네일 처리 로직 ---
-    let designatedThumbnailUrl = null;
+    // 우측 패널 이미지는 본문에 보이지 않는 주석(<!--swblog:panel URL-->)으로 저장됩니다.
+    const PANEL_MARK = /<!--\s*swblog:panel\s+(\S+?)\s*-->\n?/g;
+    const HIDDEN_THUMBNAIL = /<img[^>]*class="hidden-thumbnail"[^>]*>\n?/g;
+    const IS_MAC = /Mac|iPhone|iPad|iPod/i.test(navigator.platform || navigator.userAgent || '');
+    const TYPE_LABEL = { blog: '블로그', gallery: '갤러리' };
+    const TYPE_PLACEHOLDER = {
+        blog: '여기에 글을 쓰세요. ‘/’로 제목·인용·이미지 같은 블록을 넣을 수 있습니다.',
+        gallery: '이미지를 끌어다 놓거나 ‘이미지 여러 장 올리기’로 시작하세요. 이미지 사이에 짧은 글을 적을 수 있습니다.'
+    };
 
-    async function handleThumbnailUpload(e) {
-        const file = e.target.files[0];
+    const $ = id => document.getElementById(id);
+    const adminApp = $('admin-app');
+    const loginSection = $('login-section');
+    const titleInput = $('post-title');
+    const categorySelect = $('post-category');
+    const publishBtn = $('publish-btn');
+    const publishDialog = $('publish-dialog');
+    const previewDialog = $('publication-preview-dialog');
+
+    let currentEditId = null;
+    let allPostsData = [];
+    let currentPostType = 'blog';
+    let designatedThumbnailUrl = null;
+    let designatedPanelUrl = null;
+    let autoSaveInterval = null;
+    let autosaveTimer = null;
+    let lastDraftSignature = null;
+    let lastSavedAt = 0;
+    let saveState = 'idle';
+    let hasUnpublishedChanges = false;
+    let allowUnload = false;
+    let isPublishing = false;
+    let activeUploads = 0;
+    let loadingContent = false;
+    let lastAlertAt = 0;
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    }
+
+    function formatKeys(combo) {
+        const names = { Mod: IS_MAC ? '⌘' : 'Ctrl', Alt: IS_MAC ? '⌥' : 'Alt', Shift: IS_MAC ? '⇧' : 'Shift', Enter: IS_MAC ? '↩' : 'Enter' };
+        return combo.split('+').map(part => names[part] || part);
+    }
+
+    function keyChips(combo) {
+        return formatKeys(combo).map(key => `<kbd>${escapeHtml(key)}</kbd>`).join('');
+    }
+
+    /* ---------- 에디터 ---------- */
+    const editor = SwblogBlockEditor.mount($('post-content'), {
+        upload: file => uploadImage(file),
+        onChange: handleEditorChange,
+        toast: message => showToast(message),
+        getPostType: () => currentPostType,
+        topInset: () => $('studio-bar').offsetHeight,
+        bottomInset: () => (window.matchMedia('(max-width: 719px)').matches && document.body.dataset.tab === 'write' ? $('studio-actions').offsetHeight : 0),
+        isMac: IS_MAC
+    });
+
+    // 휴대폰: 블록 추가와 블록 메뉴는 아래 도크에 있습니다. 눌러도 본문 포커스를 뺏지 않습니다.
+    ['dock-insert', 'dock-block'].forEach(id => $(id).addEventListener('mousedown', event => event.preventDefault()));
+    $('dock-insert').addEventListener('click', event => editor.openInsertMenu(event.currentTarget.getBoundingClientRect()));
+    $('dock-block').addEventListener('click', event => editor.openBlockMenu(event.currentTarget.getBoundingClientRect()));
+
+    // 미리보기(editorPreview.js)와 퍼블리싱이 쓰는 깨끗한 본문 HTML
+    function getCleanEditorHtml() {
+        return editor.getHtml();
+    }
+
+    function handleEditorChange() {
+        updateEditorStats();
+        if (!loadingContent) noteChange();
+    }
+
+    /* ---------- 토스트 & 툴팁 ---------- */
+    let toastTimer = null;
+    function showToast(message) {
+        const toast = $('studio-toast');
+        toast.textContent = message;
+        toast.classList.remove('is-visible');
+        void toast.offsetWidth;
+        toast.classList.add('is-visible');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 2800);
+    }
+
+    (function setupTooltips() {
+        const tip = $('studio-tip');
+        let current = null;
+        let timer = null;
+        let lastHide = 0;
+        const hide = () => {
+            clearTimeout(timer);
+            if (current) lastHide = Date.now();
+            current = null;
+            tip.classList.remove('is-visible');
+        };
+        const show = el => {
+            if (!el.isConnected) return;
+            tip.innerHTML = `<span>${escapeHtml(el.dataset.tip)}</span>${el.dataset.key ? `<span class="tip-keys">${keyChips(el.dataset.key)}</span>` : ''}`;
+            const rect = el.getBoundingClientRect();
+            const width = tip.offsetWidth;
+            const height = tip.offsetHeight;
+            let top = rect.bottom + 8;
+            if (top + height > window.innerHeight - 8) top = rect.top - height - 8;
+            const left = Math.max(8, Math.min(rect.left + rect.width / 2 - width / 2, window.innerWidth - width - 8));
+            tip.style.left = `${Math.round(left)}px`;
+            tip.style.top = `${Math.round(top)}px`;
+            tip.classList.add('is-visible');
+        };
+        document.addEventListener('pointerover', event => {
+            if (event.pointerType === 'touch') return;
+            const el = event.target.closest?.('[data-tip]');
+            if (el === current) return;
+            hide();
+            if (!el) return;
+            current = el;
+            timer = setTimeout(() => show(el), Date.now() - lastHide < 400 ? 60 : 420);
+        });
+        document.addEventListener('pointerout', event => {
+            if (current && !current.contains(event.relatedTarget)) hide();
+        });
+        document.addEventListener('focusin', event => {
+            const el = event.target.closest?.('[data-tip]');
+            if (el && el.matches(':focus-visible')) { current = el; show(el); }
+        });
+        document.addEventListener('focusout', hide);
+        document.addEventListener('pointerdown', hide);
+        document.addEventListener('keydown', hide);
+        window.addEventListener('scroll', hide, { passive: true, capture: true });
+        window.hideStudioTip = hide;
+    })();
+
+    function renderKeyHints() {
+        document.querySelectorAll('[data-kbd]').forEach(el => {
+            el.innerHTML = keyChips(el.dataset.kbd);
+        });
+    }
+
+    /* ---------- 글 유형 (블로그 / 갤러리) ---------- */
+    function getPostType() {
+        return currentPostType;
+    }
+
+    function setPostType(type, { silent = false } = {}) {
+        const next = type === 'gallery' ? 'gallery' : 'blog';
+        const changed = next !== currentPostType;
+        currentPostType = next;
+        document.querySelectorAll('input[name="post-type"]').forEach(radio => { radio.checked = radio.value === next; });
+        document.body.dataset.postType = next;
+        const strip = $('gallery-strip');
+        strip.classList.toggle('is-visible', next === 'gallery');
+        strip.toggleAttribute('inert', next !== 'gallery');
+        strip.setAttribute('aria-hidden', String(next !== 'gallery'));
+        editor.setPlaceholder(TYPE_PLACEHOLDER[next]);
+        if (changed && !silent) noteChange();
+    }
+
+    document.querySelectorAll('input[name="post-type"]').forEach(radio => {
+        radio.addEventListener('change', () => { if (radio.checked) setPostType(radio.value); });
+    });
+
+    function pickGalleryImages() {
+        $('gallery-file-input').click();
+    }
+
+    function handleGalleryUpload(event) {
+        const files = Array.from(event.target.files || []);
+        event.target.value = '';
+        if (!files.length) return;
+        const created = editor.insertFiles(files, { separate: true });
+        if (created.length) showToast(`이미지 ${created.length}장을 차례로 올리는 중입니다.`);
+    }
+
+    /* ---------- 해시태그 ---------- */
+    // 큰 분류는 블로그/갤러리(유형)이고, 세부 분류는 정해진 해시태그 10개 중 최대 3개입니다.
+    // 고른 해시태그는 숨은 #post-category에 "디자인,개발"처럼 담겨 posts.category에 저장됩니다.
+    // 예전 카테고리(CODING, DESIGN, LIFE)는 불러올 때 해당 해시태그로 바뀝니다.
+    const Tags = window.SwblogTags;
+    const tagRow = $('post-tags');
+    tagRow.innerHTML = Tags.TAGS.map(tag => `<button type="button" class="tag-chip" data-tag="${tag}" aria-pressed="false">#${tag}</button>`).join('');
+
+    function renderTags() {
+        const chosen = Tags.parse(categorySelect.value);
+        tagRow.querySelectorAll('.tag-chip').forEach(chip => {
+            const on = chosen.includes(chip.dataset.tag);
+            chip.setAttribute('aria-pressed', String(on));
+            chip.classList.toggle('is-on', on);
+        });
+        tagRow.classList.toggle('is-full', chosen.length >= Tags.MAX);
+    }
+
+    function setCategory(value) {
+        categorySelect.value = Tags.format(Tags.parse(value));
+        renderTags();
+    }
+
+    tagRow.addEventListener('click', event => {
+        const chip = event.target.closest('.tag-chip');
+        if (!chip) return;
+        const chosen = Tags.parse(categorySelect.value);
+        const tag = chip.dataset.tag;
+        if (chosen.includes(tag)) chosen.splice(chosen.indexOf(tag), 1);
+        else if (chosen.length >= Tags.MAX) { showToast(`해시태그는 ${Tags.MAX}개까지 고를 수 있어요.`); return; }
+        else chosen.push(tag);
+        setCategory(chosen);
+        noteChange();
+    });
+    setCategory('');
+
+    /* ---------- 제목 ---------- */
+    function autosizeTitle() {
+        titleInput.style.height = 'auto';
+        titleInput.style.height = `${titleInput.scrollHeight}px`;
+    }
+
+    function showTitleHint(message) {
+        const hint = $('title-hint');
+        hint.textContent = message;
+        hint.classList.toggle('is-visible', !!message);
+    }
+
+    titleInput.addEventListener('input', () => {
+        if (/\n/.test(titleInput.value)) titleInput.value = titleInput.value.replace(/\s*\n+\s*/g, ' ');
+        autosizeTitle();
+        if (titleInput.value.trim()) showTitleHint('');
+        noteChange();
+    });
+
+    titleInput.addEventListener('keydown', event => {
+        if (event.isComposing || event.keyCode === 229) return;
+        if (event.key === 'Enter' && !event.ctrlKey && !event.metaKey) {
+            event.preventDefault();
+            editor.focusFirst();
+        } else if (event.key === 'ArrowDown' && titleInput.selectionStart === titleInput.value.length) {
+            event.preventDefault();
+            editor.focusFirst();
+        }
+    });
+
+    window.addEventListener('resize', autosizeTitle, { passive: true });
+
+    /* ---------- 대표 썸네일 & 우측 패널 이미지 ---------- */
+    const ASSET_SLOTS = {
+        thumbnail: { container: 'thumbnail-preview-container', img: 'thumbnail-preview-img', input: 'thumbnail-file-input', alt: '대표 썸네일' },
+        panel: { container: 'panel-preview-container', img: 'panel-preview-img', input: 'panel-file-input', alt: '우측 패널 이미지' }
+    };
+
+    function renderAssetSlot(kind, state, src) {
+        const slot = ASSET_SLOTS[kind];
+        const img = $(slot.img);
+        $(slot.container).dataset.state = state;
+        if (src) img.src = src; else img.removeAttribute('src');
+        img.alt = state === 'filled' ? slot.alt : '';
+    }
+
+    function pickAsset(kind) {
+        $(ASSET_SLOTS[kind].input).click();
+    }
+
+    async function uploadAsset(kind, event) {
+        const input = event.target;
+        const file = input.files[0];
+        input.value = '';
         if (!file) return;
         if (!file.type.startsWith('image/')) return alert('이미지 파일만 가능합니다.');
-        
-        document.getElementById('thumbnail-preview-container').style.display = 'flex';
-        document.getElementById('thumbnail-preview-img').src = '';
-        document.getElementById('thumbnail-preview-img').alt = '업로드 중...';
-
+        const previous = kind === 'thumbnail' ? designatedThumbnailUrl : designatedPanelUrl;
+        const preview = URL.createObjectURL(file);
+        renderAssetSlot(kind, 'uploading', preview);
         const url = await uploadImage(file);
         if (url) {
-            designatedThumbnailUrl = url;
-            document.getElementById('thumbnail-preview-img').src = url;
-            document.getElementById('thumbnail-preview-img').alt = '썸네일';
-        } else clearThumbnail();
-        e.target.value = '';
+            // 미리 받아 두면 바뀔 때 깜빡이지 않습니다. (decode()는 탭이 가려져 있으면 끝나지 않아 쓰지 않습니다.)
+            await new Promise(resolve => {
+                const probe = new Image();
+                const timer = setTimeout(resolve, 4000);
+                probe.onload = probe.onerror = () => { clearTimeout(timer); resolve(); };
+                probe.src = url;
+            });
+            kind === 'thumbnail' ? setThumbnail(url) : showPanelPreview(url);
+            noteChange();
+        } else if (previous) {
+            kind === 'thumbnail' ? setThumbnail(previous) : showPanelPreview(previous);
+        } else {
+            kind === 'thumbnail' ? clearThumbnail() : clearPanelImage();
+        }
+        setTimeout(() => URL.revokeObjectURL(preview), 1000);
+    }
+
+    function handleThumbnailUpload(event) { return uploadAsset('thumbnail', event); }
+    function handlePanelUpload(event) { return uploadAsset('panel', event); }
+
+    function setThumbnail(url) {
+        designatedThumbnailUrl = url || null;
+        renderAssetSlot('thumbnail', url ? 'filled' : 'empty', url);
+    }
+
+    function showPanelPreview(url) {
+        designatedPanelUrl = url || null;
+        renderAssetSlot('panel', url ? 'filled' : 'uploading', url);
     }
 
     function clearThumbnail() {
         designatedThumbnailUrl = null;
-        document.getElementById('thumbnail-preview-container').style.display = 'none';
-        document.getElementById('thumbnail-preview-img').src = '';
+        renderAssetSlot('thumbnail', 'empty');
+    }
+
+    function clearPanelImage() {
+        designatedPanelUrl = null;
+        renderAssetSlot('panel', 'empty');
+    }
+
+    function removeThumbnail() {
+        if (!designatedThumbnailUrl) return;
+        clearThumbnail();
+        noteChange();
+    }
+
+    function removePanelImage() {
+        if (!designatedPanelUrl) return;
+        clearPanelImage();
+        noteChange();
     }
 
     // 에디터도 사이트와 동일하게 라이트 테마만 사용합니다.
     document.body.classList.remove('dark');
 
-    // --- Auth (로그인) 처리 로직 ---
+    /* ---------- 로그인 ---------- */
     async function checkSession() {
-        const { data: { session } } = await sbClient.auth.getSession();
-        if (session) {
-            showAdminApp();
-        } else {
+        try {
+            const { data: { session } } = await sbClient.auth.getSession();
+            if (session) showAdminApp(); else showLoginSection();
+        } catch (error) {
             showLoginSection();
         }
     }
 
     function showAdminApp() {
-        document.getElementById('login-section').style.display = 'none';
-        document.getElementById('admin-app').style.display = 'block';
-        changeTab('write'); // 로그인 시 글쓰기 탭 기본 활성화
-        checkAutoSave();    // 자동저장 데이터 확인
-        startAutoSave();    // 자동저장 루프 시작
+        loginSection.hidden = true;
+        adminApp.hidden = false;
+        document.body.classList.add('is-admin');
+        changeTab('write');
+        checkAutoSave();
+        startAutoSave();
+        autosizeTitle();
     }
 
     function showLoginSection() {
-        document.getElementById('login-section').style.display = 'flex';
-        document.getElementById('admin-app').style.display = 'none';
+        loginSection.hidden = false;
+        adminApp.hidden = true;
+        document.body.classList.remove('is-admin');
+        toggleSettings(false);
+        toggleMenu(false);
     }
 
     async function handleLogin() {
-        const email = document.getElementById('login-email').value;
-        const password = document.getElementById('login-password').value;
-        if (!email || !password) return alert("이메일과 비밀번호를 입력해주세요.");
-
-        const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
+        const email = $('login-email').value.trim();
+        const password = $('login-password').value;
+        const message = $('login-message');
+        if (!email || !password) {
+            message.textContent = '이메일과 비밀번호를 입력해 주세요.';
+            (!email ? $('login-email') : $('login-password')).focus();
+            return;
+        }
+        const button = $('login-submit');
+        button.disabled = true;
+        button.textContent = '접속 중…';
+        const { error } = await sbClient.auth.signInWithPassword({ email, password });
+        button.disabled = false;
+        button.textContent = '접속하기';
         if (error) {
-            alert("로그인 실패: " + error.message);
+            message.textContent = '로그인하지 못했습니다 · ' + error.message;
         } else {
+            message.textContent = '';
             showAdminApp();
         }
     }
 
+    $('login-form').addEventListener('submit', event => {
+        event.preventDefault();
+        handleLogin();
+    });
+
     async function handleLogout() {
         await sbClient.auth.signOut();
         showLoginSection();
-        document.getElementById('manage-tbody').innerHTML = ''; // 보안을 위해 화면 데이터 초기화
-        document.getElementById('login-password').value = '';
+        $('manage-tbody').innerHTML = ''; // 보안을 위해 화면 데이터 초기화
+        $('login-password').value = '';
     }
 
-    // 접속 시 바로 세션 체크 실행
-    checkSession();
+    /* ---------- 임시 저장 ---------- */
+    function collectDraft() {
+        return {
+            id: currentEditId,
+            title: titleInput.value,
+            category: categorySelect.value,
+            type: currentPostType,
+            content: editor.getDraftHtml(),
+            thumbnail: designatedThumbnailUrl,
+            panel: designatedPanelUrl
+        };
+    }
 
-    // --- 임시 자동 저장 (Auto-save) 기능 ---
-    function checkAutoSave() {
-        const draftStr = localStorage.getItem(AUTOSAVE_KEY);
-        if (draftStr) {
-            try {
-                const draft = JSON.parse(draftStr);
-                if (draft.title || (draft.content && draft.content !== '<p><br></p>')) {
-                    if (confirm("이전에 작성 중이던 임시 저장 글이 있습니다. 불러오시겠습니까?")) {
-                        currentEditId = draft.id || null;
-                        document.getElementById('post-title').value = draft.title || '';
-                        document.getElementById('post-category').value = draft.category || 'CODING';
-                        
-                        if (draft.thumbnail) {
-                            designatedThumbnailUrl = draft.thumbnail;
-                            document.getElementById('thumbnail-preview-container').style.display = 'flex';
-                            document.getElementById('thumbnail-preview-img').src = designatedThumbnailUrl;
-                        } else {
-                            clearThumbnail();
-                        }
-                        
-                        editorArea.innerHTML = draft.content || '<p><br></p>';
-                        hydrateEditorBlocks();
-                        document.querySelector('.admin-submit').innerText = currentEditId ? "수정 사항 반영" : "서버에 퍼블리싱";
-                        document.getElementById('autosave-status').innerText = '임시 저장 내용 불러옴';
-                    } else {
-                        localStorage.removeItem(AUTOSAVE_KEY);
-                    }
-                }
-            } catch(e) {}
+    function isDraftEmpty(draft) {
+        return !draft.title.trim() && !draft.content.trim();
+    }
+
+    function isDraftBlank() {
+        return !titleInput.value.trim() && editor.isEmpty();
+    }
+
+    function relativeTime(time) {
+        const seconds = (Date.now() - time) / 1000;
+        if (seconds < 45) return '방금';
+        const minutes = Math.round(seconds / 60);
+        if (minutes < 60) return `${minutes}분 전`;
+        const date = new Date(time);
+        return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+    }
+
+    function setSaveState(state) {
+        saveState = state;
+        renderSaveState();
+    }
+
+    function renderSaveState() {
+        const wrap = $('studio-status');
+        let text;
+        let state = saveState;
+        if (activeUploads > 0) {
+            state = 'uploading';
+            text = activeUploads > 1 ? `이미지 ${activeUploads}장 올리는 중` : '이미지 올리는 중';
+        } else {
+            text = {
+                dirty: '저장 중…',
+                saved: `저장됨 · ${relativeTime(lastSavedAt)}`,
+                restored: `임시 저장본 · ${relativeTime(lastSavedAt)}`,
+                loaded: '불러옴',
+                publishing: '올리는 중…',
+                error: '임시 저장 실패',
+                idle: '변경 없음'
+            }[state] || '변경 없음';
         }
+        wrap.dataset.state = state;
+        $('autosave-status').textContent = text;
     }
 
-    function saveDraftNow() {
-        const title = document.getElementById('post-title').value;
-        const category = document.getElementById('post-category').value;
-        const content = getEditorDraftHtml();
-        if (!title && (!content || content.trim() === '' || content === '<p><br></p>')) return;
+    function noteChange() {
+        if (loadingContent) return;
+        hasUnpublishedChanges = true;
+        setSaveState('dirty');
+        clearTimeout(autosaveTimer);
+        autosaveTimer = setTimeout(autosaveIfChanged, 1200);
+    }
 
-        localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({ id: currentEditId, title, category, content, thumbnail: designatedThumbnailUrl, time: Date.now() }));
-        const now = new Date();
-        const status = document.getElementById('autosave-status');
-        if (status) status.innerText = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} · 임시 저장됨`;
+    function autosaveIfChanged() {
+        if (adminApp.hidden) return;
+        const draft = collectDraft();
+        const signature = JSON.stringify(draft);
+        if (signature === lastDraftSignature) {
+            if (saveState === 'dirty') setSaveState(lastSavedAt ? 'saved' : 'idle');
+            return;
+        }
+        saveDraftNow({ draft, signature });
+    }
+
+    function saveDraftNow({ manual = false, draft = collectDraft(), signature = JSON.stringify(draft) } = {}) {
+        clearTimeout(autosaveTimer);
+        if (isDraftEmpty(draft)) {
+            try { localStorage.removeItem(AUTOSAVE_KEY); } catch (error) {}
+            lastDraftSignature = signature;
+            setSaveState('idle');
+            if (manual) showToast('저장할 내용이 아직 없습니다.');
+            return false;
+        }
+        try {
+            localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({ ...draft, time: Date.now() }));
+        } catch (error) {
+            setSaveState('error');
+            if (manual) alert('임시 저장에 실패했습니다: ' + error.message);
+            return false;
+        }
+        lastDraftSignature = signature;
+        lastSavedAt = Date.now();
+        setSaveState('saved');
+        if (manual) showToast('이 브라우저에 임시 저장했습니다.');
+        return true;
     }
 
     function startAutoSave() {
         if (autoSaveInterval) clearInterval(autoSaveInterval);
-        autoSaveInterval = setInterval(saveDraftNow, 10000);
+        autoSaveInterval = setInterval(autosaveIfChanged, 10000);
     }
 
-    // 탭 기능
+    setInterval(() => {
+        if (saveState === 'saved' || saveState === 'restored') renderSaveState();
+    }, 20000);
+
+    function checkAutoSave() {
+        let draft = null;
+        try { draft = JSON.parse(localStorage.getItem(AUTOSAVE_KEY) || 'null'); } catch (error) { draft = null; }
+        const hasContent = draft && (draft.title || (draft.content && draft.content.trim() && draft.content !== '<p><br></p>'));
+        if (!hasContent) {
+            lastDraftSignature = JSON.stringify(collectDraft());
+            return;
+        }
+        const when = draft.time ? ` (${new Date(draft.time).toLocaleString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })})` : '';
+        const name = draft.title ? `「${draft.title}」` : '제목 없는 글';
+        if (confirm(`이전에 작성 중이던 임시 저장 글이 있습니다${when}.\n${name}\n\n불러오시겠습니까?`)) {
+            restoreDraft(draft);
+        } else {
+            try { localStorage.removeItem(AUTOSAVE_KEY); } catch (error) {}
+            lastDraftSignature = JSON.stringify(collectDraft());
+        }
+    }
+
+    function restoreDraft(draft) {
+        currentEditId = draft.id || null;
+        titleInput.value = draft.title || '';
+        setCategory(draft.category || '');
+        setPostType(draft.type || PostType.postType({ content: draft.content, category: draft.category }), { silent: true });
+        draft.thumbnail ? setThumbnail(draft.thumbnail) : clearThumbnail();
+        draft.panel ? showPanelPreview(draft.panel) : clearPanelImage();
+        loadingContent = true;
+        editor.load(draft.content || '');
+        loadingContent = false;
+        afterContentLoaded();
+        lastDraftSignature = JSON.stringify(collectDraft());
+        lastSavedAt = draft.time || Date.now();
+        hasUnpublishedChanges = false;
+        setSaveState('restored');
+    }
+
+    function afterContentLoaded() {
+        autosizeTitle();
+        showTitleHint('');
+        setPublishLabel();
+        setDocState();
+        updateEditorStats();
+    }
+
+    /* ---------- 탭 · 설정 서랍 · 메뉴 ---------- */
     function changeTab(target) {
-        document.querySelectorAll('.admin-section, .admin-tabs button').forEach(el => el.classList.remove('active'));
-        document.getElementById(`sec-${target}`).classList.add('active');
-        document.getElementById(`tab-${target}`).classList.add('active');
+        document.querySelectorAll('.admin-section').forEach(section => section.classList.toggle('active', section.id === `sec-${target}`));
+        document.querySelectorAll('.admin-tabs [data-tab]').forEach(tab => {
+            const on = tab.dataset.tab === target;
+            tab.classList.toggle('active', on);
+            tab.setAttribute('aria-selected', String(on));
+        });
+        document.body.dataset.tab = target;
+        editor.closeFloating();
+        if (target !== 'write') toggleSettings(false);
         if (target === 'manage') loadPostList();
     }
 
-    // 텍스트 조작 & 미리보기 연동
-    const editorArea = document.getElementById('post-content');
-    const editorHeader = document.querySelector('.editor-sticky-header');
-    let savedEditorRange = null;
-    let selectedStructureBlock = null;
-
-    const structureSelector = '.post-split-section, .post-principles';
-
-    function getRangeElement(range = savedEditorRange) {
-        if (!range) return null;
-        let node = range.startContainer;
-        if (node?.nodeType === Node.TEXT_NODE) node = node.parentElement;
-        return node instanceof Element ? node : null;
+    function toggleSettings(force) {
+        const open = typeof force === 'boolean' ? force : !document.body.classList.contains('settings-open');
+        document.body.classList.toggle('settings-open', open);
+        $('settings-toggle').setAttribute('aria-expanded', String(open));
+        if (open) setTimeout(() => document.querySelector('.settings-close')?.focus({ preventScroll: true }), 60);
     }
 
-    function saveEditorSelection() {
-        const selection = window.getSelection();
-        if (!selection?.rangeCount) return;
-        const range = selection.getRangeAt(0);
-        if (!editorArea.contains(range.commonAncestorContainer)) return;
-        savedEditorRange = range.cloneRange();
-        syncSelectedStructureBlock();
-        syncInlineCommandState();
+    function toggleMenu(force) {
+        const wrap = $('studio-menu');
+        const open = typeof force === 'boolean' ? force : !wrap.classList.contains('is-open');
+        wrap.classList.toggle('is-open', open);
+        $('menu-toggle').setAttribute('aria-expanded', String(open));
     }
 
-    function restoreEditorSelection() {
-        editorArea.focus({ preventScroll: true });
-        const selection = window.getSelection();
-        if (!selection) return false;
-        selection.removeAllRanges();
-        if (savedEditorRange && editorArea.contains(savedEditorRange.commonAncestorContainer)) {
-            try {
-                selection.addRange(savedEditorRange);
-                return true;
-            } catch (error) {}
-        }
-        const range = document.createRange();
-        range.selectNodeContents(editorArea);
-        range.collapse(false);
-        selection.addRange(range);
-        savedEditorRange = range.cloneRange();
-        return false;
-    }
-
-    function placeCaretAtStart(element) {
-        if (!element) return;
-        const range = document.createRange();
-        range.selectNodeContents(element);
-        range.collapse(true);
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-        savedEditorRange = range.cloneRange();
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        syncSelectedStructureBlock();
-    }
-
-    function dispatchEditorInput() {
-        editorArea.dispatchEvent(new Event('input', { bubbles: true }));
-        saveEditorSelection();
-    }
-
-    function getActiveStructureBlock() {
-        return getRangeElement()?.closest(structureSelector) || selectedStructureBlock;
-    }
-
-    function getActivePrincipleItem() {
-        const element = getRangeElement();
-        return element?.closest('.post-principles > li') || null;
-    }
-
-    function syncSelectedStructureBlock() {
-        const block = getRangeElement()?.closest(structureSelector) || null;
-        if (selectedStructureBlock && selectedStructureBlock !== block) {
-            selectedStructureBlock.classList.remove('is-selected-block');
-        }
-        selectedStructureBlock = block;
-        selectedStructureBlock?.classList.add('is-selected-block');
-        document.querySelectorAll('.structure-context-btn').forEach((button) => {
-            const principlesOnly = !button.classList.contains('structure-delete-btn');
-            button.disabled = principlesOnly ? !block?.matches('.post-principles') : !block;
-        });
-    }
-
-    function syncInlineCommandState() {
-        document.querySelectorAll('[data-inline-command]').forEach((button) => {
-            let active = false;
-            try { active = document.queryCommandState(button.dataset.inlineCommand); } catch (error) {}
-            button.classList.toggle('is-command-active', active);
-            button.setAttribute('aria-pressed', String(active));
-        });
-
-        const formatSelect = document.getElementById('block-format-select');
-        const element = getRangeElement();
-        const block = element?.closest('h1, h2, h3, p');
-        if (formatSelect && block) formatSelect.value = block.tagName;
-    }
-
-    document.addEventListener('selectionchange', saveEditorSelection);
-    editorArea.addEventListener('pointerup', saveEditorSelection);
-    editorArea.addEventListener('keyup', saveEditorSelection);
-    editorArea.addEventListener('input', () => {
-        hydrateEditorBlocks();
-        saveEditorSelection();
-        updateEditorStats();
-        const status = document.getElementById('autosave-status');
-        if (status) status.innerText = '저장되지 않은 변경 사항';
+    document.addEventListener('pointerdown', event => {
+        if (!$('studio-menu').contains(event.target)) toggleMenu(false);
     });
 
-    document.getElementById('post-title').addEventListener('input', () => {
-        updateEditorStats();
-        const status = document.getElementById('autosave-status');
-        if (status) status.innerText = '저장되지 않은 변경 사항';
-    });
+    function setPublishLabel() {
+        publishBtn.textContent = isPublishing ? '올리는 중…' : (currentEditId ? '수정 반영' : '퍼블리싱');
+    }
+
+    function setDocState(post) {
+        const state = $('doc-state');
+        if (!currentEditId) { state.textContent = '새 글'; return; }
+        const created = post?.created_at || allPostsData.find(item => item.id === currentEditId)?.created_at;
+        state.textContent = created ? `수정 중 · ${created.split('T')[0]}` : '수정 중';
+    }
 
     function updateEditorStats() {
-        const text = editorArea.innerText.replace(/\s+/g, ' ').trim();
-        const characters = text.replace(/\s/g, '').length;
-        const minutes = characters ? Math.max(1, Math.ceil(characters / 500)) : 0;
-        const stats = document.getElementById('editor-live-stats');
-        if (stats) stats.textContent = `${characters.toLocaleString('ko-KR')}자 · 약 ${minutes}분`;
+        const stats = editor.stats();
+        $('stat-chars').textContent = stats.characters.toLocaleString('ko-KR');
+        $('stat-minutes').textContent = `${stats.minutes}분`;
+        $('stat-images').textContent = String(stats.images);
     }
 
-    document.addEventListener('keydown', (event) => {
-        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
-            event.preventDefault();
-            saveDraftNow();
-        }
-    });
-    updateEditorStats();
+    /* ---------- 템플릿 ---------- */
+    const TEMPLATES = {
+        basic: `<p class="lead-text">여기에 도입부를 적습니다. 이 글이 무엇에 관한 글인지 한두 문장으로.</p>
+<div class="in-editor-dropzone" data-layout="big"></div>
+<h2>첫 번째 이야기</h2>
+<p>본문을 적습니다. 문장 일부를 골라 <span class="high">형광 강조</span>를 할 수 있습니다.</p>
+<h2>두 번째 이야기</h2>
+<p>추가 내용을 적습니다.</p>
+<div class="note-box">중요한 메모나 강조할 노트를 여기에 둡니다.</div>`,
+        portfolio: `<p><span class="chip-blue">개인 프로젝트</span> <span class="chip-blue">2026.01 — 2026.03</span></p>
+<p class="lead-text">이 프로젝트는 어떤 문제를 풀기 위해 시작되었습니다.</p>
+<div class="in-editor-dropzone" data-layout="big"></div>
+<h2>Background</h2>
+<p>기획 배경과 문제 정의를 적습니다.</p>
+<h2>Process</h2>
+<div class="in-editor-dropzone" data-layout="grid-3"></div>
+<p>과정을 설명합니다.</p>
+<h2>Result</h2>
+<blockquote>최종 결과와 주요 성과를 요약합니다.</blockquote>`,
+        gallery: `<p class="lead-text">이 사진들에 대한 짧은 소개. 장소와 시기, 무엇을 보았는지.</p>
+<div class="in-editor-dropzone" data-layout="big"></div>
+<p>사진 사이에 놓일 짧은 메모.</p>
+<div class="in-editor-dropzone" data-layout="big"></div>
+<p>다음 사진에 대한 메모.</p>
+<div class="in-editor-dropzone" data-layout="grid-2"></div>`,
+        retrospective: `<p class="lead-text">이번 달을 Keep · Problem · Try로 돌아봅니다.</p>
+<h2>Keep</h2>
+<ul><li>이번 달에 잘한 점을 적습니다.</li><li>계속 이어갈 좋은 습관을 적습니다.</li></ul>
+<h2>Problem</h2>
+<ul><li>아쉬웠던 점이나 겪었던 문제를 적습니다.</li><li><span class="high">핵심적인 문제 원인</span>을 짚어 봅니다.</li></ul>
+<div class="note-box">문제에 대한 솔직한 생각을 메모합니다.</div>
+<h2>Try</h2>
+<ul><li>다음 달에 새로 시도할 일을 적습니다.</li><li>구체적이고 실천할 수 있는 목표로.</li></ul>`,
+        news: `<p><span class="chip-blue">Tech Article</span> <span class="muted-text">작성자 · YYYY.MM.DD</span></p>
+<p class="lead-text">이 아티클의 핵심을 먼저 요약해 읽는 사람의 흥미를 붙잡습니다.</p>
+<div class="in-editor-dropzone" data-layout="big"></div>
+<p>본문 첫 단락입니다.</p>
+<blockquote>관련 인물이나 자료의 인용을 넣습니다.</blockquote>
+<h2>세부 내용</h2>
+<p>본문 두 번째 단락입니다. 필요하면 <b>강조</b>로 읽기 쉽게 만듭니다.</p>`,
+        principles: `<section class="post-split-section"><h2>서비스 원칙</h2><div class="post-split-content"><p><strong>이 섹션을 설명하는 핵심 문장을 입력하세요.</strong></p><ol class="post-principles"><li><div class="principle-copy"><p class="principle-title"><strong>첫 번째 원칙의 제목</strong></p><p>원칙에 대한 구체적인 설명을 입력하세요.</p></div></li><li><div class="principle-copy"><p class="principle-title"><strong>두 번째 원칙의 제목</strong></p><p>원칙에 대한 구체적인 설명을 입력하세요.</p></div></li><li><div class="principle-copy"><p class="principle-title"><strong>세 번째 원칙의 제목</strong></p><p>원칙에 대한 구체적인 설명을 입력하세요.</p></div></li></ol></div></section>`
+    };
 
-    editorHeader?.addEventListener('mousedown', (event) => {
-        if (event.target.closest('button')) event.preventDefault();
-    });
-
-    // 에디터 활성화 시 기본 단락을 p 태그로 설정 (엔터 시 div 대신 p 생성)
-    editorArea.addEventListener('focus', () => {
-        document.execCommand('defaultParagraphSeparator', false, 'p');
-    });
-
-    editorArea.addEventListener('keydown', (e) => {
-        // 단축키 지원 (Ctrl/Cmd + B, I, U)
-        if (e.ctrlKey || e.metaKey) {
-            switch (e.key.toLowerCase()) {
-                case 'b': e.preventDefault(); execCmd('bold'); break;
-                case 'i': e.preventDefault(); execCmd('italic'); break;
-                case 'u': e.preventDefault(); execCmd('underline'); break;
-                case 'y': e.preventDefault(); execCmd('redo'); break;
-            }
-        }
-
-        if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown') && getActivePrincipleItem()) {
-            e.preventDefault();
-            movePrincipleItem(e.key === 'ArrowUp' ? -1 : 1);
-        }
-        
-        // 에디터가 완전히 비워지는 것을 방지 (기본 p 태그 유지)
-        if (e.key === 'Backspace' || e.key === 'Delete') {
-            setTimeout(() => {
-                if (editorArea.innerHTML.trim() === '' || editorArea.innerHTML === '<br>') {
-                    editorArea.innerHTML = '<p><br></p>';
-                }
-            }, 10);
-        }
-    });
-
-    function insertHtmlAtCursor(html) {
-        restoreEditorSelection();
-        document.execCommand('defaultParagraphSeparator', false, 'p');
-        // 브라우저의 기본 Undo(Ctrl+Z) 스택에 기록되도록 execCommand 사용
-        document.execCommand('insertHTML', false, html);
-        attachStoryListenersToEditor();
-        hydrateEditorBlocks();
-        saveEditorSelection();
+    function applyTemplate(name) {
+        const html = TEMPLATES[name];
+        if (!html) return;
+        if (!editor.isEmpty() && !confirm('본문을 이 템플릿으로 바꿀까요? 지금 본문은 사라지지만 실행 취소(Ctrl+Z)로 되돌릴 수 있습니다.')) return;
+        editor.replaceAll(html);
+        toggleSettings(false);
+        showToast('템플릿을 적용했습니다. 빈 이미지 블록을 눌러 사진을 넣으세요.');
     }
 
-    function execCmd(command, value = null) {
-        restoreEditorSelection();
-        document.execCommand(command, false, value);
-        saveEditorSelection();
-    }
-
-    function wrapSelectionWithClass(tagName, className) {
-        restoreEditorSelection();
-        const selection = window.getSelection();
-        
-        // 텍스트가 선택되지 않았을 경우(빈 커서) 플레이스홀더 텍스트를 자동 삽입해 사용성 대폭 강화
-        if (!selection.rangeCount || selection.isCollapsed) {
-            let placeholder = "텍스트 입력";
-            if (className === 'chip-blue') placeholder = "칩 텍스트";
-            if (className === 'lead-text') placeholder = "리드 텍스트";
-            if (className === 'muted-text') placeholder = "보조 텍스트";
-            if (className === 'high') placeholder = "형광펜 텍스트";
-            
-            const html = `<${tagName} class="${className}">${placeholder}</${tagName}>&#8203;`;
-            document.execCommand('insertHTML', false, html);
-            return;
-        }
-        
-        const range = selection.getRangeAt(0);
-        const container = document.createElement('div');
-        container.appendChild(range.cloneContents());
-        const selectedHtml = container.innerHTML;
-        
-        // 태그로 감싸고 그 뒤에 띄어쓰기가 보이지 않는 '제로 너비 공백(&#8203;)' 삽입
-        // 이 공백 덕분에 커서가 span 태그 밖으로 빠져나오게 되어, 이후 타이핑 시 스타일이 옮겨붙지 않음.
-        const html = `<${tagName} class="${className}">${selectedHtml}</${tagName}>&#8203;`;
-        
-        // insertHTML을 사용해 서식 지정도 Ctrl+Z가 가능하도록 처리
-        document.execCommand('insertHTML', false, html);
-    }
-    
-    // 브라우저 기본 removeFormat이 지우지 못하는 커스텀 클래스를 완벽히 지워주는 함수
-    function removeCustomFormat() {
-        restoreEditorSelection();
-        document.execCommand('removeFormat', false, null); // 기본 서식(b, i, u 등) 제거
-        
-        const selection = window.getSelection();
-        if (!selection.isCollapsed) {
-            let range = selection.getRangeAt(0);
-            let container = range.commonAncestorContainer;
-            if (container.nodeType === 3) container = container.parentNode;
-            
-            // 커스텀 span 및 폰트 크기 스타일이 적용된 span 지우기
-            const spans = container.querySelectorAll ? container.querySelectorAll('span') : [];
-            spans.forEach(span => {
-                if (span.className.match(/high|lead-text|muted-text|chip-blue/) || span.style.fontSize) {
-                    span.outerHTML = span.innerHTML;
-                }
-            });
-            
-            if (container.tagName === 'SPAN' && (container.className.match(/high|lead-text|muted-text|chip-blue/) || container.style.fontSize)) {
-                container.outerHTML = container.innerHTML;
-            }
-        }
-    }
-
-    // 시맨틱(Semantic) 문단(제목) 포맷 적용 (H1, H2, P 등)
-    function changeTextFormat(select) {
-        if (!select.value) return;
-        restoreEditorSelection();
-        document.execCommand('formatBlock', false, select.value);
-        saveEditorSelection();
-    }
-
-    // 자유로운 커스텀 폰트 크기(px 단위) 적용 (브라우저 호환성 완벽 지원 방식)
-    function changeFontSize(select) {
-        const size = select.value;
-        if (!size) return;
-        restoreEditorSelection();
-        
-        document.execCommand('fontSize', false, '7'); // 임시 마커 삽입
-        
-        const fonts = editorArea.querySelectorAll('font[size="7"]');
-        fonts.forEach(font => {
-            const span = document.createElement('span');
-            span.style.fontSize = size;
-            span.innerHTML = font.innerHTML; // 내부 텍스트 복사
-            font.replaceWith(span); // 임시 마커를 커스텀 span으로 교체
-        });
-        
-        select.value = ''; // 선택 초기화
-        saveEditorSelection();
-    }
-
-    function hydrateEditorBlocks() {
-        editorArea.querySelectorAll('.post-split-section').forEach((block) => {
-            block.dataset.editorBlock = 'split-section';
-        });
-        editorArea.querySelectorAll('.post-principles').forEach((block) => {
-            block.dataset.editorBlock = 'principles';
-        });
-    }
-
-    function insertStructureHtml(html, focusSelector) {
-        const token = `editor-block-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-        insertHtmlAtCursor(html.replace('data-insert-token=""', `data-insert-token="${token}"`));
-        const inserted = editorArea.querySelector(`[data-insert-token="${token}"]`);
-        inserted?.removeAttribute('data-insert-token');
-        hydrateEditorBlocks();
-        const focusTarget = inserted?.querySelector(focusSelector) || inserted;
-        placeCaretAtStart(focusTarget);
-        dispatchEditorInput();
-    }
-
-    function insertSplitSection() {
-        insertStructureHtml(`
-            <section class="post-split-section" data-insert-token="">
-                <h2>섹션 제목</h2>
-                <div class="post-split-content">
-                    <p><strong>이 섹션의 핵심 문장을 입력하세요.</strong></p>
-                    <p>오른쪽 본문 내용을 작성하세요.</p>
-                </div>
-            </section>
-            <p><br></p>
-        `, 'h2');
-    }
-
-    function insertPrincipleList() {
-        insertStructureHtml(`
-            <ol class="post-principles" data-insert-token="">
-                <li>
-                    <div class="principle-copy">
-                        <p class="principle-title"><strong>첫 번째 원칙의 제목</strong></p>
-                        <p>원칙에 대한 설명을 입력하세요.</p>
-                    </div>
-                </li>
-                <li>
-                    <div class="principle-copy">
-                        <p class="principle-title"><strong>두 번째 원칙의 제목</strong></p>
-                        <p>원칙에 대한 설명을 입력하세요.</p>
-                    </div>
-                </li>
-            </ol>
-            <p><br></p>
-        `, '.principle-title');
-    }
-
-    function createPrincipleItem() {
-        const item = document.createElement('li');
-        item.innerHTML = `
-            <div class="principle-copy">
-                <p class="principle-title"><strong>새 원칙의 제목</strong></p>
-                <p>원칙에 대한 설명을 입력하세요.</p>
-            </div>
-        `;
-        return item;
-    }
-
-    function addPrincipleItem() {
-        const list = getActiveStructureBlock();
-        if (!list?.matches('.post-principles')) return;
-        const current = getActivePrincipleItem();
-        const item = createPrincipleItem();
-        if (current) current.after(item);
-        else list.appendChild(item);
-        placeCaretAtStart(item.querySelector('.principle-title'));
-        dispatchEditorInput();
-    }
-
-    function removePrincipleItem() {
-        const item = getActivePrincipleItem();
-        const list = item?.parentElement;
-        if (!item || !list?.matches('.post-principles')) return;
-        if (list.children.length <= 1) {
-            alert('번호 목록에는 최소 한 개의 항목이 필요합니다. 전체 목록은 블록 삭제를 사용하세요.');
-            return;
-        }
-        const nextFocus = item.nextElementSibling || item.previousElementSibling;
-        item.remove();
-        placeCaretAtStart(nextFocus?.querySelector('.principle-title'));
-        dispatchEditorInput();
-    }
-
-    function movePrincipleItem(direction) {
-        const item = getActivePrincipleItem();
-        if (!item) return;
-        const sibling = direction < 0 ? item.previousElementSibling : item.nextElementSibling;
-        if (!sibling) return;
-        if (direction < 0) sibling.before(item);
-        else sibling.after(item);
-        placeCaretAtStart(item.querySelector('.principle-title'));
-        dispatchEditorInput();
-    }
-
-    function removeStructureBlock() {
-        const block = getActiveStructureBlock();
-        if (!block) return;
-        const paragraph = document.createElement('p');
-        paragraph.innerHTML = '<br>';
-        block.replaceWith(paragraph);
-        selectedStructureBlock = null;
-        placeCaretAtStart(paragraph);
-        dispatchEditorInput();
-    }
-
-    function sanitizePastedHtml(html) {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(`<div>${html}</div>`, 'text/html');
-        const root = doc.body.firstElementChild;
-        const forbidden = new Set(['SCRIPT', 'STYLE', 'LINK', 'META', 'IFRAME', 'OBJECT', 'EMBED', 'FORM', 'INPUT', 'TEXTAREA', 'SELECT']);
-        const allowedClass = /^(post-split-section|post-split-content|post-principles|principle-copy|principle-title|high|lead-text|muted-text|chip-blue|quote-box|note-box|caption|line|image-grid|image-grid-[23]|big|mini|hidden-thumbnail|story-[a-z0-9-]+)$/;
-
-        [...root.querySelectorAll('*')].forEach((element) => {
-            if (forbidden.has(element.tagName)) {
-                element.remove();
-                return;
-            }
-
-            [...element.attributes].forEach((attribute) => {
-                const name = attribute.name.toLowerCase();
-                const keep = ['href', 'src', 'alt', 'title', 'target', 'rel', 'colspan', 'rowspan', 'class'].includes(name) || name === 'data-layout';
-                if (!keep || name.startsWith('on')) element.removeAttribute(attribute.name);
-            });
-
-            if (element.hasAttribute('class')) {
-                const classes = [...element.classList].filter((className) => allowedClass.test(className));
-                if (classes.length) element.className = classes.join(' ');
-                else element.removeAttribute('class');
-            }
-
-            if (element.tagName === 'A' && element.getAttribute('target') === '_blank') {
-                element.setAttribute('rel', 'noopener noreferrer');
-            }
-        });
-
-        return root.innerHTML;
-    }
-
-    editorArea.addEventListener('paste', (event) => {
-        const clipboard = event.clipboardData;
-        if (!clipboard) return;
-        const html = clipboard.getData('text/html');
-        const text = clipboard.getData('text/plain');
-        event.preventDefault();
-        restoreEditorSelection();
-        if (html) document.execCommand('insertHTML', false, sanitizePastedHtml(html));
-        else document.execCommand('insertText', false, text);
-        hydrateEditorBlocks();
-        saveEditorSelection();
+    $('template-list').addEventListener('click', event => {
+        const button = event.target.closest('[data-template]');
+        if (button) applyTemplate(button.dataset.template);
     });
 
-    function cloneEditorForStorage() {
-        const clone = editorArea.cloneNode(true);
-        clone.querySelectorAll('.is-selected-block').forEach((element) => element.classList.remove('is-selected-block'));
-        return clone;
-    }
-
-    function getEditorDraftHtml() {
-        return cloneEditorForStorage().innerHTML;
-    }
-
-    function getCleanEditorHtml() {
-        const clone = cloneEditorForStorage();
-        clone.querySelectorAll('[data-editor-block], [data-insert-token]').forEach((element) => {
-            element.removeAttribute('data-editor-block');
-            element.removeAttribute('data-insert-token');
-        });
-        clone.querySelectorAll('[contenteditable], [onclick]').forEach((element) => {
-            element.removeAttribute('contenteditable');
-            element.removeAttribute('onclick');
-        });
-        return clone.innerHTML.replace(/\u200B/g, '').trim();
-    }
-
-    hydrateEditorBlocks();
-    syncSelectedStructureBlock();
-
-    function applySelectedTemplate() {
-        const select = document.getElementById('template-select');
-        const type = select.value;
-        if (!type) return alert("적용할 템플릿을 드롭다운에서 먼저 선택해주세요.");
-        
-        const currentContent = editorArea.innerHTML.trim();
-        if (currentContent !== '' && currentContent !== '<p><br></p>') {
-            if (!confirm("기존 내용이 모두 지워집니다. 정말 템플릿을 덮어씌우시겠습니까? (Ctrl+Z로 복구 가능합니다)")) return;
-        }
-
-        // 템플릿용 인터랙티브 미디어 블록 HTML 셋
-        const dropBig = `\n<div class="in-editor-dropzone" contenteditable="false" data-layout="big" onclick="triggerInlineUpload(this)">\n    <div style="font-size:1.2rem; margin-bottom:0.5rem; pointer-events:none;">전체 너비 (Big) 블록</div>\n    <div style="font-size:0.9rem; font-weight:normal; pointer-events:none;">여기에 이미지를 드래그 앤 드롭하거나 <b>클릭</b>하세요</div>\n</div>\n`;
-        const dropGrid2 = `\n<div class="in-editor-dropzone" contenteditable="false" data-layout="grid-2" onclick="triggerInlineUpload(this)">\n    <div style="font-size:1.2rem; margin-bottom:0.5rem; pointer-events:none;">2열 그리드 블록</div>\n    <div style="font-size:0.9rem; font-weight:normal; pointer-events:none;">여기에 여러 장의 이미지를 드래그 앤 드롭하거나 <b>클릭</b>하세요</div>\n</div>\n`;
-        const dropGrid3 = `\n<div class="in-editor-dropzone" contenteditable="false" data-layout="grid-3" onclick="triggerInlineUpload(this)">\n    <div style="font-size:1.2rem; margin-bottom:0.5rem; pointer-events:none;">3열 그리드 블록</div>\n    <div style="font-size:0.9rem; font-weight:normal; pointer-events:none;">여기에 여러 장의 이미지를 드래그 앤 드롭하거나 <b>클릭</b>하세요</div>\n</div>\n`;
-
-        let template = '';
-        switch(type) {
-            case 'basic':
-                template = `
-                    <h1 id="margin_100px">글 제목을 입력하세요</h1>
-                    <h2 id="margin_20px">YYYY-MM-DD</h2>
-                    <p><span class="lead-text">여기에 리드 텍스트(도입부)를 작성합니다.</span><br>핵심 목표와 내용을 간단히 적어주세요.</p>
-                    <hr class="line">
-                    ${dropBig}
-                    <p>본문 내용을 작성합니다. 텍스트 중간에 <span class="high">형광펜 강조</span>를 사용할 수 있습니다.</p>
-                    <h1 id="margin_100px">소제목 입력</h1>
-                    <p>추가 내용을 작성하세요.</p>
-                    <div class="note-box">중요한 메모나 강조할 노트를 여기에 넣습니다.</div>
-                    <p><br></p>
-                `;
-                break;
-            case 'portfolio':
-                template = `
-                    <h1 id="margin_100px">프로젝트 명</h1>
-                    <h2 id="margin_20px">Role: UI/UX Design</h2>
-                    <p><span class="chip-blue">개인 프로젝트</span> <span class="chip-blue">2023.09 - 2023.12</span></p>
-                    <p><span class="lead-text">이 프로젝트는 어떤 문제를 해결하기 위해 시작되었습니다.</span></p>
-                    <hr class="line">
-                    ${dropBig}
-                    <h1 id="margin_100px">1. Background</h1>
-                    <p>기획 배경 및 문제 정의를 작성합니다.</p>
-                    <h1 id="margin_100px">2. Process</h1>
-                    ${dropGrid3}
-                    <h1 id="margin_100px">3. Result</h1>
-                    <blockquote class="quote-box">최종 결과와 달성한 주요 성과를 요약합니다.</blockquote>
-                    <p><br></p>
-                `;
-                break;
-            case 'gallery':
-                template = `
-                    <h1 id="margin_100px">갤러리 타이틀</h1>
-                    <h2 id="margin_20px">사진전 / 스냅 / 여행</h2>
-                    <p class="muted-text">사진에 대한 짧은 감상이나 촬영 장소를 적어보세요.</p>
-                    <hr class="line">
-                    ${dropBig}
-                    <p class="caption">사진 1에 대한 설명 캡션</p>
-                    ${dropGrid2}
-                    <p class="caption">사진 2, 3에 대한 부가 설명</p>
-                    <p><br></p>
-                `;
-                break;
-            case 'retrospective':
-                template = `
-                    <h1 id="margin_100px">N월 회고록</h1>
-                    <h2 id="margin_20px">KPT 회고 (Keep / Problem / Try)</h2>
-                    <hr class="line">
-                    <h1 id="margin_100px">Keep (유지할 점)</h1>
-                    <ul>
-                        <li>이번 달에 잘한 점을 작성하세요.</li>
-                        <li>계속해서 이어갈 좋은 습관을 적습니다.</li>
-                    </ul>
-                    <h1 id="margin_100px">Problem (문제점)</h1>
-                    <ul>
-                        <li>아쉬웠던 점이나 겪었던 문제를 작성하세요.</li>
-                        <li><span class="high">핵심적인 문제 원인</span>을 분석해 봅니다.</li>
-                    </ul>
-                    <div class="note-box">문제에 대한 나의 감정이나 솔직한 생각 메모</div>
-                    <h1 id="margin_100px">Try (시도할 점)</h1>
-                    <ul>
-                        <li>다음 달에 새롭게 시도할 액션 아이템을 작성하세요.</li>
-                        <li>구체적이고 실천 가능한 목표를 적습니다.</li>
-                    </ul>
-                    <p><br></p>
-                `;
-                break;
-            case 'news':
-                template = `
-                    <h1 id="margin_100px">아티클 / 뉴스 타이틀</h1>
-                    <h2 id="margin_20px">부제목이나 요약 문장을 여기에 적습니다.</h2>
-                    <p><span class="chip-blue">Tech Article</span> <span class="muted-text">작성자 | YYYY.MM.DD</span></p>
-                    <hr class="line">
-                    <p><span class="lead-text">이 아티클의 핵심 내용을 먼저 요약하여 독자의 흥미를 유발합니다.</span></p>
-                    ${dropBig}
-                    <p>본문 첫 번째 단락입니다.</p>
-                    <blockquote class="quote-box">전문가 또는 관련 인터뷰 인용구를 넣습니다.</blockquote>
-                    <h1 id="margin_100px">세부 내용 파고들기</h1>
-                    <p>본문 두 번째 단락입니다. 필요한 경우 <b>강조 텍스트</b>를 사용하여 가독성을 높입니다.</p>
-                    <p><br></p>
-                `;
-                break;
-            case 'principles':
-                template = `
-                    <section class="post-split-section">
-                        <h2>서비스 원칙</h2>
-                        <div class="post-split-content">
-                            <p><strong>이 섹션을 설명하는 핵심 문장을 입력하세요.</strong></p>
-                            <ol class="post-principles">
-                                <li>
-                                    <div class="principle-copy">
-                                        <p class="principle-title"><strong>첫 번째 원칙의 제목</strong></p>
-                                        <p>원칙에 대한 구체적인 설명을 입력하세요.</p>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="principle-copy">
-                                        <p class="principle-title"><strong>두 번째 원칙의 제목</strong></p>
-                                        <p>원칙에 대한 구체적인 설명을 입력하세요.</p>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="principle-copy">
-                                        <p class="principle-title"><strong>세 번째 원칙의 제목</strong></p>
-                                        <p>원칙에 대한 구체적인 설명을 입력하세요.</p>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="principle-copy">
-                                        <p class="principle-title"><strong>네 번째 원칙의 제목</strong></p>
-                                        <p>원칙에 대한 구체적인 설명을 입력하세요.</p>
-                                    </div>
-                                </li>
-                            </ol>
-                        </div>
-                    </section>
-                    <p><br></p>
-                `;
-                break;
-        }
-        
-        editorArea.focus();
-        document.execCommand('selectAll', false, null); // 기존 내용 모두 선택
-        document.execCommand('insertHTML', false, template); // 덮어씌우기 (Ctrl+Z 스택 등록)
-        hydrateEditorBlocks();
-        dispatchEditorInput();
-        select.value = ''; // 드롭다운 초기화
-    }
-
-    // 서버 전송 및 관리 로직
-    let currentEditId = null;
-    let allPostsData = [];
-
+    /* ---------- 새 글 ---------- */
     function resetWriteForm() {
-        const currentContent = editorArea.innerHTML.trim();
-        if (currentContent !== '' && currentContent !== '<p><br></p>') {
-            if (!confirm("새 글을 작성하시겠습니까? 현재 작성 중인 내용은 지워집니다.")) return;
-        }
-
+        if (!isDraftBlank() && !confirm('새 글을 작성하시겠습니까? 현재 작성 중인 내용은 지워집니다.')) return;
         currentEditId = null;
-        document.getElementById('post-title').value = '';
-        document.getElementById('post-category').value = 'CODING';
-        clearThumbnail(); // 초기화 시 썸네일도 제거
-        
-        editorArea.focus();
-        document.execCommand('selectAll', false, null);
-        document.execCommand('insertHTML', false, '<p><br></p>');
-        savedEditorRange = null;
-        selectedStructureBlock = null;
-        syncSelectedStructureBlock();
-
-        document.querySelector('.admin-submit').innerText = "서버에 퍼블리싱";
-        document.getElementById('autosave-status').innerText = '';
-        localStorage.removeItem(AUTOSAVE_KEY); // 자동 저장 데이터 날리기
+        titleInput.value = '';
+        setCategory('');
+        setPostType('blog', { silent: true });
+        clearThumbnail();
+        clearPanelImage();
+        loadingContent = true;
+        editor.load('');
+        loadingContent = false;
+        try { localStorage.removeItem(AUTOSAVE_KEY); } catch (error) {}
+        clearTimeout(autosaveTimer);
+        lastDraftSignature = JSON.stringify(collectDraft());
+        lastSavedAt = 0;
+        hasUnpublishedChanges = false;
+        setSaveState('idle');
         changeTab('write');
+        afterContentLoaded();
+        window.scrollTo({ top: 0 });
+        titleInput.focus({ preventScroll: true });
+    }
+
+    /* ---------- 퍼블리싱 ---------- */
+    function requestPublish() {
+        if (isPublishing || adminApp.hidden) return;
+        if (document.body.dataset.tab !== 'write') changeTab('write');
+        if (activeUploads > 0) return showToast('이미지 업로드가 끝나면 퍼블리싱할 수 있습니다.');
+        if (!titleInput.value.trim()) {
+            showTitleHint('제목을 입력해 주세요.');
+            window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+            titleInput.focus({ preventScroll: true });
+            return;
+        }
+        if (editor.isEmpty()) {
+            showToast('본문이 비어 있습니다. 글이나 이미지를 넣어 주세요.');
+            editor.focusFirst();
+            return;
+        }
+        const stats = editor.stats();
+        $('publish-dialog-kicker').textContent = currentEditId ? '수정 반영' : '퍼블리싱';
+        $('publish-dialog-title').textContent = currentEditId ? '수정한 내용을 반영할까요?' : '이 글을 사이트에 올릴까요?';
+        $('publish-sum-title').textContent = titleInput.value.trim();
+        $('publish-sum-type').textContent = TYPE_LABEL[currentPostType];
+        $('publish-sum-category').textContent = Tags.label(categorySelect.value) || '없음';
+        $('publish-sum-size').textContent = `${stats.characters.toLocaleString('ko-KR')}자 · 이미지 ${stats.images}장`;
+        $('publish-sum-thumb').textContent = designatedThumbnailUrl ? '지정됨' : '본문의 첫 이미지';
+        const skipped = [];
+        const empty = editor.emptyMediaCount();
+        const badButtons = editor.invalidButtonCount();
+        if (empty) skipped.push(`비어 있는 이미지 블록 ${empty}개`);
+        if (badButtons) skipped.push(`주소가 없거나 쓸 수 없는 버튼 ${badButtons}개`);
+        const note = $('publish-note');
+        note.hidden = !skipped.length;
+        note.textContent = skipped.length ? `${skipped.join(', ')}는 빼고 올라갑니다.` : '';
+        $('publish-confirm').textContent = currentEditId ? '반영하기' : '퍼블리싱';
+        editor.closeFloating();
+        publishDialog.showModal();
+        $('publish-confirm').focus();
+    }
+
+    function confirmPublish() {
+        if (publishDialog.open) publishDialog.close();
+        uploadPost();
+    }
+
+    function setPublishing(on) {
+        isPublishing = on;
+        publishBtn.disabled = on;
+        setPublishLabel();
+        if (on) setSaveState('publishing');
     }
 
     async function uploadPost() {
-        const title = document.getElementById('post-title').value;
-        const category = document.getElementById('post-category').value;
-        if (editorArea.querySelector('.in-editor-dropzone')) {
-            return alert('아직 이미지가 들어가지 않은 미디어 블록이 있습니다. 이미지를 추가하거나 해당 블록을 삭제해주세요.');
-        }
-        let content = getCleanEditorHtml();
-        
-        // 기존 썸네일 태그 찌꺼기 제거
-        content = content.replace(/<img[^>]*class="hidden-thumbnail"[^>]*>\n?/g, '');
-        
-        // 대표 썸네일이 지정되어 있다면 내용 최상단에 숨김 이미지로 삽입
-        if (designatedThumbnailUrl) {
-            content = `<img class="hidden-thumbnail" src="${designatedThumbnailUrl}" alt="thumbnail">\n` + content;
-        }
-        
-        if(!title || !content || content === '<p><br></p>') return alert("제목과 내용을 모두 작성해주세요!");
+        if (isPublishing) return;
+        const title = titleInput.value.trim();
+        const category = categorySelect.value;
+        if (activeUploads > 0) return showToast('이미지 업로드가 끝나면 퍼블리싱할 수 있습니다.');
 
+        let content = getCleanEditorHtml();
+        // 기존 썸네일 태그와 표시용 주석 찌꺼기 제거
+        content = content.replace(HIDDEN_THUMBNAIL, '').replace(PANEL_MARK, '').replace(PostType.TYPE_MARK_ALL, '');
+        if (!title || !content.trim()) return alert('제목과 내용을 모두 작성해주세요!');
+
+        // 순서: 숨김 썸네일 → 우측 패널 주석 → 글 유형 주석 → 본문
+        content = PostType.mark(currentPostType) + '\n' + content;
+        if (designatedPanelUrl) content = `<!--swblog:panel ${designatedPanelUrl}-->\n` + content;
+        if (designatedThumbnailUrl) content = `<img class="hidden-thumbnail" src="${designatedThumbnailUrl}" alt="thumbnail">\n` + content;
+
+        setPublishing(true);
         let error;
         if (currentEditId) {
             const res = await sbClient.from('posts').update({ title, category, content }).eq('id', currentEditId);
@@ -991,16 +1022,21 @@
             const res = await sbClient.from('posts').insert([{ title, category, content }]);
             error = res.error;
         }
-        
-        if(error) {
-            alert("저장 실패: " + error.message);
-        } else { 
-            alert(currentEditId ? "수정 완료!" : "퍼블리싱 성공!"); 
-            localStorage.removeItem(AUTOSAVE_KEY); // 성공 시 임시 저장 내역 삭제
-            location.reload(); 
+
+        if (error) {
+            setPublishing(false);
+            setSaveState(lastSavedAt ? 'saved' : 'dirty');
+            alert('저장 실패: ' + error.message);
+            return;
         }
+        showToast(currentEditId ? '수정 사항을 반영했습니다.' : '퍼블리싱했습니다.');
+        try { localStorage.removeItem(AUTOSAVE_KEY); } catch (storageError) {}
+        hasUnpublishedChanges = false;
+        allowUnload = true;
+        setTimeout(() => location.reload(), 1100);
     }
 
+    /* ---------- DB 관리 ---------- */
     function getFirstImageExtract(content) {
         if (!content) return null;
         const htmlMatch = content.match(/<img[^>]+src=['"]([^'"]+)['"]/i);
@@ -1011,345 +1047,185 @@
     }
 
     async function loadPostList() {
-        const tbody = document.getElementById('manage-tbody');
-        tbody.innerHTML = '<tr><td colspan="5">로딩 중...</td></tr>';
+        const tbody = $('manage-tbody');
+        const count = $('manage-count');
+        tbody.innerHTML = '<tr class="manage-state"><td colspan="6">불러오는 중…</td></tr>';
         const { data, error } = await sbClient.from('posts').select('*').order('created_at', { ascending: false });
-        
-        if (error || !data) return tbody.innerHTML = `<tr><td colspan="5">에러발생</td></tr>`;
-        
+        if (error || !data) {
+            count.textContent = '';
+            tbody.innerHTML = `<tr class="manage-state"><td colspan="6">목록을 불러오지 못했습니다${error ? ' · ' + escapeHtml(error.message) : ''}</td></tr>`;
+            return;
+        }
         allPostsData = data;
-
-        tbody.innerHTML = data.map(post => {
-            const thumb = getFirstImageExtract(post.content) || 'https://via.placeholder.com/60?text=No+Img';
-            return `
-            <tr>
-                <td><img src="${thumb}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 6px; border: 1px solid var(--editor-border);"></td>
-                <td><b>${post.title}</b></td>
-                <td>${post.category}</td>
-                <td>${post.created_at.split('T')[0]}</td>
-                <td>
-                    <button class="admin-btn" style="padding: 0.35rem 0.6rem;" onclick="editPost(${post.id})">수정</button>
-                    <button class="delete-btn" onclick="removePost(${post.id})">삭제</button>
-                </td>
-            </tr>
-            `;
+        count.textContent = `${data.length}개의 글`;
+        if (!data.length) {
+            tbody.innerHTML = '<tr class="manage-state"><td colspan="6">아직 글이 없습니다.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = data.map((post, index) => {
+            const thumb = getFirstImageExtract(post.content);
+            const type = PostType.postType(post);
+            const date = String(post.created_at || '').split('T')[0];
+            const current = currentEditId !== null && post.id === currentEditId;
+            return `<tr data-index="${index}"${current ? ' class="is-current"' : ''}>
+                <td class="col-thumb">${thumb ? `<img src="${escapeHtml(thumb)}" alt="" loading="lazy">` : '<span class="thumb-empty" aria-hidden="true"></span>'}</td>
+                <td class="col-title"><button type="button" class="row-title" data-row-action="edit">${escapeHtml(post.title || '제목 없음')}</button>${current ? '<span class="row-flag">편집 중</span>' : ''}</td>
+                <td class="col-type"><span class="type-badge" data-type="${type}">${TYPE_LABEL[type]}</span></td>
+                <td class="col-category">${escapeHtml(Tags.label(Tags.tagsOf(post)) || '—')}</td>
+                <td class="col-date">${escapeHtml(date)}</td>
+                <td class="col-actions"><button type="button" class="soft-btn" data-row-action="edit">수정</button><button type="button" class="soft-btn soft-btn--danger delete-btn" data-row-action="delete">삭제</button></td>
+            </tr>`;
         }).join('');
     }
 
-    function editPost(id) {
-        const post = allPostsData.find(p => p.id === id);
+    $('manage-tbody').addEventListener('click', event => {
+        const button = event.target.closest('[data-row-action]');
+        const row = event.target.closest('tr[data-index]');
+        if (!button || !row) return;
+        const post = allPostsData[Number(row.dataset.index)];
         if (!post) return;
-        
-        currentEditId = id;
-        document.getElementById('post-title').value = post.title;
-        document.getElementById('post-category').value = post.category;
-        
-        // 썸네일 추출 및 폼 반영
-        const thumbMatch = (post.content || '').match(/<img[^>]*class="hidden-thumbnail"[^>]*src="([^"]+)"[^>]*>/);
-        if (thumbMatch) {
-            designatedThumbnailUrl = thumbMatch[1];
-            document.getElementById('thumbnail-preview-container').style.display = 'flex';
-            document.getElementById('thumbnail-preview-img').src = designatedThumbnailUrl;
-        } else clearThumbnail();
+        if (button.dataset.rowAction === 'edit') editPost(post.id);
+        else removePost(post.id);
+    });
 
-        // 뷰어 및 에디터에 썸네일 이미지가 보이지 않게 제거된 상태로 파싱
-        let rawContent = (post.content || '').replace(/<img[^>]*class="hidden-thumbnail"[^>]*>\n?/g, '');
-        
-        // 기존 마크다운 포스트 호환을 위해 로드 시 HTML로 변환하여 에디터에 삽입
-        editorArea.innerHTML = window.PostContent
-            ? PostContent.toRenderableHtml(rawContent, window.marked)
-            : marked.parse(rawContent);
-        hydrateEditorBlocks();
-        savedEditorRange = null;
-        selectedStructureBlock = null;
-        // 불러온 후 스토리 슬라이더 활성화
-        setTimeout(attachStoryListenersToEditor, 100);
-        
+    function editPost(id) {
+        const post = allPostsData.find(item => item.id === id);
+        if (!post) return;
+        if (hasUnpublishedChanges && !isDraftBlank() && currentEditId !== id && !confirm('작성 중인 내용이 있습니다. 이 글을 불러오면 지금 편집 중인 내용은 사라집니다. 계속할까요?')) return;
+
+        currentEditId = id;
+        titleInput.value = post.title || '';
+        setCategory(post.category);
+        // 표시가 없는 예전 글도 사이트와 같은 기준으로 유형을 추정합니다.
+        setPostType(PostType.postType(post), { silent: true });
+
+        const thumbMatch = (post.content || '').match(/<img[^>]*class="hidden-thumbnail"[^>]*src="([^"]+)"[^>]*>/);
+        thumbMatch ? setThumbnail(thumbMatch[1]) : clearThumbnail();
+        const panelMatch = (post.content || '').match(/<!--\s*swblog:panel\s+(\S+?)\s*-->/);
+        panelMatch ? showPanelPreview(panelMatch[1]) : clearPanelImage();
+
+        // 숨김 썸네일과 표시용 주석은 편집 화면에서 빼고 불러옵니다.
+        const rawContent = (post.content || '').replace(HIDDEN_THUMBNAIL, '').replace(PANEL_MARK, '').replace(PostType.TYPE_MARK_ALL, '');
+        // 기존 마크다운 포스트 호환을 위해 HTML로 바꿔서 불러옵니다.
+        const html = window.PostContent ? PostContent.toRenderableHtml(rawContent, window.marked) : marked.parse(rawContent);
+        loadingContent = true;
+        editor.load(html);
+        loadingContent = false;
+
         changeTab('write');
-        document.querySelector('.admin-submit').innerText = "수정 사항 반영";
+        afterContentLoaded();
+        setDocState(post);
+        hasUnpublishedChanges = false;
+        saveDraftNow({});
+        setSaveState('loaded');
+        window.scrollTo({ top: 0 });
     }
 
     async function removePost(id) {
-        if(!confirm("이 글을 영구 삭제하시겠습니까?")) return;
-        await sbClient.from('posts').delete().eq('id', id);
+        if (!confirm('이 글을 영구 삭제하시겠습니까?')) return;
+        const { error } = await sbClient.from('posts').delete().eq('id', id);
+        if (error) {
+            alert('삭제 실패: ' + error.message);
+            return;
+        }
+        if (currentEditId === id) {
+            currentEditId = null;
+            setPublishLabel();
+            setDocState();
+            noteChange();
+        }
+        showToast('글을 삭제했습니다.');
         loadPostList();
     }
 
-    // 이미지 업로드 로직 추가
+    /* ---------- 이미지 업로드 (Supabase Storage) ---------- */
     async function uploadImage(file) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${fileName}`;
-
-        const { data, error } = await sbClient
-            .storage
-            .from('blog-images')
-            .upload(filePath, file);
-
-        if (error) {
-            alert('이미지 업로드 실패: ' + error.message);
-            return null;
-        }
-
-        const { data: { publicUrl } } = sbClient
-            .storage
-            .from('blog-images')
-            .getPublicUrl(filePath);
-
-        return publicUrl;
-    }
-
-    // 드래그 앤 드롭 방식 블록 생성
-    function insertDropzone(layout) {
-        let label = '이미지';
-        if(layout === 'grid-2' || layout === 'grid-3' || layout === 'story') label = '여러 장의 이미지';
-        
-        let title = layout;
-        if(layout === 'big') title = '전체 너비 (Big)';
-        if(layout === 'grid-2') title = '2열 그리드';
-        if(layout === 'grid-3') title = '3열 그리드';
-        if(layout === 'story') title = '인스타 스토리';
-
-        const html = `<div class="in-editor-dropzone" contenteditable="false" data-layout="${layout}" onclick="triggerInlineUpload(this)">
-            <div style="font-size:1.2rem; margin-bottom:0.5rem; pointer-events:none;">${title} 블록</div>
-            <div style="font-size:0.9rem; font-weight:normal; pointer-events:none;">여기에 ${label}를 드래그 앤 드롭하거나 <b>클릭</b>하세요</div>
-        </div><p><br></p>`;
-        insertHtmlAtCursor(html);
-    }
-
-    function triggerInlineUpload(element) {
-        window.currentInlineDropzone = element;
-        document.getElementById('inline-file-input').click();
-    }
-
-    async function handleInlineFileUpload(e) {
-        const dz = window.currentInlineDropzone;
-        if (!dz) return;
-        const files = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
-        if (!files.length) return;
-        await processInlineUpload(files, dz);
-        e.target.value = ''; // 파일 선택창 리셋
-    }
-
-    // 에디터 내부 드래그 앤 드롭 로직
-    editorArea.addEventListener('dragenter', (e) => {
-        const dz = e.target.closest('.in-editor-dropzone');
-        if (dz) e.preventDefault();
-    });
-
-    editorArea.addEventListener('dragover', (e) => {
-        const dz = e.target.closest('.in-editor-dropzone');
-        if (dz) {
-            e.preventDefault();
-            dz.classList.add('dragover');
-        }
-    });
-
-    editorArea.addEventListener('dragleave', (e) => {
-        const dz = e.target.closest('.in-editor-dropzone');
-        if (dz) dz.classList.remove('dragover');
-    });
-
-    editorArea.addEventListener('drop', async (e) => {
-        const dz = e.target.closest('.in-editor-dropzone');
-        if (dz) {
-            e.preventDefault();
-            dz.classList.remove('dragover');
-            
-            // 파일 필터링
-            const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
-            if (!files.length) return alert("이미지 파일을 드롭해주세요!");
-            
-            await processInlineUpload(files, dz);
-        }
-    });
-
-    async function processInlineUpload(files, dz) {
-        dz.innerHTML = '⏳ 이미지를 업로드하고 있습니다...';
-        dz.classList.add('uploading');
-        
+        activeUploads++;
+        renderSaveState();
         try {
-            const uploadedUrls = [];
-            for (const file of files) {
-                const url = await uploadImage(file);
-                if (url) uploadedUrls.push(url);
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Math.random()}.${fileExt}`;
+            const filePath = `${fileName}`;
+
+            const { error } = await sbClient
+                .storage
+                .from('blog-images')
+                .upload(filePath, file);
+
+            if (error) {
+                if (Date.now() - lastAlertAt > 4000) alert('이미지 업로드 실패: ' + error.message);
+                else showToast('이미지 업로드 실패: ' + error.message);
+                lastAlertAt = Date.now();
+                return null;
             }
-            if (uploadedUrls.length === 0) throw new Error("업로드된 이미지가 없습니다.");
-            
-            const layout = dz.dataset.layout;
-            let html = '';
-            
-            // 요소 생성 후 다음 줄로 안전하게 포커스가 빠져나올 수 있도록 p > br 추가
-            if (layout === 'big') {
-                html = `<img class="big" src="${uploadedUrls[0]}" alt="이미지"><p><br></p>`;
-            } else if (layout === 'grid-2') {
-                html = `<div class="image-grid image-grid-2">` + uploadedUrls.slice(0, 2).map(u => `<img class="mini" src="${u}" alt="">`).join('') + `</div><p><br></p>`;
-            } else if (layout === 'grid-3') {
-                html = `<div class="image-grid image-grid-3">` + uploadedUrls.slice(0, 3).map(u => `<img class="mini" src="${u}" alt="">`).join('') + `</div><p><br></p>`;
-            }
-            else if (layout === 'story') {
-                html = `
-                <div class="story-slider" contenteditable="false">
-                    <div class="story-progress">
-                        ${uploadedUrls.map((u, i) => `<div class="story-segment ${i===0?'active':''}"><div class="story-segment-fill"></div></div>`).join('')}
-                    </div>
-                    <div class="story-images">
-                        ${uploadedUrls.map(u => `<img class="story-img" src="${u}" alt="">`).join('')}
-                    </div>
-                    <div class="story-controls">
-                        <button class="story-btn story-prev"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
-                        <button class="story-btn story-zoom"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg></button>
-                        <button class="story-btn story-next"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
-                    </div>
-                </div><p><br></p>`;
-            }
-            
-            // 드롭존 선택 후 내용 치환
-            editorArea.focus();
-            const selection = window.getSelection();
-            const range = document.createRange();
-            range.selectNode(dz);
-            selection.removeAllRanges();
-            selection.addRange(range);
-            
-            document.execCommand('insertHTML', false, html);
-            
-            attachStoryListenersToEditor();
-            
-        } catch (err) {
-            alert("업로드 실패: " + err.message);
-            insertDropzone(dz.dataset.layout); // 롤백
-            dz.remove();
+
+            const { data: { publicUrl } } = sbClient
+                .storage
+                .from('blog-images')
+                .getPublicUrl(filePath);
+
+            return publicUrl;
+        } finally {
+            activeUploads = Math.max(0, activeUploads - 1);
+            renderSaveState();
         }
     }
 
-    // 에디터 내 생성된 스토리 슬라이더 JS 활성화
-    function attachStoryListenersToEditor() {
-        document.querySelectorAll('.story-slider').forEach(slider => {
-            if(slider._isStoryInitialized) return;
-            slider._isStoryInitialized = true;
-            
-            const imgContainer = slider.querySelector('.story-images');
-            const segments = slider.querySelectorAll('.story-segment');
-            const prevBtn = slider.querySelector('.story-prev');
-            const nextBtn = slider.querySelector('.story-next');
-            
-            if(!imgContainer) return;
+    // 본문 밖에 떨어뜨린 파일로 브라우저가 페이지를 떠나지 않도록 막습니다.
+    ['dragover', 'drop'].forEach(type => window.addEventListener(type, event => {
+        if (event.defaultPrevented || ![...(event.dataTransfer?.types || [])].includes('Files')) return;
+        event.preventDefault();
+        if (type === 'dragover') event.dataTransfer.dropEffect = 'none';
+    }));
 
-            let currentIndex = 0;
-
-            const updateContainerHeight = () => {
-                const imgs = imgContainer.querySelectorAll('.story-img');
-                const targetImg = imgs[currentIndex];
-                if (targetImg && targetImg.clientHeight > 0) {
-                    imgContainer.style.height = `${targetImg.clientHeight}px`;
-                }
-            };
-
-            const goToSlide = (index) => {
-                const width = imgContainer.getBoundingClientRect().width;
-                if (width === 0) return;
-                imgContainer.scrollTo({ left: index * width, behavior: 'smooth' });
-                updateContainerHeight();
-            };
-
-            const updateSegments = () => {
-                const width = imgContainer.getBoundingClientRect().width;
-                if(width === 0) return;
-                currentIndex = Math.round(imgContainer.scrollLeft / width);
-
-                segments.forEach((seg, idx) => {
-                    if (idx < currentIndex) seg.className = 'story-segment viewed';
-                    else if (idx === currentIndex) seg.className = 'story-segment active';
-                    else seg.className = 'story-segment';
-                });
-                updateContainerHeight();
-            };
-
-            const resizeObserver = new ResizeObserver(() => updateContainerHeight());
-            imgContainer.querySelectorAll('.story-img').forEach(img => resizeObserver.observe(img));
-
-            imgContainer.addEventListener('scroll', () => window.requestAnimationFrame(updateSegments));
-            
-            if(prevBtn) {
-                prevBtn.onclick = (e) => {
-                    e.preventDefault(); e.stopPropagation();
-                    currentIndex = (currentIndex - 1 + segments.length) % segments.length;
-                    goToSlide(currentIndex);
-                };
-            }
-            
-            if(nextBtn) {
-                nextBtn.onclick = (e) => {
-                    e.preventDefault(); e.stopPropagation();
-                    currentIndex = (currentIndex + 1) % segments.length;
-                    goToSlide(currentIndex);
-                };
-            }
-
-            const zoomBtn = slider.querySelector('.story-zoom');
-            if(zoomBtn) {
-                zoomBtn.onclick = (e) => {
-                    e.preventDefault(); e.stopPropagation();
-                    const currentImgEl = imgContainer.querySelectorAll('.story-img')[currentIndex];
-                    if (currentImgEl) openFullscreen(currentImgEl.src);
-                };
-            }
-        });
-    }
-
-    const dropZone = document.getElementById('drop-zone');
-
-    dropZone.addEventListener('dragenter', (e) => {
-        e.preventDefault();
-        dropZone.classList.add('dragover');
-    });
-
-    dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropZone.classList.add('dragover');
-    });
-
-    dropZone.addEventListener('dragleave', (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('dragover');
-    });
-
-    dropZone.addEventListener('drop', async (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('dragover');
-        
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            const file = files[0];
-            if (!file.type.startsWith('image/')) return alert('이미지 파일만 업로드 가능합니다.');
-            await processGlobalUpload(file);
+    /* ---------- 단축키 · 떠나기 전 확인 ---------- */
+    document.addEventListener('keydown', event => {
+        const mod = event.ctrlKey || event.metaKey;
+        if (event.key === 'Escape') {
+            toggleMenu(false);
+            if (document.body.classList.contains('settings-open')) toggleSettings(false);
+        }
+        if (adminApp.hidden || event.isComposing) return;
+        if (mod && !event.altKey && event.key.toLowerCase() === 's') {
+            event.preventDefault();
+            saveDraftNow({ manual: true });
+            return;
+        }
+        if (mod && event.key === 'Enter') {
+            if (previewDialog.open) return;
+            event.preventDefault();
+            if (publishDialog.open) confirmPublish();
+            else if (document.body.dataset.tab === 'write') requestPublish();
+            return;
+        }
+        const inField = event.target.closest?.('input, textarea, select, [data-editable]');
+        if (mod && !inField && document.body.dataset.tab === 'write' && !publishDialog.open && !previewDialog.open) {
+            const key = event.key.toLowerCase();
+            if (key === 'z') { event.preventDefault(); event.shiftKey ? editor.redo() : editor.undo(); }
+            else if (key === 'y') { event.preventDefault(); editor.redo(); }
         }
     });
 
-    async function handleGlobalFileUpload(e) {
-        const files = e.target.files;
-        if (files.length > 0) {
-            await processGlobalUpload(files[0]);
-        }
-        e.target.value = ''; // 파일 선택창 리셋
-    }
+    window.addEventListener('beforeunload', event => {
+        if (allowUnload || adminApp.hidden) return;
+        autosaveIfChanged();
+        if (!hasUnpublishedChanges && activeUploads === 0) return;
+        event.preventDefault();
+        event.returnValue = '';
+    });
 
-    async function processGlobalUpload(file) {
-        dropZone.innerHTML = "<b>이미지 업로드 중... ⏳</b>";
-        const imageUrl = await uploadImage(file);
-        if (imageUrl) {
-            const imgHTML = `<img class="big frame-soft" src="${imageUrl}" alt="이미지 설명"><p><br></p>`;
-            insertHtmlAtCursor(imgHTML);
-            alert("이미지가 블록으로 삽입되었습니다!");
-        }
-        dropZone.innerHTML = "<b>이미지를 여기에 끌어다 놓거나 클릭하여 업로드하세요! (에디터에 바로 삽입됩니다)</b>";
-    }
+    /* ---------- 시작 ---------- */
+    setPostType('blog', { silent: true });
+    clearThumbnail();
+    clearPanelImage();
+    setPublishLabel();
+    setDocState();
+    updateEditorStats();
+    renderKeyHints();
+    setSaveState('idle');
+    autosizeTitle();
+    checkSession();
 </script>
-<dialog id="publication-preview-dialog" class="publication-preview-dialog" aria-label="독자 화면 미리보기">
-    <div class="preview-toolbar"><div><strong>독자 화면 미리보기</strong><span>작성 중인 내용을 실제 본문 규칙으로 확인합니다.</span></div><div class="preview-size-options" role="group" aria-label="미리보기 화면 크기"><button type="button" data-preview-size="desktop" aria-pressed="true">데스크톱</button><button type="button" data-preview-size="mobile" aria-pressed="false">모바일</button></div><button type="button" class="preview-close" aria-label="미리보기 닫기">×</button></div>
-    <div class="preview-frame-stage"><iframe id="publication-preview-frame" title="작성 중인 글의 독자 화면" src="about:blank"></iframe></div>
-</dialog>
-<script src="./js/editorPreview.js?v=exhibition-1"></script>
+<script src="./js/editorPreview.js?v=studio-1"></script>
 </body>
 </html>

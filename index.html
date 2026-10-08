@@ -7,10 +7,18 @@
     <link rel="icon" href="./mainPage_img/logo_pav.ico">
     <title>SWblog</title>
 
-<script>document.documentElement.classList.add('intro-pending');</script>
+<script>if(!new URLSearchParams(location.search).has('post'))document.documentElement.classList.add('opening');else{document.documentElement.classList.add('opening-post');setTimeout(()=>document.documentElement.classList.remove('opening-post'),9000);}</script>
+<!-- Opening on a post (index.html?post=ID, from another page): the page is white until the post's
+     loading paper, which is white too, lifts away; js/publication2026.js takes this sheet away as
+     the paper starts to lift. -->
+<style>html.opening-post::after{content:'';position:fixed;inset:0;z-index:10010;background:#ffffff;pointer-events:none}</style>
+<link rel="stylesheet" href="./css/pageTransition.css?v=2">
+<script src="./js/pageTransition.js?v=2"></script>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reset-css@5.0.1/reset.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://dwyoitvmforukvdikzqo.supabase.co" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500&amp;display=swap">
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
@@ -19,31 +27,24 @@
     <link rel="stylesheet" href="./css/postRefinement.css?v=editorial-post-2">
     <link rel="stylesheet" href="./css/lightRefinement.css?v=light-system-1">
 
-    <script src="./js/main.js?v=landing-motion-sequence-11" defer></script>
+    <script src="./js/main.js?v=landing-motion-sequence-12" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="./js/postContent.js?v=editorial-layout-3"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="./js/signalField.js?v=2026-1"></script>
+    <script src="./js/postTags.js?v=1"></script>
+    <script src="./js/postType.js?v=2"></script>
+    <script src="./js/galleryReader.js?v=2"></script>
+    <script src="./js/panelField.js?v=6"></script>
     <link rel="stylesheet" href="./css/editorial.css?v=journal-2">
     <link rel="stylesheet" href="./css/exhibition.css?v=journal-2">
-    <link rel="stylesheet" href="./css/publication2026.css?v=2026-1">
-    <link rel="stylesheet" href="./css/indexReel.css?v=reel-2">
+    <link rel="stylesheet" href="./css/publication2026.css?v=2026-15">
+    <link rel="stylesheet" href="./css/indexReel.css?v=reel-54">
+    <link rel="stylesheet" href="./css/gallery.css?v=3">
+    <link rel="stylesheet" href="./css/reading.css?v=11">
 </head>
-<body>
-
-<div class="intro-scene" id="index-intro-scene" aria-hidden="true">
-    <div class="intro-copy">
-        <div class="intro-word-mask">
-            <span class="intro-word intro-word-hi" data-intro-word="hi">HI</span>
-        </div>
-        <div class="intro-word-mask">
-            <span class="intro-word intro-word-name" data-intro-word="name">I’M KIMSUNGWOO</span>
-        </div>
-    </div>
-</div>
+<body class="landing-state">
 
 <div class="scroll-progress-container" id="scroll-progress-container">
     <div class="scroll-progress-track">
@@ -73,9 +74,9 @@
         <nav class="fullscreen-menu" aria-label="메인 카테고리">
             <ul class="typography-list">
                 <li style="--anim-delay: 0.1s;"><a href="./info.html" data-page-transition>INFO</a></li>
-                <li style="--anim-delay: 0.2s;"><a href="./cat_cod.html">DEVELOP</a></li>
-                <li style="--anim-delay: 0.3s;"><span class="menu-unavailable">DESIGN </span></li>
-                <li style="--anim-delay: 0.4s;"><span class="menu-unavailable">LIFE </span></li>
+                <li style="--anim-delay: 0.2s;"><a href="./blog.html" data-page-transition>BLOG</a></li>
+                <li style="--anim-delay: 0.3s;"><a href="./gallery.html" data-page-transition>GALLERY</a></li>
+                <li style="--anim-delay: 0.4s;"><a href="./playground.html" data-page-transition>PLAYGROUND</a></li>
             </ul>
         </nav>
         <div class="header-hidden-footer" style="--anim-delay: 0.4s;">
@@ -95,6 +96,9 @@
     </div>
 </div>
 <div class="menu-index-scrim" id="menu-index-scrim" aria-hidden="true"></div>
+<div class="rail-stage" id="rail-stage">
+    <div class="rail-layer" id="rail-layer"></div>
+</div>
 <div class="split-layout">
     <div class="index-panel" id="archive-panel">
         <button type="button" class="archive-toggle" aria-label="글 목록 펼치기" aria-expanded="false" aria-controls="post-container"><span>.li</span></button>
@@ -109,7 +113,6 @@
                             <img class="hello-dot" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="O">
                             <img class="hello-dot" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="O">
                         </span></h1>
-                        <p class="hello-p"><span class="current-year">2026</span> Work, Blog, Etc</p>
                     </div>
                 </section>
             </header>
@@ -118,7 +121,6 @@
                 <div class="main-line">
                     <div class="main-inner">
                         <div class="archive-heading"><h2 class="section-title">전체 글 목록</h2><span class="archive-count" id="archive-count">00 ENTRIES</span></div>
-                        <div class="archive-columns" aria-hidden="true"><span>No.</span><span>Title</span><span>Date</span></div>
                     </div>
                     <div class="post-list-container" id="post-container"></div>
                 </div>
@@ -133,7 +135,9 @@
                         </div>
                         <nav class="footer-nav" aria-label="푸터 탐색">
                             <span class="footer-nav-label">Explore</span>
-                            <a href="./index.html">전체 글</a>
+                            <a href="./blog.html">블로그</a>
+                            <a href="./gallery.html">갤러리</a>
+                            <a href="./playground.html">플레이그라운드</a>
                             <a href="./info.html">소개</a>
                             <a href="./editor.html">에디터</a>
                         </nav>
@@ -159,7 +163,7 @@
                     <div class="post-viewer-header" id="panel-header" style="display:none;">
                         <span class="post-viewer-category" id="panel-cat"></span>
                         <h1 class="post-viewer-title" id="panel-title"></h1>
-                        <time class="post-viewer-date" id="panel-date"></time><span class="post-reading-meta" id="panel-reading-meta"></span>
+                        <time class="post-viewer-date" id="panel-date"></time><span class="post-reading-meta" id="panel-reading-meta"></span><span class="post-viewer-tags" id="panel-tags"></span>
                     </div>
                     <div class="post-viewer-content" id="panel-content"></div>
                 </div>
@@ -186,7 +190,9 @@
                             </div>
                             <nav class="footer-nav" aria-label="푸터 탐색">
                                 <span class="footer-nav-label">Explore</span>
-                                <a href="./index.html">전체 글</a>
+                                <a href="./blog.html">블로그</a>
+                                <a href="./gallery.html">갤러리</a>
+                                <a href="./playground.html">플레이그라운드</a>
                                 <a href="./info.html">소개</a>
                                 <a href="./editor.html">에디터</a>
                             </nav>
@@ -207,7 +213,7 @@
 </button>
 
 <aside class="post-viewer-toc-sidebar" id="post-toc-sidebar" aria-label="글 목차" hidden>
-    <div class="toc-title">Content</div>
+    <div class="toc-title">Contents</div>
     <div class="toc-current" id="toc-current" aria-live="polite">읽는 중인 꼭지</div>
     <ul class="toc-list" id="toc-list"></ul>
     <div class="toc-progress-meta">
@@ -233,7 +239,7 @@
     </div>
 </div>
 
-<script src="./js/publication2026.js?v=2026-1"></script>
+<script src="./js/publication2026.js?v=2026-17"></script>
 <script>
     function isMobileLayout() {
         return window.matchMedia('(max-width: 1180px)').matches;
@@ -279,8 +285,9 @@
             this.rafId=null;
             if(isLanding||document.hidden||document.body.classList.contains('content-pointer-locked')){this.stop();return;}
             const dt=Math.min(.064,this.lastTimestamp?(timestamp-this.lastTimestamp)/1000:1/60);this.lastTimestamp=timestamp;
-            // Analytic critically damped spring: consistent travel at 60/120Hz, no overshoot.
-            const omega=22,error=this.currentY-this.targetY,j=this.velocity+omega*error,decay=Math.exp(-omega*dt);
+            // Analytic critically damped spring: consistent travel at 60/120Hz, no overshoot. Soft
+            // enough to glide (close to Lenis at lerp .15), firm enough to stop where it is told.
+            const omega=12,error=this.currentY-this.targetY,j=this.velocity+omega*error,decay=Math.exp(-omega*dt);
             this.currentY=this.targetY+(error+j*dt)*decay;
             this.velocity=(this.velocity-omega*j*dt)*decay;
             this.el.scrollTop=this.currentY;this.lastWritten=this.el.scrollTop;
@@ -387,171 +394,361 @@
     let landingTransitionActive = false;
     document.body.classList.toggle('landing-state', isLanding);
 
-    const waitForLandingMotion = (duration) => new Promise(resolve => window.setTimeout(resolve, duration));
+    // The landing's margins: the row of posts and the wordmark's ink run between them.
+    const landingEdges = () => {
+        const margin = Math.max(18, Math.min(40, window.innerWidth * 0.025));
+        return { left: margin, right: window.innerWidth - margin };
+    };
+    // How far into a picture its ink begins and ends, as shares of its width (from its alpha).
+    const inkCache = new Map();
+    function imageInk(image) {
+        const key = image?.currentSrc || image?.src;
+        if (!key || !image.complete || !image.naturalWidth) return null;
+        if (inkCache.has(key)) return inkCache.get(key);
+        let ink = null;
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = image.naturalWidth; canvas.height = image.naturalHeight;
+            const context = canvas.getContext('2d', { willReadFrequently: true });
+            context.drawImage(image, 0, 0);
+            const data = context.getImageData(0, 0, canvas.width, canvas.height).data;
+            // reach: the furthest ink from the centre, the edge a spinning glyph sweeps out.
+            let left = canvas.width, right = -1, reach = 0;
+            const cx = canvas.width / 2, cy = canvas.height / 2;
+            for (let y = 0; y < canvas.height; y++) for (let x = 0; x < canvas.width; x++) {
+                if (data[(y * canvas.width + x) * 4 + 3] > 40) {
+                    if (x < left) left = x; if (x > right) right = x;
+                    reach = Math.max(reach, Math.hypot(x + 0.5 - cx, y + 0.5 - cy));
+                }
+            }
+            if (right >= left) ink = { left: left / canvas.width, right: (right + 1) / canvas.width, reach: reach / canvas.width };
+        } catch {}
+        inkCache.set(key, ink);
+        return ink;
+    }
+    // The wordmark is sized and set so that its ink, not its box, runs exactly from edge to
+    // edge: the margins on the landing, the edges of the pictures on the index. Each view keeps
+    // its own size and offset (custom properties on the wordmark itself), so the move between
+    // the two only has to measure them.
+    const fitTitle = document.querySelector('.hello-content-box h1');
+    const fitDone = { landing: '', index: '' };
+    function fitWordmark() {
+        const title = fitTitle;
+        if (!title) return;
+        const landing = document.body.classList.contains('landing-state');
+        const view = landing ? 'landing' : 'index';
+        let edges;
+        if (landing) edges = landingEdges();
+        else {
+            const list = document.getElementById('post-container');
+            if (!list?.querySelector('.post-list-item')) return;
+            const box = list.getBoundingClientRect(), style = getComputedStyle(list);
+            if (!box.width) return;
+            edges = { left: box.left + parseFloat(style.paddingLeft), right: box.right - parseFloat(style.paddingRight) };
+        }
+        const key = `${window.innerWidth}x${window.innerHeight}:${edges.left.toFixed(1)}-${edges.right.toFixed(1)}`;
+        if (fitDone[view] === key && title.classList.contains(`fit-${view}`)) return;
+        const dot = [...title.querySelectorAll('.hello-dot')].pop();
+        const dotInk = imageInk(dot);
+        if (!dotInk) return;
+        // Measure the wordmark unshifted, at whatever size it has now; every part of it scales
+        // with the font size.
+        title.style.setProperty(`--fit-${view}-shift`, '0px');
+        const style = getComputedStyle(title);
+        const size = parseFloat(style.fontSize);
+        const box = title.getBoundingClientRect();
+        if (!size || !box.width) return;
+        const context = document.createElement('canvas').getContext('2d');
+        context.font = `${style.fontStyle} ${style.fontWeight} ${size}px ${style.fontFamily}`;
+        const first = (title.firstChild?.textContent || 'K').trim().charAt(0) || 'K';
+        const inkLeft = -context.measureText(first).actualBoundingBoxLeft / size;
+        const dotBox = dot.getBoundingClientRect();
+        // The glyph dots spin, so the ink is taken to end where a dot sweeps out its circle.
+        const dotWidth = dot.offsetWidth || dotBox.width;
+        const dotCentre = dotBox.left + dotBox.width / 2;
+        const inkRight = (box.right - (dotCentre + dotWidth * dotInk.reach)) / size;
+        const across = box.width / size - inkLeft - inkRight;
+        let fit = (edges.right - edges.left) / across;
+        // A short landing keeps the wordmark below a third of the screen; it is then centred.
+        if (landing) fit = Math.min(fit, window.innerHeight * 0.3);
+        title.style.setProperty(`--fit-${view}-size`, `${fit.toFixed(3)}px`);
+        title.classList.add(`fit-${view}`);
+        const placed = title.getBoundingClientRect();
+        const inkWidth = across * fit;
+        const start = edges.left + Math.max(0, (edges.right - edges.left - inkWidth) / 2);
+        title.style.setProperty(`--fit-${view}-shift`, `${(start - inkLeft * fit - placed.left).toFixed(2)}px`);
+        fitDone[view] = key;
+        if (landing) window.globalPlaceholderScene?.onWindowResize();
+    }
+
 function syncLandingChromeAlignment(force = false) {
-        if (!isLanding || (landingTransitionActive && force !== true) || isMobileLayout()) return;
-        const title = document.querySelector('.hello-content-box h1');
+        if (!isLanding || (landingTransitionActive && force !== true)) return;
         const logo = document.querySelector('.logo');
         const menu = document.querySelector('.hamburger-btn');
-        if (!title || !logo || !menu) return;
-
-        const titleRect = title.getBoundingClientRect();
+        if (!logo || !menu) return;
+        fitWordmark();
+        // The logo's ink and the arrow's tip line up with the ends of the row and of the
+        // wordmark.
+        const edges = landingEdges();
         const logoWidth = logo.getBoundingClientRect().width || 72;
-        const menuWidth = menu.getBoundingClientRect().width || 44;
-        const viewportEdge = Math.max(16, Math.min(window.innerWidth * 0.02, 32));
-        const logoLeft = Math.max(viewportEdge, titleRect.left);
-        const menuRight = Math.max(viewportEdge, window.innerWidth - titleRect.right);
+        const logoInk = imageInk(logo) || { left: 13 / 300 };
+        const button = menu.getBoundingClientRect();
+        const tip = Math.max(...[...menu.querySelectorAll('svg *')].map(part => part.getBoundingClientRect().right));
+        const logoLeft = edges.left - logoInk.left * logoWidth;
+        const menuRight = window.innerWidth - edges.right + (Number.isFinite(tip) ? tip - button.right : 0);
 
-        document.documentElement.style.setProperty('--landing-logo-left', `${logoLeft}px`);
-        document.documentElement.style.setProperty('--landing-menu-right', `${menuRight}px`);
-    }
-
-    function clearLandingInlineMotion() {
-        const helloBox = document.querySelector('.hello-content-box');
-        const helloHeader = document.querySelector('.hello-header');
-        const pageEl = document.querySelector('.index-panel .page');
-        if (helloBox) {
-            helloBox.style.transform = '';
-            helloBox.style.transition = '';
-        }
-        if (helloHeader) {
-            helloHeader.style.transform = '';
-            helloHeader.style.transition = '';
-        }
-        if (pageEl) {
-            pageEl.style.transform = '';
-            pageEl.style.opacity = '';
-        }
-    }
-
-    function resetLandingControls() {
-        const progressContainer = document.getElementById('scroll-progress-container');
-        const progressBar = document.getElementById('scroll-progress-bar');
-        const scrollDownBtn = document.querySelector('.scroll-down-btn');
-        [progressContainer, scrollDownBtn].forEach(element => {
-            if (!element) return;
-            element.style.transition = '';
-            element.style.transform = '';
-            element.style.opacity = '';
-        });
-        if (progressBar) progressBar.style.transform = 'scaleY(0)';
+        // Written on the two controls themselves: a custom property on the root would restyle
+        // the whole document every time it changed.
+        logo.style.setProperty('--landing-logo-left', `${logoLeft}px`);
+        menu.style.setProperty('--landing-menu-right', `${menuRight}px`);
     }
 
     function mountReadingPlaceholder() {
-        window.globalPlaceholderScene?.destroy();
-        window.globalPlaceholderScene=null;
         const placeholder=document.getElementById('post-panel-placeholder');
+        window.globalPanelScene?.destroy();
         placeholder.replaceChildren();
-        window.globalAsciiScene?.destroy();
         try{
-            window.globalAsciiScene=new AsciiArtScene('post-panel-placeholder');
-            window.globalAsciiScene.setActive(!document.getElementById('post-panel-viewer').classList.contains('active-state'));
-            delete document.documentElement.dataset.asciiError;
+            window.globalPanelScene=new window.PanelScene('post-panel-placeholder');
+            window.globalPanelScene.setActive(!document.getElementById('post-panel-viewer').classList.contains('active-state'));
+            delete document.documentElement.dataset.panelError;
         }catch(error){
-            document.documentElement.dataset.asciiError=String(error?.stack||error);
-            console.error('ASCII scene failed to mount',error);
+            document.documentElement.dataset.panelError=String(error?.stack||error);
+            console.error('Panel failed to mount',error);
         }
+    }
+    // The wordmark, logo and menu arrow stay hidden while the opening plays, then come in:
+    // the wordmark rises out of its own baseline, the two controls fade.
+    function revealLandingChrome(animated) {
+        const root = document.documentElement;
+        if (!root.classList.contains('opening')) return;
+        root.classList.remove('opening');
+        // The logo lines up with the wordmark as it finally stands.
+        requestAnimationFrame(() => syncLandingChromeAlignment());
+        if (!animated || reducedMotionQuery.matches) return;
+        document.querySelector('.hello-content-box h1')?.animate([
+            { transform: 'translate3d(0,105%,0)', clipPath: 'inset(0 0 105% 0)' },
+            { transform: 'translate3d(0,0,0)', clipPath: 'inset(0 0 0% 0)' }
+        ], { duration: 1500, easing: 'cubic-bezier(.16,1,.3,1)' });
+        // Arriving from another page they are already there (css/pageTransition.css).
+        if (!root.classList.contains('pt-arrived')) document.querySelectorAll('#site-header-controls .logo,.hamburger-btn').forEach(element => {
+            element.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 900, delay: 350, easing: 'ease', fill: 'backwards' });
+        });
+    }
+    // If the rail never gets going (no posts, no network), still show the page.
+    window.setTimeout(() => revealLandingChrome(true), 4500);
+
+    function mountRail() {
+        if (!window.globalPlaceholderScene) {
+            window.globalPlaceholderScene = new PlaceholderScene('rail-layer');
+            if (allPosts.length) window.globalPlaceholderScene.updateCards(allPosts);
+        }
+        return window.globalPlaceholderScene;
     }
     function exploreContent() {
         exitLandingState();
     }
     window.exploreContent=exploreContent;
 
-    async function transitionArchive(toLanding,immediate=false) {
-        if(landingTransitionActive || isLanding===toLanding) return;
-        const animate=!immediate && !reducedMotionQuery.matches;
-        const title=document.querySelector('.hello-content-box h1');
-        const content=document.querySelector('.main-cont-back');
-        const meta=document.querySelector('.hello-p');
-        const panel=document.getElementById('post-panel');
-        const motions=[];
-        const ease='cubic-bezier(.22,.68,0,1)';
-        const move=(element,frames,options={})=> {
-            if(!element || !animate) return;
-            const motion=element.animate(frames,{duration:820,easing:ease,fill:'both',...options});
-            motions.push(motion);
-            return motion;
-        };
-        landingTransitionActive=true; window.isLayoutTransitioning=true;
-        document.body.classList.add('landing-transition-active');
-        // Let the outgoing content begin moving while the real heading stays in place.
-        if(animate) {
-            if(!toLanding) window.globalPlaceholderScene?.triggerExit();
-            else {
-                move(content,[{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(24px)'}],{duration:180});
-                move(meta,[{opacity:1},{opacity:0}],{duration:180});
-                move(panel,[{opacity:1},{opacity:0}],{duration:180});
-            }
-            await waitForLandingMotion(180);
-        }
-        // Capture the visible position, including any wheel-driven ancestor motion.
-        const from=title.getBoundingClientRect();
-        const chrome=[...document.querySelectorAll('.logo,.hamburger-btn')].map(element=>({element,from:element.getBoundingClientRect()}));
-        if(!toLanding && animate && window.globalPlaceholderScene) {
-            const exitingScene=window.globalPlaceholderScene;
-            const exitLayer=document.createElement('div');
-            exitLayer.className='landing-card-exit';exitLayer.setAttribute('aria-hidden','true');
-            Object.assign(exitLayer.style,{position:'fixed',inset:'0',zIndex:'5',pointerEvents:'none',overflow:'hidden'});
-            exitLayer.append(exitingScene.sceneContainer);document.body.append(exitLayer);
-            window.globalPlaceholderScene=null;
-            setTimeout(()=>{exitingScene.destroy();exitLayer.remove();},160);
-        }
-        motions.splice(0).forEach(m=>m.cancel());
-        isLanding=toLanding;
-        document.body.classList.add('landing-layout-snap');
-        document.body.classList.toggle('landing-state',toLanding);
-        document.body.classList.remove('list-footer-stage');
-        clearLandingInlineMotion(); resetLandingControls();
-        if(toLanding) {
-            window.globalAsciiScene?.destroy(); window.globalAsciiScene=null;
-            document.getElementById('post-panel-placeholder').replaceChildren();
-            window.globalPlaceholderScene=new PlaceholderScene('post-panel-placeholder');
-            if(allPosts.length) window.globalPlaceholderScene.updateCards(allPosts);
-            if(animate) window.globalPlaceholderScene.triggerEnter();
-            document.querySelector('.index-panel').scrollTop=0;
-        } else mountReadingPlaceholder();
-        syncLandingChromeAlignment(true);
-        // FLIP the existing h1 in its original parent before the next paint.
-        // No cloned heading, hidden original, or final DOM hand-off.
-        const to=title.getBoundingClientRect();
-        const scale=from.width/to.width;
-        move(title,[
-            {transform:'translate3d('+(from.left-to.left)+'px,'+(from.top-to.top)+'px,0) scale('+scale+')'},
-            {transform:'translate3d(0,0,0) scale(1)'}
-        ]);
-        chrome.forEach(({element,from:origin})=> {
-            const target=element.getBoundingClientRect();
-            const base=getComputedStyle(element).transform;
-            move(element,[{transform:'translate('+(origin.left-target.left)+'px,'+(origin.top-target.top)+'px) '+(base==='none'?'':base)},{transform:base}]);
-        });
-        const paper=getComputedStyle(document.body).getPropertyValue('--bg').trim();
-        document.querySelectorAll('.index-panel,.index-panel .page,.masthead').forEach(element=> {
-            move(element,[{backgroundColor:toLanding?paper:'transparent'},{backgroundColor:toLanding?'transparent':paper}],{duration:640});
-        });
-        if(!toLanding) {
-            move(content,[{opacity:0,transform:'translateY(28px)'},{opacity:1,transform:'translateY(0)'}],{duration:620,delay:140});
-            move(meta,[{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'translateY(0)'}],{duration:330,delay:560});
-            move(panel,[{opacity:0,transform:'translate3d(32px,0,0)'},{opacity:1,transform:'translate3d(0,0,0)'}],{duration:620,delay:270});
-        } else {
-            move(content,[{opacity:0},{opacity:1}],{duration:600,delay:220});
-        }
-        await Promise.allSettled(motions.map(m=>m.finished));
-        motions.forEach(m=>m.cancel());
-        document.body.classList.remove('landing-layout-snap','landing-transition-active');
-        landingTransitionActive=false; window.isLayoutTransitioning=false;
-        targetScrollDown=currentScrollDown=targetScrollUp=currentScrollUp=0;
-        window.globalAsciiScene?.onResize(); window.globalPlaceholderScene?.onWindowResize();
-        syncLandingChromeAlignment(true); requestJellyFrame();
+    // Landing and index are two views joined by one move in two beats. While the visitor
+    // scrolls on the landing, the wordmark rises from the foot of the screen as far as the
+    // scroll has carried it, and sinks back when the scroll stops. Once it reaches the middle
+    // the page lets go: the row is wiped away from the bottom up, and the index rises into
+    // place. Every beat is a transform played by the browser's animation engine, so nothing in
+    // it waits on script.
+    const shift = { active: false, toLanding: false, motions: [] };
+    const railEl = document.getElementById('rail-layer');
+    const liftTitle = document.querySelector('.hello-content-box h1');
+    // How far the wordmark travels to stand in the middle of the screen, measured at rest.
+    let liftDistance = 0;
+    const measureLift = () => {
+        if (!liftTitle) return 0;
+        const rect = liftTitle.getBoundingClientRect();
+        const now = new DOMMatrix(getComputedStyle(liftTitle).transform).m42;
+        return Math.max(0, rect.top - now + rect.height / 2 - window.innerHeight / 2);
+    };
+    // Room kept between the foot of the row and the rising wordmark.
+    const LIFT_GAP = 18;
+    const showLift = share => {
+        if (!liftTitle) return;
+        liftTitle.style.transform = share ? `translate3d(0,${(-share * liftDistance).toFixed(2)}px,0)` : '';
+        // The row is cut from the bottom as the wordmark rises into it, so the two never
+        // overlap: its foot stays a little above the top of the wordmark's ink. (The row is
+        // drawn up by SHEET_DRAG at the same time, so the cut is measured in its own frame.)
+        const rail = window.globalPlaceholderScene, scene = rail?.sceneContainer;
+        if (!scene || !rail.inkTop) return;
+        const edge = rail.inkTop - share * liftDistance - LIFT_GAP + SHEET_DRAG * share;
+        const cut = share ? Math.max(0, rail.height - edge) : 0;
+        const clip = cut > rail.height - rail.top - rail.cardHeight ? `inset(0 0 ${cut.toFixed(1)}px 0)` : '';
+        if (scene.style.clipPath !== clip) scene.style.clipPath = clip;
+    };
+
+    function setLandingLayout(landing) {
+        document.body.classList.toggle('landing-state', landing);
+        fitWordmark();
+        if (landing) syncLandingChromeAlignment(true);
+        // Where the list sits in its scroller changes with the landing; the columns follow.
+        else window.layoutPostColumns?.();
     }
-    const exitLandingState=({immediate=false}={})=>transitionArchive(false,immediate);
-    const enterLandingState=()=>transitionArchive(true);
+
+    // Both views stay built for the whole visit.
+    function warmReadingPlaceholder() {
+        if (window.globalPanelScene) return;
+        mountReadingPlaceholder();
+        window.globalPanelScene?.setActive(false);
+        try { window.globalPanelScene?.atlas(13); } catch {}
+    }
+
+    function finishShift() {
+        if (!shift.active) return;
+        const toLanding = shift.toLanding;
+        shift.active = false;
+        shift.motions.splice(0).forEach(motion => motion.cancel());
+        isLanding = toLanding;
+        setLandingLayout(toLanding);
+        sheet.reset();
+        if (toLanding) {
+            window.globalPanelScene?.setActive(false);
+            document.querySelector('.index-panel').scrollTop = 0;
+            window.globalPlaceholderScene?.wake();
+        } else {
+            window.globalPanelScene?.setActive(!document.getElementById('post-panel-viewer').classList.contains('active-state'));
+        }
+        // Commit the layout before transitions are allowed again.
+        void document.body.offsetWidth;
+        document.body.classList.remove('landing-layout-snap', 'landing-transition-active');
+        landingTransitionActive = false;
+        window.isLayoutTransitioning = false;
+        syncLandingChromeAlignment(true);
+    }
+
+    function playShift(toIndex, immediate = false) {
+        if (shift.active || isLanding !== toIndex) return;
+        const title = document.querySelector('.hello-content-box h1');
+        const content = document.querySelector('.main-cont-back');
+        const panel = document.getElementById('post-panel');
+        const panelInside = document.getElementById('post-panel-placeholder');
+        const indexPanel = document.querySelector('.index-panel');
+        if (!title || !content || !indexPanel) return;
+
+        const rail = mountRail();
+        rail.skipOpening();
+        revealLandingChrome(false);
+        document.querySelectorAll('.hello-content-box h1,#site-header-controls .logo,.hamburger-btn').forEach(element => {
+            element.getAnimations().forEach(motion => motion.cancel());
+        });
+        // How far the scroll has lifted the wordmark as the move starts.
+        const sheetFrom = toIndex ? Math.max(0, Math.min(1, sheet.value)) : 1;
+        sheet.stop();
+        shift.active = true;
+        shift.toLanding = !toIndex;
+        landingTransitionActive = true;
+        window.isLayoutTransitioning = true;
+        isLanding = true;
+        document.body.classList.add('landing-transition-active', 'landing-layout-snap');
+        document.body.classList.remove('list-footer-stage');
+        // A pull back toward the landing may have left the list tugged down; the move starts there.
+        const tug = toIndex ? 0 : new DOMMatrix(getComputedStyle(content).transform).m42;
+        content.style.transform = '';
+        indexPanel.scrollTop = 0;
+
+        // Landing end: note where things sit.
+        setLandingLayout(true);
+        const from = title.getBoundingClientRect();
+        // The move takes the wordmark on from wherever the scroll lifted it.
+        title.style.transform = '';
+        const chrome = [...document.querySelectorAll('.logo,.hamburger-btn')].map(element => ({ element, from: element.getBoundingClientRect() }));
+        if (!toIndex) rail.wake();
+
+        // Index end: the layout the move is built in. Each piece is given a pose that puts
+        // it back where it sat on the landing, and the move runs between the two poses.
+        setLandingLayout(false);
+        warmReadingPlaceholder();
+        if (immediate || reducedMotionQuery.matches) {
+            finishShift();
+            return;
+        }
+        const to = title.getBoundingClientRect();
+        // Measure everything first: reading a box after an animation has been attached would
+        // lay the page out a second time.
+        chrome.forEach(item => {
+            item.to = item.element.getBoundingClientRect();
+            item.base = getComputedStyle(item.element).transform;
+        });
+
+        // Beats, in milliseconds from the start of the move. Going in, the row is wiped away, the
+        // index rises, and the side panel opens out from the right edge as the page lands.
+        // Coming back the side panel first folds away to the right, then the index sinks and
+        // the row is wiped back in from the top down.
+        const beats = toIndex
+            ? { wipe: [0, 760], page: [380, 1480], panel: [900, 1800] }
+            : { panel: [0, 800], page: [450, 1450], wipe: [1150, 1910] };
+        // One curve for every beat (quartic in-out): each beat starts and lands softly, and hands
+        // over to the next near its end.
+        const easeInOut = 'cubic-bezier(.76,0,.24,1)';
+        // Frames are written landing-first and flipped for the trip back.
+        const add = (element, frames, [start, end], easing) => {
+            if (!element) return;
+            const ordered = toIndex ? frames : frames.map(frame => (
+                frame.offset == null ? frame : { ...frame, offset: 1 - frame.offset }
+            )).reverse();
+            shift.motions.push(element.animate(ordered, { duration: end - start, delay: start, fill: 'both', easing }));
+        };
+
+        // 1. The wipe. The rail's window slides up while the rail inside it slides down by the
+        //    same amount, so the slabs stay where they are and are cut away from the bottom.
+        const wipeEase = easeInOut;
+        add(railEl, [{ transform: 'translate3d(0,0,0)' }, { transform: 'translate3d(0,-100%,0)' }], beats.wipe, wipeEase);
+        // The slabs are also carried up a little while they are cut away (and settle back
+        // down into place on the way back).
+        add(rail.sceneContainer, [
+            { transform: `translate3d(0,${(toIndex ? -SHEET_DRAG * sheetFrom : 0).toFixed(2)}px,0)` },
+            { transform: `translate3d(0,calc(100% - ${WIPE_DRAG}px),0)` }
+        ], beats.wipe, wipeEase);
+
+        // 2. The index rises as one page: the wordmark travels on from the middle of the landing
+        //    to the head of the index, and the list and its side panel follow it up.
+        const pageEase = easeInOut;
+        add(title, [
+            { transform: `translate3d(${from.left - to.left}px,${from.top - to.top}px,0) scale(${from.width / to.width})` },
+            { transform: 'translate3d(0,0,0) scale(1)' }
+        ], beats.page, pageEase);
+        chrome.forEach(({ element, from: origin, to: target, base }) => {
+            add(element, [
+                { transform: `translate(${origin.left - target.left}px,${origin.top - target.top}px) ${base === 'none' ? '' : base}` },
+                { transform: base }
+            ], beats.page, pageEase);
+        });
+        const rise = [{ transform: `translate3d(0,${window.innerHeight}px,0)` }, { transform: 'translate3d(0,0,0)' }];
+        add(content, [rise[0], { transform: `translate3d(0,${tug.toFixed(2)}px,0)` }], beats.page, pageEase);
+
+        // 3. The side panel unfolds from the right edge. The panel is a window: it slides in
+        //    from the right while what is inside it slides back by the same amount, so the
+        //    picture holds still at its own size and only the window's left edge moves across
+        //    it (a mask, never a squeeze). It is held folded until its beat comes. Its curve is
+        //    its own, steeper than the rest: a long hold at each end and a quick sweep between.
+        const panelEase = 'cubic-bezier(.92,.15,.1,.93)';
+        if (isMobileLayout()) add(panel, rise, beats.page, pageEase);
+        else {
+            add(panel, [{ transform: 'translate3d(100%,0,0)' }, { transform: 'translate3d(0,0,0)' }], beats.panel, panelEase);
+            add(panelInside, [{ transform: 'translate3d(-100%,0,0)' }, { transform: 'translate3d(0,0,0)' }], beats.panel, panelEase);
+        }
+        // The row comes to rest as it is wiped away.
+        rail.settle();
+
+        Promise.allSettled(shift.motions.map(motion => motion.finished)).then(finishShift);
+    }
+    const exitLandingState=({immediate=false}={})=>immediate||reducedMotionQuery.matches?playShift(true,true):requestIndex();
+    const enterLandingState=()=>playShift(false);
 
     requestAnimationFrame(syncLandingChromeAlignment);
     document.fonts?.ready.then(syncLandingChromeAlignment);
+    window.addEventListener('load', () => { fitWordmark(); syncLandingChromeAlignment(); });
+    document.fonts?.ready.then(() => { if (!shift.active) fitWordmark(); });
     window.addEventListener('index-intro-complete', syncLandingChromeAlignment, { once: true });
     let landingChromeResizeTimer = null;
     window.addEventListener('resize', () => {
         requestAnimationFrame(syncLandingChromeAlignment);
+        window.setTimeout(() => { if (!shift.active) fitWordmark(); }, 120);
         window.clearTimeout(landingChromeResizeTimer);
         landingChromeResizeTimer = window.setTimeout(syncLandingChromeAlignment, 1100);
     }, { passive: true });
@@ -572,273 +769,223 @@ function syncLandingChromeAlignment(force = false) {
     desktopScrollQuery.addEventListener('change', () => {
         requestAnimationFrame(() => {
             if (isLanding) window.globalPlaceholderScene?.onWindowResize();
-            else window.globalAsciiScene?.onResize();
+            else window.globalPanelScene?.onResize();
         });
     });
 
-    let targetScrollDown = 0;
-    let currentScrollDown = 0;
-    let targetScrollUp = 0;
-    let currentScrollUp = 0;
-    let scrollResetTimer = null;
-    const SCROLL_THRESHOLD = 800;
-    const PLACEHOLDER_EXIT_SPEED = 70;
-    let placeholderExitTimer = null;
-    let jellyRafId = null;
+    // Input for the landing-to-index move.
+    const shiftViewer = document.getElementById('post-panel-viewer');
+    const shiftIndexPanel = document.querySelector('.index-panel');
+    const shiftBlocked = () => shift.active
+        || shiftViewer?.classList.contains('active-state')
+        || document.body.classList.contains('menu-open')
+        || document.body.classList.contains('content-pointer-locked');
+    const atIndexTop = () => !isLanding && shiftIndexPanel.scrollTop <= 0 && window.scrollY <= 0;
 
-    // 입력이 있거나 상태가 실제로 움직일 때만 프레임을 예약합니다.
-    function requestJellyFrame() {
-        if (!jellyRafId && !document.hidden) jellyRafId = requestAnimationFrame(renderJellyEffect);
+    // How far a scroll must carry, as a share of the viewport height, before the page lets go.
+    // Short of that the scroll only lifts the wordmark (landing),
+    // or tugs the index down (index).
+    const WHEEL_LIMIT = 0.55;
+    // How far (px) the row is drawn up by the wordmark in the middle, and carried up by the wipe.
+    const SHEET_DRAG = 40;
+    const WIPE_DRAG = 220;
+    const TOUCH_LIMIT = 0.3;
+    let pull = 0;
+    let pullLimit = WHEEL_LIMIT;
+    let pullTime = 0;       // when the scroll last pushed
+    let pullHeld = false;   // a finger is on the screen
+    let pullLatched = false;
+
+    // The wordmark follows the pull through a critically damped spring, so wheel notches and
+    // finger moves arrive as one continuous rise. Left alone, the pull drains away and the
+    // wordmark sinks back. Once the pull has passed its limit it is carried on to the middle,
+    // and the move to the index starts as it gets there.
+    const sheet = {
+        value: 0, speed: 0, frame: 0, time: 0,
+        follow() {
+            if (!this.frame && !shift.active) {
+                this.time = 0;
+                if (!this.value) liftDistance = measureLift();
+                this.frame = requestAnimationFrame(this.step);
+            }
+        },
+        stop() {
+            cancelAnimationFrame(this.frame);
+            this.frame = 0;
+        },
+        reset() {
+            this.stop();
+            this.value = this.speed = 0;
+            const scene = window.globalPlaceholderScene?.sceneContainer;
+            if (scene) scene.style.transform = '';
+            pull = 0;
+            pullLatched = pullHeld = false;
+            showLift(0);
+        },
+        step(now) {
+            sheet.frame = 0;
+            if (!isLanding || shift.active) return;
+            const dt = Math.min(0.05, sheet.time ? (now - sheet.time) / 1000 : 1 / 60);
+            sheet.time = now;
+            if (!pullLatched && !pullHeld && now - pullTime > 110) {
+                pull *= Math.exp(-dt * 4.2);
+                if (pull < 0.002) pull = 0;
+            }
+            // A wheel has to be kept turning before the sheet is far up; a finger moves it directly.
+            const share = Math.min(1, pull / pullLimit);
+            const target = pullLatched ? 1.12 : pullLimit === TOUCH_LIMIT ? share : Math.pow(share, 1.6);
+            const omega = 13, error = sheet.value - target, drive = sheet.speed + omega * error, decay = Math.exp(-omega * dt);
+            sheet.value = target + (error + drive * dt) * decay;
+            sheet.speed = (sheet.speed - omega * drive * dt) * decay;
+            if (pullLatched && sheet.value >= 1) {
+                sheet.value = 1;
+                showLift(1);
+                playShift(true);
+                return;
+            }
+            if (!pull && Math.abs(sheet.value) < 0.0004 && Math.abs(sheet.speed) < 0.002) {
+                sheet.value = sheet.speed = 0;
+                showLift(0);
+                const scene = window.globalPlaceholderScene?.sceneContainer;
+                if (scene) scene.style.transform = '';
+                return;
+            }
+            showLift(Math.max(0, sheet.value));
+            // The row is drawn up a little by the wordmark rising toward it.
+            const scene = window.globalPlaceholderScene?.sceneContainer;
+            if (scene) scene.style.transform = `translate3d(0,${(-SHEET_DRAG * Math.max(0, sheet.value)).toFixed(2)}px,0)`;
+            sheet.frame = requestAnimationFrame(sheet.step);
+        }
+    };
+
+    // Carries the wordmark to the middle and then on to the index.
+    function requestIndex() {
+        if (!isLanding || shift.active || pullLatched) return;
+        window.globalPlaceholderScene?.skipOpening();
+        window.globalPlaceholderScene?.settle();
+        pullLatched = true;
+        sheet.follow();
     }
 
-    function isFromPostPanelPlaceholder(target) {
-        if (!(target instanceof Element)) return false;
-        return !!target.closest('#post-panel-placeholder, .post-panel-placeholder, .post-panel');
-    }
-
-    function handlePlaceholderLandingScroll(deltaY) {
-        if (!isLanding || deltaY <= 0) return;
-        if (reducedMotionQuery.matches) {
-            exitLandingState();
-            return;
-        }
-
-        const speed = Math.abs(deltaY);
-        targetScrollDown = Math.min(SCROLL_THRESHOLD, targetScrollDown + speed * 2.4);
-        if (speed >= PLACEHOLDER_EXIT_SPEED) targetScrollDown = SCROLL_THRESHOLD;
-        requestJellyFrame();
-
-        clearTimeout(scrollResetTimer);
-        scrollResetTimer = setTimeout(() => {
-            if (!placeholderExitTimer) {
-                targetScrollDown = 0;
-                requestJellyFrame();
-            }
-        }, 260);
-
-        if (targetScrollDown >= SCROLL_THRESHOLD && !placeholderExitTimer) {
-            placeholderExitTimer = setTimeout(() => {
-                placeholderExitTimer = null;
-                exitLandingState();
-                targetScrollDown = 0;
-                currentScrollDown = 0;
-                targetScrollUp = 0;
-            }, 220);
-        }
-    }
-    window.handlePlaceholderLandingScroll = handlePlaceholderLandingScroll;
-
-    function renderJellyEffect() {
-        jellyRafId = null;
-        const helloBox = document.querySelector('.hello-content-box');
-        
-        if (landingTransitionActive) return;
-
-        currentScrollDown += (targetScrollDown - currentScrollDown) * 0.095;
-        currentScrollUp += (targetScrollUp - currentScrollUp) * 0.095;
-
-        const pageEl = document.querySelector('.index-panel .page');
-        const helloHeader = document.querySelector('.hello-header');
-        const progressContainer = document.getElementById('scroll-progress-container');
-        const progressBar = document.getElementById('scroll-progress-bar');
-
-        if (isLanding) {
-            if (currentScrollDown > 0.5) {
-                if (pageEl) {
-                    const shrink = Math.max(1 - (currentScrollDown * 0.000015), 0.99); 
-                    const rotateX = Math.min(currentScrollDown * 0.001, 0.5);
-                    const slideY = Math.min(currentScrollDown * 0.018, 16);
-                    const fade = Math.max(1 - currentScrollDown * 0.00012, 0.92);
-                    pageEl.style.transformOrigin = 'top center';
-                    pageEl.style.transform = `perspective(1200px) scale(${shrink}) rotateX(${rotateX}deg) translate3d(0, -${slideY}px, 0)`;
-                    pageEl.style.opacity = String(fade);
-                }
-                if (helloBox) {
-                    const scrollProgress = Math.min(currentScrollDown / SCROLL_THRESHOLD, 1);
-                    const pullUp = 36 * (1 - Math.pow(1 - scrollProgress, 3));
-                    helloBox.style.transform = `translate3d(0, -${pullUp}px, 0)`;
-                    helloBox.style.transition = 'none';
-                }
-                if (helloHeader) {
-                    const pullUp = currentScrollDown * 0.05;
-                    helloHeader.style.transform = `translate3d(0, -${pullUp}px, 0)`;
-                    helloHeader.style.transition = 'none';
-                }
-                if (progressContainer && progressBar) {
-                    progressContainer.style.opacity = '1';
-                    progressContainer.style.flexDirection = 'column';
-                    progressBar.style.transformOrigin = 'top';
-                    progressBar.style.transform = `scaleY(${Math.min(currentScrollDown / SCROLL_THRESHOLD, 1)})`;
-                }
-                if (window.globalPlaceholderScene?.applyScrollReaction) {
-                    window.globalPlaceholderScene.applyScrollReaction(Math.min(currentScrollDown / SCROLL_THRESHOLD, 1));
-                }
-            } else {
-                if (pageEl) {
-                    pageEl.style.transform = '';
-                    pageEl.style.opacity = '';
-                }
-                if (helloBox) {
-                    helloBox.style.transform = '';
-                    helloBox.style.transition = '';
-                }
-                if (helloHeader) {
-                    helloHeader.style.transform = '';
-                    helloHeader.style.transition = '';
-                }
-                if (progressContainer) progressContainer.style.opacity = '0';
-                if (window.globalPlaceholderScene?.applyScrollReaction) {
-                    window.globalPlaceholderScene.applyScrollReaction(0);
-                }
-            }
-        } else {
-            if (currentScrollUp > 0.5 && pageEl) {
-                const shrink = Math.max(1 - (currentScrollUp * 0.000015), 0.99);
-                const rotateX = -(Math.min(currentScrollUp * 0.001, 0.5));
-                const slideY = Math.min(currentScrollUp * 0.018, 16);
-                const fade = Math.max(1 - currentScrollUp * 0.00012, 0.92);
-                pageEl.style.transformOrigin = 'top center';
-                pageEl.style.transform = `perspective(1200px) scale(${shrink}) rotateX(${rotateX}deg) translate3d(0, ${slideY}px, 0)`;
-                pageEl.style.opacity = String(fade);
-                if (helloBox) {
-                    const pullDown = currentScrollUp * 0.15;
-                    helloBox.style.transform = `translate3d(0, calc(10px + ${pullDown}px), 0)`;
-                    helloBox.style.transition = 'none';
-                }
-                if (helloHeader) {
-                    const pullDown = currentScrollUp * 0.05;
-                    helloHeader.style.transform = `translate3d(0, ${pullDown}px, 0)`;
-                    helloHeader.style.transition = 'none';
-                }
-                if (progressContainer && progressBar) {
-                    progressContainer.style.opacity = '1';
-                    progressContainer.style.flexDirection = 'column-reverse';
-                    progressBar.style.transformOrigin = 'bottom';
-                    progressBar.style.transform = `scaleY(${Math.min(currentScrollUp / 400, 1)})`;
-                }
-            } else if (pageEl && targetScrollUp === 0 && currentScrollUp < 1) {
-                pageEl.style.transform = '';
-                pageEl.style.opacity = '';
-                if (helloBox) {
-                    helloBox.style.transform = '';
-                    helloBox.style.transition = '';
-                }
-                if (helloHeader) {
-                    helloHeader.style.transform = '';
-                    helloHeader.style.transition = '';
-                }
-                if (progressContainer) progressContainer.style.opacity = '0';
-            }
-        }
-        if (Math.abs(targetScrollDown - currentScrollDown) > 0.35 || Math.abs(targetScrollUp - currentScrollUp) > 0.35) {
-            requestJellyFrame();
-        }
+    // Reaching the top of the index must not fling the visitor back to the landing: the
+    // return starts only on a fresh pull, a moment after the list has stopped moving.
+    let lastIndexScroll = 0;
+    let indexPullTimer = 0;
+    const noteIndexScroll = () => { lastIndexScroll = performance.now(); };
+    shiftIndexPanel.addEventListener('scroll', noteIndexScroll, { passive: true });
+    window.addEventListener('scroll', noteIndexScroll, { passive: true });
+    // The tug is a transform on the list alone; its own transition eases it.
+    const shiftList = document.querySelector('.main-cont-back');
+    const showIndexPull = share => { shiftList.style.transform = share ? `translate3d(0,${(share * 34).toFixed(1)}px,0)` : ''; };
+    function releaseIndexPull() {
+        clearTimeout(indexPullTimer);
+        if (isLanding) return;
+        pull = 0;
+        showIndexPull(0);
     }
 
     document.addEventListener('wheel', (e) => {
-        if (landingTransitionActive) return;
-        if (isFromPostPanelPlaceholder(e.target)) return;
-        const isPostOpen = document.querySelector('.post-panel-viewer.active-state') !== null;
-        if (reducedMotionQuery.matches) {
-            if (isLanding && e.deltaY > 0) exitLandingState();
-            else if (!isLanding && !isPostOpen && e.deltaY < 0 && document.querySelector('.index-panel')?.scrollTop <= 0) enterLandingState();
+        if (e.ctrlKey || shiftBlocked() || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+        const delta = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1);
+        if (!delta) return;
+        const amount = delta / window.innerHeight;
+        if (isLanding) {
+            // The wheel lifts the wordmark (and nudges the row); a sustained downward scroll goes on.
+            window.globalPlaceholderScene?.spin(amount);
+            if (pullLatched) return;
+            if (reducedMotionQuery.matches) { if (delta > 0) playShift(true); return; }
+            // Scrolling back up takes the sheet down faster than it came.
+            pull = Math.max(0, pull + (delta > 0 ? amount : amount * 1.6));
+            pullLimit = WHEEL_LIMIT;
+            pullTime = performance.now();
+            if (pull >= pullLimit) requestIndex();
+            else sheet.follow();
             return;
         }
-        requestJellyFrame();
-
-        if (isLanding && e.deltaY > 0) {
-            targetScrollDown += e.deltaY;
-            if (targetScrollDown > 100) {
-                const progressContainer = document.getElementById('scroll-progress-container');
-                const scrollDownBtn = document.querySelector('.scroll-down-btn');
-                if (progressContainer) {
-                    progressContainer.style.transition = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
-                    progressContainer.style.opacity = '0';
-                    progressContainer.style.transform = 'translateX(150%)';
-                }
-                if (scrollDownBtn) {
-                    scrollDownBtn.style.transition = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
-                    scrollDownBtn.style.opacity = '0';
-                    scrollDownBtn.style.transform = 'translateX(150%)';
-                }
-            }
-            if (targetScrollDown > SCROLL_THRESHOLD) {
-                exitLandingState();
-                targetScrollDown = 0;
-                currentScrollDown = 0;
-                targetScrollUp = 0;
-            } else {
-                clearTimeout(scrollResetTimer);
-                scrollResetTimer = setTimeout(() => { targetScrollDown = 0; }, 150);
-            }
-        } else if (!isLanding && e.deltaY < 0) {
-            if (isPostOpen) { targetScrollUp = 0; return; }
-            const indexPanel = document.querySelector('.index-panel');
-            if (indexPanel && indexPanel.scrollTop <= 0) {
-                targetScrollUp += Math.abs(e.deltaY);
-                if (targetScrollUp > 400) {
-                    enterLandingState();
-                    targetScrollUp = 0;
-                    currentScrollUp = 0;
-                    targetScrollDown = 0;
-                } else {
-                    clearTimeout(scrollResetTimer);
-                    scrollResetTimer = setTimeout(() => { targetScrollUp = 0; }, 150);
-                }
-            }
-        } else {
-            if (e.deltaY < 0) targetScrollDown = 0;
-            if (e.deltaY > 0) targetScrollUp = 0;
+        if (!(delta < 0 && atIndexTop() && performance.now() - lastIndexScroll > 320)) return;
+        if (reducedMotionQuery.matches) { playShift(false); return; }
+        pull += Math.abs(amount);
+        clearTimeout(indexPullTimer);
+        if (pull >= WHEEL_LIMIT) {
+            releaseIndexPull();
+            playShift(false);
+            return;
         }
+        showIndexPull(pull / WHEEL_LIMIT);
+        indexPullTimer = setTimeout(releaseIndexPull, 240);
     }, { passive: true });
 
-    let landingTouchY = 0;
-    document.addEventListener('touchstart', (e) => { 
-        if (e.touches && e.touches[0]) landingTouchY = e.touches[0].clientY; 
-    }, { passive: true });
-    
-    document.addEventListener('touchmove', (e) => {
-        if (landingTransitionActive) return;
+    let shiftTouchX = 0;
+    let shiftTouchY = 0;
+    let shiftTouching = false;
+    document.addEventListener('touchstart', (e) => {
         if (!e.touches || !e.touches[0]) return;
-        const isPostOpen = document.querySelector('.post-panel-viewer.active-state') !== null;
-        const deltaY = landingTouchY - e.touches[0].clientY;
-        landingTouchY = e.touches[0].clientY;
-        if (isFromPostPanelPlaceholder(e.target) && isLanding && deltaY > 0) {
-            handlePlaceholderLandingScroll(deltaY * 2.5);
-            return;
-        }
-        if (reducedMotionQuery.matches) {
-            if (isLanding && deltaY > 0) exitLandingState();
-            else if (!isLanding && !isPostOpen && deltaY < 0 && document.querySelector('.index-panel')?.scrollTop <= 0) enterLandingState();
-            return;
-        }
-        requestJellyFrame();
+        shiftTouchX = e.touches[0].clientX;
+        shiftTouchY = e.touches[0].clientY;
+        shiftTouching = false;
+        if (!pullLatched) pull = 0;
+    }, { passive: true });
 
-        if (isLanding && deltaY > 0) {
-            targetScrollDown += Math.abs(deltaY) * 2.5;
-            if (targetScrollDown > 350) {
-                exitLandingState();
-                targetScrollDown = 0;
-                currentScrollDown = 0;
-            }
-        } else if (!isLanding && deltaY < 0) {
-            if (isPostOpen) { targetScrollUp = 0; return; }
-            const indexPanel = document.querySelector('.index-panel');
-            if (indexPanel && indexPanel.scrollTop <= 0) {
-                targetScrollUp += Math.abs(deltaY) * 2.5;
-                if (targetScrollUp > 350) {
-                    enterLandingState();
-                    targetScrollUp = 0;
-                    currentScrollUp = 0;
-                }
-            }
+    document.addEventListener('touchmove', (e) => {
+        if (!e.touches || !e.touches[0] || shiftBlocked() || pullLatched) return;
+        const dx = shiftTouchX - e.touches[0].clientX;
+        const dy = shiftTouchY - e.touches[0].clientY;
+        shiftTouchX = e.touches[0].clientX;
+        shiftTouchY = e.touches[0].clientY;
+        if (!shiftTouching) {
+            // Sideways drags belong to the rail.
+            if (Math.abs(dy) <= Math.abs(dx)) return;
+            const returning = dy < 0 && atIndexTop() && performance.now() - lastIndexScroll > 320;
+            if (!(isLanding && dy > 0) && !returning) return;
+            shiftTouching = true;
+        }
+        if (reducedMotionQuery.matches) { playShift(isLanding); return; }
+        // The finger can also take the pull back before it lets go.
+        pull = Math.max(0, pull + (isLanding ? dy : -dy) / window.innerHeight);
+        if (isLanding) {
+            pullLimit = TOUCH_LIMIT;
+            pullHeld = true;
+            if (pull >= pullLimit) requestIndex();
+            else sheet.follow();
+        } else if (pull >= TOUCH_LIMIT) {
+            shiftTouching = false;
+            releaseIndexPull();
+            playShift(false);
+        } else {
+            showIndexPull(pull / TOUCH_LIMIT);
         }
     }, { passive: true });
 
-    document.addEventListener('touchend', () => {
-        if (isLanding) targetScrollDown = 0;
-        else targetScrollUp = 0;
+    const endShiftTouch = () => {
+        if (shiftTouching && !isLanding) releaseIndexPull();
+        shiftTouching = false;
+        pullHeld = false;
+        pullTime = 0;
+        if (isLanding && pull) sheet.follow();
+    };
+    document.addEventListener('touchend', endShiftTouch);
+    document.addEventListener('touchcancel', endShiftTouch);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || shiftBlocked()) return;
+        if (e.target instanceof Element && e.target.closest('input,textarea,select,[contenteditable]')) return;
+        if (isLanding && (e.key === 'ArrowDown' || e.key === 'PageDown')) exitLandingState();
+        else if ((e.key === 'ArrowUp' || e.key === 'PageUp' || e.key === 'Home') && atIndexTop()) playShift(false);
     });
+
+    // A resize mid-move would leave the poses measured for the old size; jump to the end.
+    window.addEventListener('resize', finishShift, { passive: true });
+
+    // Build the index's ASCII field while the landing is idle, so the move never waits for it.
+    window.addEventListener('load', () => {
+        const warm = () => {
+            if (!isLanding) return;
+            // Never during the opening or a scroll: wait for a quiet moment instead.
+            if (shift.active || pull || window.globalPlaceholderScene?.opening) { window.setTimeout(warm, 1200); return; }
+            warmReadingPlaceholder();
+        };
+        window.setTimeout(() => ('requestIdleCallback' in window ? requestIdleCallback(warm, { timeout: 2000 }) : warm()), 3200);
+    }, { once: true });
 
     const S_URL = 'https://dwyoitvmforukvdikzqo.supabase.co';
     const S_KEY = 'sb_publishable_c5y0L6D5oRgoEV_MzedQQQ_nCJfKHb0';
@@ -857,7 +1004,12 @@ function syncLandingChromeAlignment(force = false) {
 
         const currentPost = allPosts.find(post => String(post.id) === String(currentPostId));
         const candidates = allPosts.filter(post => String(post.id) !== String(currentPostId));
-        const nextPost = candidates.find(post => post.category === currentPost?.category) || candidates[0];
+        // Next: a post of the same kind that shares a hashtag, else the same kind, else the newest.
+        const kind = post => window.SwblogPostType?.postType(post) || 'blog';
+        const tags = new Set(window.SwblogTags?.tagsOf(currentPost) || []);
+        const sameKind = candidates.filter(post => kind(post) === kind(currentPost));
+        const nextPost = sameKind.find(post => (window.SwblogTags?.tagsOf(post) || []).some(tag => tags.has(tag)))
+            || sameKind[0] || candidates[0];
         if (!nextPost) {
             link.href = './index.html';
             delete link.dataset.postId;
@@ -877,7 +1029,7 @@ function syncLandingChromeAlignment(force = false) {
         link.href = url.toString();
         link.dataset.postId = String(nextPost.id);
         title.textContent = nextPost.title || '최신 포스트 보기';
-        meta.textContent = [nextPost.category || 'POST', date].filter(Boolean).join(' · ');
+        meta.textContent = [window.SwblogTags?.label(window.SwblogTags.tagsOf(nextPost)) || (kind(nextPost) === 'gallery' ? 'GALLERY' : 'BLOG'), date].filter(Boolean).join(' · ');
         const thumbnail = getFirstImage(nextPost.content);
         if (thumbnail) {
             image.src = thumbnail;
@@ -902,7 +1054,7 @@ function syncLandingChromeAlignment(force = false) {
                 const postOpen = viewer?.classList.contains('active-state');
                 const footerStageActive = entry.isIntersecting && !postOpen;
                 document.body.classList.toggle('list-footer-stage', footerStageActive);
-                window.globalAsciiScene?.setActive(!footerStageActive);
+                window.globalPanelScene?.setActive(!footerStageActive);
             }, { root: isMobileLayout() ? null : indexPanel, threshold: 0.04 });
             listFooterObserver.observe(listFooter);
         }
@@ -945,13 +1097,190 @@ function syncLandingChromeAlignment(force = false) {
                 if (!entry.isIntersecting) return;
                 observer.unobserve(entry.target);
                 if (document.getElementById('post-panel-viewer').classList.contains('active-state')) return;
-                entry.target.querySelector('.post-list-content.main')?.animate([
-                    { transform:'translateY(48px)' },
-                    { transform:'translateY(0)' }
-                ], { duration:750, delay:order++*75, easing:'cubic-bezier(.16,1,.3,1)', fill:'backwards' });
+                // Posts carried in by the move from the landing simply arrive with the page.
+                if (isLanding || shift.active) return;
+                revealPost(entry.target, order++ * 90);
             });
         }, { root:isMobileLayout() ? null : document.querySelector('.index-panel'), threshold:.05 });
         items.forEach(item => postRevealObserver.observe(item));
+    }
+
+    // Uncovers one post: the picture is wiped in from the top while settling back in its frame
+    // (the thumb is a window sliding down over the picture, which slides the other way inside
+    // it, so the wipe is two transforms and never repaints), and the text block rises and fades
+    // in as a whole. The two copies of the title inside it are left alone, so the hover swap
+    // works the same during the reveal as after it. Everything is set up paused and held on its first frame, and starts together once
+    // the picture is decoded, so nothing begins and then stalls.
+    function revealPost(item, delay) {
+        const thumb = item.querySelector('.post-list-thumb');
+        const picture = thumb?.firstElementChild;
+        const image = picture?.querySelector('img');
+        const text = item.querySelector('.post-list-swap');
+        const wipe = { duration:1100, delay, easing:'cubic-bezier(.19,1,.22,1)', fill:'backwards' };
+        const motions = [
+            thumb?.animate([{ transform:'translate3d(0,-101%,0)' }, { transform:'translate3d(0,0,0)' }], wipe),
+            picture?.animate([{ transform:'translate3d(0,101%,0)' }, { transform:'translate3d(0,0,0)' }], wipe),
+            image?.animate([{ transform:'scale(1.3)' }],
+                { duration:1600, delay, easing:'cubic-bezier(.19,1,.22,1)', fill:'backwards' }),
+            text?.animate([{ transform:'translate3d(0,26px,0)', opacity:0 }, { transform:'translate3d(0,0,0)', opacity:1 }],
+                { duration:1100, delay:delay + 140, easing:'cubic-bezier(.19,1,.22,1)', fill:'backwards' })
+        ].filter(Boolean);
+        if (!image || (image.complete && image.naturalWidth && image.dataset.decoded)) return;
+        motions.forEach(motion => motion.pause());
+        const start = () => {
+            motions.forEach(motion => { if (motion.playState === 'paused') motion.play(); });
+        };
+        image.loading = 'eager';
+        Promise.race([
+            image.decode().then(() => { image.dataset.decoded = '1'; }, () => {}),
+            new Promise(resolve => setTimeout(resolve, 700))
+        ]).then(start);
+    }
+
+    // Pictures flex with the speed of the list, after gilhuybrecht.com: while the list moves,
+    // each picture swells a little and lags inside its frame, and settles back as the list comes
+    // to rest. Only the pictures in view are touched, and only through the individual scale and
+    // translate properties, so the hover zoom and the reveals (transform) are left alone.
+    {
+        const panel = document.querySelector('.index-panel');
+        const inView = new Set();
+        let watcher = null, raf = 0, last = null, lastTime = 0, speed = 0, calm = 0;
+        const watch = () => {
+            watcher?.disconnect();
+            watcher = new IntersectionObserver(entries => entries.forEach(entry => {
+                if (entry.isIntersecting) inView.add(entry.target);
+                else { inView.delete(entry.target); entry.target.style.scale = entry.target.style.translate = ''; }
+            }), { root: isMobileLayout() ? null : panel });
+            inView.clear();
+            document.querySelectorAll('#post-container .post-list-thumb-pic > img').forEach(image => watcher.observe(image));
+        };
+        const settle = () => { inView.forEach(image => { image.style.scale = image.style.translate = ''; }); };
+        const position = () => isMobileLayout() ? window.scrollY : panel.scrollTop;
+        const tick = now => {
+            raf = 0;
+            if (isLanding || shift.active || document.getElementById('post-panel-viewer').classList.contains('active-state')) { speed = 0; last = null; settle(); return; }
+            const y = position(), dt = Math.max(8, Math.min(64, lastTime ? now - lastTime : 16));
+            const moved = last === null ? 0 : (y - last) / dt;   // px per ms
+            last = y; lastTime = now;
+            speed += (moved - speed) * (1 - Math.pow(.86, dt / 16.67));
+            const k = Math.max(-1, Math.min(1, speed / 2.6));
+            // A few still frames in a row end it; the first frame only takes a reading.
+            calm = Math.abs(k) < .003 && Math.abs(moved) < .01 ? calm + 1 : 0;
+            if (calm > 3) { speed = 0; last = null; lastTime = 0; calm = 0; settle(); return; }
+            // The swell always covers the lag, so the frame never shows its ground.
+            const scale = (1 + Math.abs(k) * .075).toFixed(4), lag = (k * 3.2).toFixed(3) + '%';
+            inView.forEach(image => { image.style.scale = scale; image.style.translate = `0 ${lag}`; });
+            raf = requestAnimationFrame(tick);
+        };
+        const start = () => { if (!raf && !reducedMotionQuery.matches) raf = requestAnimationFrame(tick); };
+        panel?.addEventListener('scroll', start, { passive: true });
+        window.addEventListener('scroll', () => { if (isMobileLayout()) start(); }, { passive: true });
+        window.watchListPictures = watch;
+    }
+
+    // Sidebar titles that do not fit run from end to end: each one that overflows is marked and
+    // told how far to travel (and so how long to take, at an even reading pace). Measured
+    // whenever the reader opens and when the window changes size.
+    {
+        const viewer = document.getElementById('post-panel-viewer');
+        let frame = 0;
+        const measure = () => {
+            frame = 0;
+            if (!viewer.classList.contains('active-state')) return;
+            document.querySelectorAll('#archive-panel .post-list-title').forEach(title => {
+                const run = title.querySelector('.post-list-title-run');
+                if (!run) return;
+                title.classList.remove('is-running');
+                const over = title.scrollWidth - title.clientWidth;
+                if (over <= 2) return;
+                title.style.setProperty('--run', -(over + 28) + 'px');
+                title.style.setProperty('--run-time', Math.max(4, (over + 28) / 28 / .72).toFixed(1) + 's');
+                title.classList.add('is-running');
+            });
+        };
+        window.measureSidebarTitles = () => { if (!frame) frame = requestAnimationFrame(() => requestAnimationFrame(measure)); };
+        new MutationObserver(window.measureSidebarTitles).observe(viewer, { attributes: true, attributeFilter: ['class'] });
+        window.addEventListener('resize', window.measureSidebarTitles);
+        document.fonts?.ready.then(window.measureSidebarTitles);
+    }
+
+    // Two columns of different widths, one per kind of post: gallery posts stand in the wide
+    // column and blog posts in the narrow one, each column stacked newest first. The script sets
+    // each post's place and width (--x, --y, --w) and the list's height (--list-h). The shorter
+    // column is given the height it falls short of the other (--lag); the stylesheet lets it fall
+    // behind the scroll by that much while the list passes through the view (--lag-start to
+    // --lag-end), so the two columns come in together, leave together, and the shorter one
+    // scrolls more slowly.
+    {
+        const container = document.getElementById('post-container');
+        let frame = 0;
+        const observed = new WeakSet();
+        // Layout offset of a node inside its scroller (transforms ignored, so this holds while
+        // the landing has the list moved away).
+        const offsetIn = (node, scroller) => {
+            let y = 0;
+            while (node && node !== scroller) { y += node.offsetTop; node = node.offsetParent; }
+            return node === scroller ? y : null;
+        };
+        const layout = () => {
+            frame = 0;
+            if (document.getElementById('post-panel-viewer').classList.contains('active-state')) return;
+            const items = [...container.children].filter(node => node.classList.contains('post-list-item'));
+            const style = getComputedStyle(container);
+            const padTop = parseFloat(style.paddingTop) || 0, padBottom = parseFloat(style.paddingBottom) || 0;
+            const padLeft = parseFloat(style.paddingLeft) || 0, padRight = parseFloat(style.paddingRight) || 0;
+            const gapX = parseFloat(style.columnGap) || 24, gapY = parseFloat(style.rowGap) || 56;
+            const inner = container.clientWidth - padLeft - padRight;
+            const wideWidth = (inner - gapX) * 1.55 / 2.55;
+            const columns = [
+                { x: padLeft, w: wideWidth, items: [] },
+                { x: padLeft + wideWidth + gapX, w: inner - gapX - wideWidth, items: [] }
+            ];
+            items.forEach(item => {
+                const column = item.classList.contains('is-gallery') ? columns[0] : columns[1];
+                item.style.setProperty('--w', column.w.toFixed(2) + 'px');
+                column.items.push(item);
+                if (!observed.has(item)) { observed.add(item); sizes.observe(item); }
+            });
+            // Heights are read once the widths are in place (one layout for the whole list).
+            const heights = new Map(items.map(item => [item, item.offsetHeight]));
+            columns.forEach(column => {
+                let y = 0;
+                column.items.forEach(item => {
+                    item.style.setProperty('--x', column.x.toFixed(2) + 'px');
+                    item.style.setProperty('--y', (padTop + y).toFixed(1) + 'px');
+                    y += heights.get(item) + gapY;
+                });
+                column.h = column.items.length ? y - gapY : 0;
+            });
+            const tall = Math.max(columns[0].h, columns[1].h);
+            const boxed = style.boxSizing === 'border-box';
+            container.style.setProperty('--list-h', (tall + (boxed ? padTop + padBottom : 0)).toFixed(1) + 'px');
+            // The stretch of scroll over which the list passes: from when its top comes into
+            // view (or the start) to when its last row reaches the bottom of the view.
+            const mobile = isMobileLayout();
+            const scroller = mobile ? null : document.querySelector('.index-panel');
+            const view = mobile ? window.innerHeight : scroller?.clientHeight || window.innerHeight;
+            let top = offsetIn(container, scroller);
+            if (top === null) top = container.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop;
+            const bottom = top + padTop + tall;
+            const start = Math.max(0, top - view), end = Math.max(start + 1, bottom - view);
+            columns.forEach(column => {
+                const lag = (tall - column.h).toFixed(1) + 'px';
+                column.items.forEach(item => {
+                    item.style.setProperty('--lag', lag);
+                    item.style.setProperty('--lag-start', start.toFixed(0) + 'px');
+                    item.style.setProperty('--lag-end', end.toFixed(0) + 'px');
+                });
+            });
+        };
+        const queue = now => {
+            if (now === true) { cancelAnimationFrame(frame); frame = 0; layout(); return; }
+            if (!frame) frame = requestAnimationFrame(layout);
+        };
+        const sizes = new ResizeObserver(() => queue());
+        sizes.observe(container);
+        window.layoutPostColumns = queue;
     }
 
     narrowPostListQuery.addEventListener('change', () => {
@@ -1037,42 +1366,59 @@ function syncLandingChromeAlignment(force = false) {
             const date = new Date(post.created_at).toISOString().split('T')[0];
             const padIdx = String(index + 1).padStart(2, '0');
 
-            let dotColor = 'cat_b.png';
-            if (post.category === 'DESIGN') dotColor = 'cat_y.png';
-            else if (post.category === 'LIFE') dotColor = 'cat_r.png';
+            // The mark of a post's kind (blog or gallery); its hashtags stand where the category was.
+            const postKind = window.SwblogPostType?.postType(post) || 'blog';
+            const dotColor = postKind === 'gallery' ? 'cat_y.png' : 'cat_b.png';
+            const tagLabel = window.SwblogTags?.label(window.SwblogTags.tagsOf(post)) || '';
 
             const postIdEnc = encodeURIComponent(post.id);
+            // (Gallery posts stand in the wide column, blog posts in the narrow one.)
             const postIdSafe = escapeHtml(String(post.id));
             const firstImg = getFirstImage(post.content);
             const imgDataAttr = firstImg ? `data-preview-img="${escapeHtml(firstImg)}"` : '';
+            // The picture made for the right-hand panel, if the post has one.
+            const panelImg = window.PanelScene?.panelImage(post.content);
+            const panelDataAttr = panelImg ? `data-panel-img="${escapeHtml(panelImg)}"` : '';
+            // Reading time, counted as the reader counts it (characters without spaces, 500 a minute).
+            const readMinutes = Math.max(1, Math.ceil(String(post.content || '').replace(/<[^>]*>/g, '').replace(/&[#\w]+;/g, ' ').replace(/\s/g, '').length / 500));
             const randomRot = (Math.random() * 16 - 8).toFixed(2);
             const titleHtml = makeWaveText(highlightText(post.title, query));
 
             const contentHtml = `
-                <img class="post-list-dot" src="./mainPage_img/${dotColor}" alt="${escapeHtml(post.category)}">
+                <img class="post-list-dot" src="./mainPage_img/${dotColor}" alt="${postKind === 'gallery' ? '갤러리' : '블로그'}">
                 <div class="post-list-text-wrap">
-                    <span class="post-list-category">${highlightText(post.category, query)}</span>
-                    <h3 class="post-list-title">${titleHtml}</h3>
+                    <span class="post-list-category">${highlightText(tagLabel || (postKind === 'gallery' ? 'GALLERY' : 'BLOG'), query)}</span>
+                    <h3 class="post-list-title"><span class="post-list-title-run">${titleHtml}</span></h3>
                 </div>
                 <time datetime="${escapeHtml(post.created_at)}" class="post-list-date">${date}</time>
             `;
 
             return `
             <a href="?post=${postIdEnc}"
-               class="post-list-item"
+               class="post-list-item is-${postKind}"
                data-post-id="${postIdSafe}"
-               data-category="${escapeHtml(post.category || '')}"
+               data-type="${postKind}"
+               data-category="${escapeHtml(tagLabel)}"
+               data-tags="${escapeHtml(window.SwblogTags?.format(window.SwblogTags.tagsOf(post)) || '')}"
+               data-date="${date.replace(/-/g, '.')}"
+               data-read="${readMinutes}"
                ${imgDataAttr}
+               ${panelDataAttr}
                style="--i: ${index};" 
                data-base-rot="${randomRot}"
                aria-label="${escapeHtml(post.title)}">
                 <div class="flap-line"></div>
+                <div class="post-list-thumb"><span class="post-list-thumb-pic">${firstImg
+                    ? `<img src="${escapeHtml(firstImg)}" alt="" loading="lazy" decoding="async">`
+                    : `<img class="post-list-thumb-glyph" src="./mainPage_img/${dotColor}" alt="">`}</span></div>
                 <div class="post-list-num" style="color: #00081c">${padIdx}</div>
-                <div class="post-list-content main">
-                    ${contentHtml}
-                </div>
-                <div class="post-list-content clone" aria-hidden="true">
-                    ${contentHtml}
+                <div class="post-list-swap">
+                    <div class="post-list-content main">
+                        ${contentHtml}
+                    </div>
+                    <div class="post-list-content clone" aria-hidden="true">
+                        ${contentHtml}
+                    </div>
                 </div>
             </a>`;
         }).join('');
@@ -1080,33 +1426,11 @@ function syncLandingChromeAlignment(force = false) {
         window.Publication2026?.refreshIndex();
         document.getElementById('archive-count').textContent = String(posts.length).padStart(2, '0') + '';
 
+        // Titles wrap in every layout, so nothing scrolls sideways any more.
         setupPostReveal(container);
-
-        window.recalculateMarquee = () => {
-            const postContainer = document.getElementById('post-container');
-            if (!postContainer) return;
-            postContainer.querySelectorAll('.post-list-title').forEach(title => {
-                const textWrap = title.closest('.post-list-text-wrap');
-                if (!textWrap) return;
-                title.classList.remove('marquee');
-                textWrap.classList.remove('has-marquee');
-                
-                if (title.scrollWidth > textWrap.clientWidth) {
-                    title.classList.add('marquee');
-                    textWrap.classList.add('has-marquee');
-                    const moveX = title.scrollWidth - textWrap.clientWidth + 20;
-                    title.style.setProperty('--move-x', `-${moveX}px`);
-                    const duration = Math.max(3, moveX / 40);
-                    title.style.setProperty('--anim-duration', `${duration}s`);
-                }
-            });
-        };
-
-        if (document.fonts && document.fonts.ready) {
-            document.fonts.ready.then(() => setTimeout(window.recalculateMarquee, 50));
-        } else {
-            setTimeout(window.recalculateMarquee, 300);
-        }
+        window.watchListPictures?.();
+        window.layoutPostColumns?.(true);
+        window.measureSidebarTitles?.();
     }
 
     function generateTOC(contentEl) {
@@ -1148,6 +1472,9 @@ function syncLandingChromeAlignment(force = false) {
 
             const li = document.createElement('li');
             li.textContent = heading.textContent;
+            // The same number the article gives the section (none for chapter titles), so the
+            // contents and the text agree.
+            li.dataset.number = (heading.closest('.post-editorial-heading') || heading).dataset.sectionNumber || '';
             li.setAttribute('role', 'button');
             li.setAttribute('aria-label', `목차: ${heading.textContent}`);
             li.tabIndex = 0;
@@ -1223,6 +1550,8 @@ function syncLandingChromeAlignment(force = false) {
             if (activeIndex !== lastActiveIndex) {
                 tocItems.forEach((item, index) => {
                     item.li.classList.toggle('active', index === activeIndex);
+                    // Sections already read stay a shade darker than those still ahead.
+                    item.li.classList.toggle('read', index < activeIndex);
                     if (index === activeIndex) item.li.setAttribute('aria-current','location');
                     else item.li.removeAttribute('aria-current');
                 });
@@ -1276,13 +1605,23 @@ function syncLandingChromeAlignment(force = false) {
         }
         setMobilePostBackgroundInert(isMobile());
 
-        if (window.globalAsciiScene) {
-            window.globalAsciiScene.setActive(false);
+        if (window.globalPanelScene) {
+            window.globalPanelScene.setActive(false);
         }
 
         const isAlreadyOpen = viewer.classList.contains('active-state');
 
         if (!isAlreadyOpen) {
+            // The loading paper (or the passing sheet, for a post already loaded) takes a moment
+            // to come up over the page. The reader's layout, with its sidebar, is put in place
+            // only once the paper covers everything, and without its own transitions, so none
+            // of the change is ever seen.
+            if (!reducedMotionQuery.matches && document.querySelector('.resolution-scene,.resolution-pass')) {
+                await new Promise(resolve => setTimeout(resolve, 680));
+                if (renderId !== currentRenderId) return;
+            }
+            document.body.classList.add('reader-snap');
+            setTimeout(() => document.body.classList.remove('reader-snap'), 120);
             panelBody.style.transition = 'none';
             panelBody.style.opacity = '0';
             panelBody.style.transform = 'translate3d(0, 10px, 0)';
@@ -1342,7 +1681,9 @@ function syncLandingChromeAlignment(force = false) {
             });
         } else {
             loadedPostData.set(String(postId), data);
-            document.getElementById('panel-cat').textContent   = data.category || '';
+            // The kind of post at the top right; its hashtags after the reading time.
+            document.getElementById('panel-cat').textContent   = window.SwblogPostType?.postType(data) === 'gallery' ? 'GALLERY' : 'BLOG';
+            document.getElementById('panel-tags').textContent  = window.SwblogTags?.label(window.SwblogTags.tagsOf(data)) || '';
             document.getElementById('panel-title').textContent = data.title    || '';
             document.getElementById('panel-date').textContent  =
                 new Date(data.created_at).toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' });
@@ -1357,8 +1698,8 @@ function syncLandingChromeAlignment(force = false) {
                     ? PostContent.toRenderableHtml(rawContent, window.marked)
                     : (window.marked ? marked.parse(rawContent) : rawContent);
                 const safeHtml = window.DOMPurify ? DOMPurify.sanitize(rawHtml, {
-                    ADD_TAGS: ['svg', 'polyline', 'circle', 'line', 'path', 'blockquote', 'button', 'table', 'tr', 'td', 'tbody', 'thead'],
-                    ADD_ATTR: ['stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'fill', 'viewBox', 'points', 'cx', 'cy', 'r', 'x1', 'y1', 'x2', 'y2', 'id', 'class', 'data-layout', 'd', 'data-initialized', 'contenteditable', 'style', 'alt', 'datetime']
+                    ADD_TAGS: ['svg', 'polyline', 'circle', 'line', 'path', 'blockquote', 'button', 'table', 'tr', 'td', 'th', 'tbody', 'thead', 'tfoot', 'caption', 'colgroup', 'col', 'figure', 'figcaption'],
+                    ADD_ATTR: ['target', 'rel', 'colspan', 'rowspan', 'scope', 'data-style', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'fill', 'viewBox', 'points', 'cx', 'cy', 'r', 'x1', 'y1', 'x2', 'y2', 'id', 'class', 'data-layout', 'd', 'data-initialized', 'contenteditable', 'style', 'alt', 'datetime']
                 }) : rawHtml;
                 
                 content.innerHTML = safeHtml;
@@ -1368,9 +1709,18 @@ function syncLandingChromeAlignment(force = false) {
                     panelBody.style.transition = 'opacity var(--motion-base) var(--ease-out), transform var(--motion-base) var(--ease-out)';
                     panelBody.style.opacity = '1';
                     panelBody.style.transform = 'translate3d(0, 0, 0)';
-                    window.PostContent?.enhanceEditorialLayout?.(content, { title: data.title || '' });
-                    processImageSliders(content);
-                    setupGlobalImageZoom(content);
+                    // A gallery post is set as large pictures with short notes; a blog post as
+                    // the editorial page.
+                    const gallery = window.SwblogPostType?.postType(data) === 'gallery' && window.GalleryReader;
+                    document.body.classList.toggle('reading-gallery', Boolean(gallery));
+                    if (gallery) {
+                        window.GalleryReader.build(content, data, { open: openFullscreen });
+                    } else {
+                        window.GalleryReader?.stop();
+                        window.PostContent?.enhanceEditorialLayout?.(content, { title: data.title || '' });
+                        processImageSliders(content);
+                        setupGlobalImageZoom(content);
+                    }
                     generateTOC(content);
                     window.Publication2026?.enhance(content, data);
                     window.Publication2026?.resolve(resolution);
@@ -1385,8 +1735,10 @@ function syncLandingChromeAlignment(force = false) {
         }
     }
 
+    let readerClosing = false;
     async function closePanelPost({ syncHistory = true } = {}) {
-        if (document.body.classList.contains('reader-closing')) return;
+        if (readerClosing) return;
+        readerClosing = true;
         const currentUrl = new URL(window.location.href);
         if (syncHistory && currentUrl.searchParams.has('post')) {
 
@@ -1396,6 +1748,8 @@ function syncLandingChromeAlignment(force = false) {
 
         currentRenderId++;
         window.Publication2026?.cancel();
+        window.GalleryReader?.stop();
+        document.body.classList.remove('reading-gallery');
         document.body.classList.remove('contents-open');
         document.body.classList.remove('post-end-stage');
         const viewer = document.getElementById('post-panel-viewer');
@@ -1406,44 +1760,34 @@ function syncLandingChromeAlignment(force = false) {
         const tocSidebar = document.getElementById('post-toc-sidebar');
 
         const reducedCloseMotion = reducedMotionQuery.matches;
-        document.body.classList.add('reader-closing', 'reader-list-revealing');
-        closeButton?.setAttribute('aria-disabled', 'true');
-        document.querySelectorAll('.post-list-item').forEach((item, index) => {
-            item.style.setProperty('--reader-row-order', String(Math.min(index, 11)));
-        });
+        // The X is gone the moment it is pressed.
+        if (closeButton) {
+            closeButton.getAnimations({ subtree: true }).forEach(animation => animation.cancel());
+            closeButton.hidden = true;
+            closeButton.setAttribute('inert', '');
+        }
 
-        const animations = [];
+        // Leaving a post: a sheet of paper closes over the article from the left, the index is
+        // put back together underneath it while nothing is visible, and the sheet then opens to
+        // the right. The steps in between (the list changing from reading rows back to the
+        // gallery, the wordmark returning, the field switching on, the scroll position) are
+        // never on screen, so nothing blinks or pops in.
+        let curtain = null;
         if (!reducedCloseMotion) {
-            const closeEase = 'cubic-bezier(.76,0,.18,1)';
-            const closeIcon = closeButton?.querySelector('svg');
-            const closeLines = closeIcon ? Array.from(closeIcon.querySelectorAll('line')) : [];
-
-            if (closeIcon) animations.push(closeIcon.animate([
-                { transform: 'rotate(0deg) scale(1)', offset: 0 },
-                { transform: 'rotate(22deg) scale(.9)', offset: .18 },
-                { transform: 'rotate(180deg) scale(1.08)', offset: .72 },
-                { transform: 'rotate(225deg) scale(.82)', offset: 1 }
-            ], { duration: 760, easing: 'cubic-bezier(.22,.8,.18,1)', fill: 'forwards' }));
-
-            closeLines.forEach((line, index) => animations.push(line.animate([
-                { transform: 'scaleX(1)', offset: 0 },
-                { transform: 'scaleX(.58)', offset: .2 },
-                { transform: 'scaleX(1.16)', offset: .66 },
-                { transform: 'scaleX(.2)', offset: 1 }
-            ], { duration: 700, delay: index * 36, easing: closeEase, fill: 'forwards' })));
-
-            animations.push(panelBody.animate([
-                { clipPath: 'inset(0 0 0 0)', transform: 'translate3d(0,0,0)', opacity: 1, offset: 0 },
-                { clipPath: 'inset(0 0 0 4%)', transform: 'translate3d(8px,0,0)', opacity: 1, offset: .22 },
-                { clipPath: 'inset(0 0 0 100%)', transform: 'translate3d(30px,0,0)', opacity: .92, offset: 1 }
-            ], { duration: 780, easing: closeEase, fill: 'forwards' }));
-
-            if (tocSidebar && !tocSidebar.hidden) animations.push(tocSidebar.animate([
-                { transform: 'translate3d(0,0,0)', opacity: 1 },
-                { transform: 'translate3d(-18px,0,0)', opacity: 0 }
-            ], { duration: 420, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }));
-
-            await Promise.allSettled(animations.map(animation => animation.finished));
+            curtain = document.createElement('div');
+            curtain.className = 'reader-curtain';
+            curtain.setAttribute('aria-hidden', 'true');
+            document.body.append(curtain);
+            if (tocSidebar && !tocSidebar.hidden) tocSidebar.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 240, easing: 'ease', fill: 'forwards' });
+            // The article is pushed along a little ahead of the sheet.
+            const pushed = document.querySelector('.split-layout')?.animate([
+                { transform: 'translate3d(0,0,0) scale(1)' }, { transform: 'translate3d(180px,0,0) scale(.96)' }
+            ], { duration: 560, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' });
+            await curtain.animate([
+                { transform: 'translate3d(-101%,0,0)' },
+                { transform: 'translate3d(0,0,0)' }
+            ], { duration: 560, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' }).finished.catch(() => {});
+            pushed?.cancel();
         }
 
         // Keep the final frame while the underlying index finishes unfolding.
@@ -1462,9 +1806,10 @@ function syncLandingChromeAlignment(force = false) {
             closeButton.setAttribute('inert', '');
             closeButton.removeAttribute('aria-disabled');
         }
-        if (tocSidebar) tocSidebar.hidden = true;
-        // The held final frames would otherwise leave the close icon collapsed for the next post.
-        animations.forEach(animation => animation.cancel());
+        if (tocSidebar) {
+            tocSidebar.hidden = true;
+            tocSidebar.getAnimations().forEach(animation => animation.cancel());
+        }
         placeholder.classList.remove('hidden-state');
         setMobilePostBackgroundInert(false);
 
@@ -1479,16 +1824,41 @@ function syncLandingChromeAlignment(force = false) {
             panel._tocResizeObserver = null;
         }
 
-        if (window.globalAsciiScene) {
-            window.globalAsciiScene.setActive(true);
-            window.globalAsciiScene.onResize();
+        if (window.globalPanelScene) {
+            window.globalPanelScene.setActive(true);
+            window.globalPanelScene.onResize();
         }
 
         document.body.classList.remove('archive-pinned');
-        if (panelReturnFocus instanceof HTMLElement) panelReturnFocus.focus({ preventScroll: true });
+        // The post that was open comes back centred, before the list is seen.
+        if (panelReturnFocus instanceof HTMLElement) {
+            panelReturnFocus.scrollIntoView({ block: 'center', behavior: 'instant' });
+            panelReturnFocus.focus({ preventScroll: true });
+        }
         panelReturnFocus = null;
 
-        window.setTimeout(() => document.body.classList.remove('reader-closing', 'reader-list-revealing'), reducedCloseMotion ? 0 : 260);
+        if (curtain) {
+            // Open the sheet once the pictures in view are decoded and the field has drawn.
+            const inView = [...document.querySelectorAll('.post-list-thumb-pic > img')].filter(image => {
+                const box = image.getBoundingClientRect();
+                return box.bottom > 0 && box.top < window.innerHeight && box.width > 0;
+            });
+            await Promise.race([
+                Promise.all(inView.map(image => image.decode().catch(() => {}))),
+                new Promise(resolve => setTimeout(resolve, 400))
+            ]);
+            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            curtain.animate([
+                { transform: 'translate3d(0,0,0)' },
+                { transform: 'translate3d(101%,0,0)' }
+            ], { duration: 720, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' }).finished
+                .catch(() => {}).then(() => curtain.remove());
+            // ...and the index follows the sheet out, from a little behind.
+            document.querySelector('.split-layout')?.animate([
+                { transform: 'translate3d(-200px,0,0) scale(.96)' }, { transform: 'translate3d(0,0,0) scale(1)' }
+            ], { duration: 980, easing: 'cubic-bezier(.65,0,.2,1)' });
+        }
+        readerClosing = false;
 
         // 3. 트랜지션 완료 후 뒷정리
         setTimeout(() => {
@@ -1513,19 +1883,8 @@ function syncLandingChromeAlignment(force = false) {
             history.replaceState({ swblogBase: true }, '', currentUrl);
         }
 
-        requestAnimationFrame(() => {
-            if (returnTarget instanceof HTMLElement) {
-                returnTarget.scrollIntoView({
-                    behavior: reducedMotionQuery.matches ? 'auto' : 'smooth',
-                    block: 'center'
-                });
-            } else {
-                document.querySelector('.main-cont-back')?.scrollIntoView({
-                    behavior: reducedMotionQuery.matches ? 'auto' : 'smooth',
-                    block: 'start'
-                });
-            }
-        });
+        // closePanelPost has already brought the post back into view.
+        void returnTarget;
     }
     window.returnToPostList = returnToPostList;
     document.querySelector('.panel-close-btn')?.addEventListener('click', returnToPostList);
@@ -1897,6 +2256,14 @@ function syncLandingChromeAlignment(force = false) {
         else if (mode === 'push') history.pushState(state, '', url);
     }
 
+    function releaseRailHover(event) {
+        const reading = document.getElementById('post-panel-viewer')?.classList.contains('active-state');
+        const rail = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--reader-rail')) || 64;
+        if (reading && event.clientX <= rail + 16) return;
+        document.querySelector('.index-panel')?.classList.remove('disable-hover');
+        window.removeEventListener('pointermove', releaseRailHover);
+    }
+
     function openPanelPost(postId, item = null, historyMode = 'none') {
         if (!postId) return;
         item = item || Array.from(document.querySelectorAll('.post-list-item')).find(row => String(row.dataset.postId) === String(postId)) || null;
@@ -1905,8 +2272,13 @@ function syncLandingChromeAlignment(force = false) {
 
         const indexPanel = document.querySelector('.index-panel');
         if (indexPanel) {
+            // The pointer that clicked is still over where the list was, and the browser keeps
+            // the list hovered until the pointer moves, so the sidebar would open by itself.
+            // It stays shut until the pointer has been seen outside the narrow rail.
             indexPanel.classList.add('disable-hover');
-            setTimeout(() => { indexPanel.classList.remove('disable-hover'); }, 1000); 
+            if (indexPanel.contains(document.activeElement)) document.activeElement.blur();
+            window.removeEventListener('pointermove', releaseRailHover);
+            window.addEventListener('pointermove', releaseRailHover, { passive: true });
         }
 
         document.querySelectorAll('.post-list-item').forEach(el => el.classList.remove('active'));
@@ -1951,7 +2323,22 @@ function syncLandingChromeAlignment(force = false) {
         const item = e.target.closest('.post-list-item');
         if (!item) return;
         e.preventDefault();
+        // The list is on its way in or out; nothing opens until it has landed.
+        if (shift.active) return;
         openPanelPost(item.dataset.postId, item, 'push');
+    });
+
+    // A link in a post to another post (?post=ID on this site) opens it in the reader, the way a
+    // list item does; links to other pages or sites behave as links.
+    document.getElementById('panel-content')?.addEventListener('click', event => {
+        const link = event.target.closest('a[href]');
+        if (!link || event.defaultPrevented || event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        if (link.target === '_blank') return;
+        const url = new URL(link.getAttribute('href'), window.location.href);
+        const postId = url.searchParams.get('post');
+        if (url.origin !== window.location.origin || !postId || !/(^\/$|\/index\.html$|\/$)/.test(url.pathname)) return;
+        event.preventDefault();
+        openPanelPost(postId, null, 'push');
     });
 
     document.getElementById('panel-continuation-link')?.addEventListener('click', function (event) {
@@ -1961,11 +2348,16 @@ function syncLandingChromeAlignment(force = false) {
         openPanelPost(postId, null, 'push');
     });
 
-    class AsciiArtScene extends window.AsciiVolumeScene {}
-    const RAIL_SHADES = Array.from({ length: 43 }, (_, level) => `rgba(18,18,18,${level / 100})`);
-    // Landing rail: every post rides one flexible ribbon around a 3D figure-eight.
-    // It is painted on a 2D canvas in thin strips, so cards bend with the path and
-    // any image host works (no CORS needed, unlike WebGL textures).
+    const clamp01 = value => Math.max(0, Math.min(1, value));
+    // The Gudermannian function: rises from -pi/2 to pi/2, and its slope is 1/cosh.
+    const gd = value => 2 * Math.atan(Math.tanh(value / 2));
+
+    // Landing strip: posts stand side by side in one row across the screen, all the same
+    // height. The row is a lens: each post has one slot, and the slots are widest in the
+    // middle and narrow toward both margins, where they close to nothing. A box is the window
+    // its slot leaves between the gaps; the picture inside keeps its own size and ratio and
+    // is cropped evenly from both sides. Left alone, the row drifts slowly to the left.
+    // Frames only change compositor transforms.
     class PlaceholderScene {
         constructor(containerId) {
             this.container = document.getElementById(containerId);
@@ -1973,29 +2365,20 @@ function syncLandingChromeAlignment(force = false) {
             this.container.placeholderScene = this;
             this.container.classList.add('rail-placeholder');
 
-            this.scroll = 0;        // ribbon travel along the path, in world px
-            this.velocity = 0;      // free travel per 60Hz frame
-            this.speed = 0;         // smoothed actual travel per frame
-            this.ripple = 0;
-            this.lean = 0;
+            this.position = 0;      // how many slots the row has moved left
+            this.velocity = 0;      // slots per 60Hz frame
+            this.speed = 0;
             this.dragTarget = 0;
             this.isDragging = false;
-            this.pressed = false;
             this.dragDistance = 0;
             this.lastMouseX = 0;
-            this.lastPointerY = 0;
-            this.pointer = { x: 0, y: 0, inside: false, strength: 0 };
+            this.posts = [];
             this.cards = [];
-            this.placements = [];
-            this.drawOrder = [];
-            this.hovered = null;
             this.focused = null;
             this.arrivalStart = null;
-            this.transitionState = 'idle';
+            this.opening = null;
             this.rafId = null;
             this.destroyed = false;
-            this.point = [0, 0, 0];
-            this.paper = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#f7f1ed';
             this.lastTime = performance.now();
             this.animate = this.animate.bind(this);
 
@@ -2007,12 +2390,10 @@ function syncLandingChromeAlignment(force = false) {
             this.onPointerDownBound = this.onPointerDown.bind(this);
             this.onPointerMoveBound = this.onPointerMove.bind(this);
             this.onPointerUpBound = this.onPointerUp.bind(this);
-            this.onWheelBound = this.onWheel.bind(this);
             this.container.addEventListener('pointerdown', this.onPointerDownBound);
-            window.addEventListener('pointermove', this.onPointerMoveBound);
+            window.addEventListener('pointermove', this.onPointerMoveBound, { passive: true });
             window.addEventListener('pointerup', this.onPointerUpBound);
             window.addEventListener('pointercancel', this.onPointerUpBound);
-            this.container.addEventListener('wheel', this.onWheelBound, { passive: true });
 
             this.requestFrame();
             this.onVisibilityChange = () => {
@@ -2026,20 +2407,8 @@ function syncLandingChromeAlignment(force = false) {
 
         init() {
             this.container.style.touchAction = 'pan-y';
-            this.container.style.backgroundColor = 'var(--color-bg-rail-light)';
-
             this.sceneContainer = document.createElement('div');
             this.sceneContainer.className = 'rail-scene';
-            this.canvas = document.createElement('canvas');
-            this.canvas.className = 'rail-canvas';
-            this.canvas.setAttribute('aria-hidden', 'true');
-            this.ctx = this.canvas.getContext('2d');
-            // The canvas is invisible to keyboards and screen readers; these links stand in for the cards.
-            this.links = document.createElement('nav');
-            this.links.className = 'rail-links';
-            this.links.setAttribute('aria-label', '최근 글');
-
-            this.sceneContainer.append(this.canvas, this.links);
             this.container.appendChild(this.sceneContainer);
             this.measure();
         }
@@ -2048,144 +2417,71 @@ function syncLandingChromeAlignment(force = false) {
             if (!this.rafId && !this.destroyed) this.rafId = requestAnimationFrame(this.animate);
         }
 
-        // The ribbon fills the band between the header and the top of the wordmark.
+        // The row runs margin to margin, like the wordmark, in the band above it.
         measure() {
             const width = this.container.clientWidth;
             const height = this.container.clientHeight;
             if (!width || !height) return;
             this.width = width;
             this.height = height;
-            this.mobile = isMobileLayout();
-            this.dpr = Math.min(window.devicePixelRatio || 1, 2);
-            this.canvas.width = Math.round(width * this.dpr);
-            this.canvas.height = Math.round(height * this.dpr);
-            this.ctx.imageSmoothingQuality = 'medium';
+            const mobile = isMobileLayout();
 
             const title = document.querySelector('.hello-content-box h1');
             const stage = document.querySelector('.hello-scene');
             const titleSize = title ? parseFloat(getComputedStyle(title).fontSize) : 0;
             const titleBase = stage ? parseFloat(getComputedStyle(stage).paddingBottom) : 0;
-            const top = this.mobile ? 108 : 92;
-            const bottom = height - titleBase - titleSize * 0.76 - (this.mobile ? 28 : 22);
-            const band = Math.max(160, bottom - top);
+            const top = mobile ? 108 : 92;                          // below the header
+            const inkTop = height - titleBase - titleSize * 0.77;   // top of the wordmark's glyph dots
+            this.inkTop = inkTop;
+            const margin = Math.max(18, Math.min(40, width * 0.025));
 
-            const aspect = this.mobile ? 1.25 : 1.56;
-            const frontHeight = Math.min(band * 0.74, (width * (this.mobile ? 0.74 : 0.42)) / aspect);
-            this.radiusX = width * (this.mobile ? 0.62 : 0.46);
-            this.radiusZ = this.radiusX * 0.72;
-            this.distance = this.radiusX * 2.25;
-            this.frontScale = this.distance / (this.distance - this.radiusZ);
-            this.cardHeight = frontHeight / this.frontScale;
-            this.cardWidth = this.cardHeight * aspect;
-            this.slot = this.cardWidth * 1.085;
-            // Crests of the figure-eight rise a little past the band, so the low side
-            // dips behind the wordmark.
-            const crestScale = this.distance / (this.distance - this.radiusZ * 0.707);
-            this.wave = Math.max(0, Math.min(
-                this.cardHeight * (this.mobile ? 0.5 : 0.42),
-                (band / 2 + (this.mobile ? 0 : 30)) / crestScale - this.cardHeight / 2
-            ));
-            this.centerX = width / 2;
-            this.centerY = top + band / 2;
-            this.bulge = this.cardHeight * 0.22;
-            this.bulgeFalloff = 2 * Math.pow(width * 0.17, 2);
+            // X(u) = centre + span * gd(lens * u) / (pi/2): the slot of a post u places from the
+            // middle is 1/cosh(lens * u) as wide as the middle one, and the row never reaches
+            // past the margins. Phones use a stronger lens so the middle box stays large.
+            this.lens = mobile ? 2.2 : 1;
+            this.centre = width / 2;
+            this.span = width / 2 - margin;
+            this.gap = Math.round(Math.max(10, Math.min(28, width * 0.016)));
+            // The box in the middle is as wide as the picture; every other box is a narrower
+            // window onto a picture of the same size.
+            this.cardWidth = Math.round(this.slotEdge(0.5) - this.slotEdge(-0.5) - this.gap);
+            // Pictures are 2 : 1.2.
+            this.cardHeight = Math.round(this.cardWidth * 0.6);
+            const room = inkTop - top;
+            this.top = Math.round(top + Math.max(0, room - this.cardHeight) * 0.44);
+            // A drag across the middle box moves the row one place.
+            this.dragUnit = this.cardWidth + this.gap;
 
-            if (aspect !== this.aspect) {
-                this.aspect = aspect;
-                this.cards.forEach(card => this.buildTexture(card));
-            }
-            this.buildPath();
-            this.layoutCards();
+            const scene = this.sceneContainer;
+            scene.style.setProperty('--w', `${this.cardWidth}px`);
+            scene.style.setProperty('--h', `${this.cardHeight}px`);
+
+            // Enough posts to fill the row from margin to margin, with one spare on each side.
+            let reach = 0;
+            while (reach < 12 && this.slotEdge(reach + 0.5) - this.slotEdge(reach - 0.5) > this.gap + 0.5) reach++;
+            this.reach = reach;
+            const copies = this.posts.length ? Math.ceil((2 * reach + 3) / this.posts.length) : 0;
+            if (copies !== this.copies) this.build(copies);
+            this.cards.forEach(card => { card.pose = ''; card.squeeze = ''; });
             this.requestFrame();
+        }
+
+        // Screen x of the boundary u places from the middle of the row.
+        slotEdge(u) {
+            return this.centre + this.span * gd(this.lens * u) / (Math.PI / 2);
         }
 
         onWindowResize() {
             if (!this.container || this.container.classList.contains('hidden-state')) return;
-            if (!isLanding || this.transitionState === 'exiting') return;
+            if (!isLanding || shift.active) return;
             this.measure();
         }
 
-        // Front view: a figure-eight. Top view: an ellipse whose near side faces the viewer.
-        pathPoint(theta, out, waveScale = 1) {
-            const sin = Math.sin(theta);
-            // Keep both crossings level so the front card sits upright.
-            const edge = Math.min(1, Math.max(0, (Math.abs(sin) - 0.22) / 0.5));
-            out[0] = this.radiusX * sin;
-            out[1] = this.wave * waveScale * Math.sin(2 * theta) * edge * edge * (3 - 2 * edge);
-            out[2] = this.radiusZ * Math.cos(theta);
-        }
-
-        // Arc-length table, so cards keep their width everywhere on the path.
-        buildPath() {
-            const samples = 512;
-            const point = this.point;
-            const lengths = new Float32Array(samples + 1);
-            let px = 0, py = 0, pz = 0;
-            for (let i = 0; i <= samples; i++) {
-                this.pathPoint((i / samples) * Math.PI * 2, point);
-                if (i) lengths[i] = lengths[i - 1] + Math.hypot(point[0] - px, point[1] - py, point[2] - pz);
-                px = point[0]; py = point[1]; pz = point[2];
-            }
-            this.pathLength = lengths[samples];
-            this.thetaTable = this.thetaTable || new Float32Array(samples + 1);
-            let cursor = 0;
-            for (let i = 0; i <= samples; i++) {
-                const target = (i / samples) * this.pathLength;
-                while (cursor < samples - 1 && lengths[cursor + 1] < target) cursor++;
-                const span = lengths[cursor + 1] - lengths[cursor] || 1;
-                this.thetaTable[i] = ((cursor + (target - lengths[cursor]) / span) / samples) * Math.PI * 2;
-            }
-        }
-
-        thetaAt(distance) {
-            const table = this.thetaTable;
-            const last = table.length - 1;
-            const length = this.pathLength;
-            const position = ((((distance % length) + length) % length) / length) * last;
-            const index = Math.min(last - 1, Math.floor(position));
-            return table[index] + (table[index + 1] - table[index]) * (position - index);
-        }
-
-        layoutCards() {
-            this.placements = [];
-            this.drawOrder = [];
-            if (!this.cards.length || !this.pathLength) return;
-            this.segments = this.mobile ? 24 : 32;
-            // Repeat short archives so the loop is always full.
-            const copies = Math.ceil((this.pathLength / this.slot + 1) / this.cards.length);
-            const count = copies * this.cards.length;
-            for (let i = 0; i < count; i++) {
-                this.placements.push({
-                    card: this.cards[i % this.cards.length],
-                    offset: i * this.slot,
-                    quad: new Float32Array((this.segments + 1) * 4),
-                    facing: new Float32Array(this.segments + 1),
-                    depth: 0, depthStart: 0, depthEnd: 0, screenX: 0, fog: 0
-                });
-            }
-            this.ribbonLength = count * this.slot;
-            const columns = this.segments + 1;
-            this.columnX = new Float32Array(columns);
-            this.columnY = new Float32Array(columns);
-            this.columnZ = new Float32Array(columns);
-        }
-
-        // Cover-crop each image once, with spare width for the inner parallax and hover zoom.
-        buildTexture(card) {
-            const image = card.image;
-            if (!image || !image.naturalWidth) return;
-            const texture = document.createElement('canvas');
-            texture.width = this.mobile ? 768 : 1152;
-            texture.height = Math.round(texture.width / (this.aspect * 1.12));
-            const context = texture.getContext('2d');
-            const scale = Math.max(texture.width / image.naturalWidth, texture.height / image.naturalHeight);
-            const width = image.naturalWidth * scale;
-            const height = image.naturalHeight * scale;
-            context.fillStyle = '#fff';
-            context.fillRect(0, 0, texture.width, texture.height);
-            context.imageSmoothingQuality = 'high';
-            context.drawImage(image, (texture.width - width) / 2, (texture.height - height) / 2, width, height);
-            card.texture = texture;
+        // The row stays built while the index is showing; it only stops drawing.
+        wake() {
+            this.settling = false;
+            this.lastTime = performance.now();
+            this.measure();
         }
 
         openPost(postId) {
@@ -2195,66 +2491,156 @@ function syncLandingChromeAlignment(force = false) {
             openPanelPost(postId, listItem, 'push');
         }
 
+        // Leaving the landing for a post: the boxes in view are cut away from the bottom up, one
+        // by one in a random order, then a sheet the colour of an unloaded box rises from the
+        // foot of the screen; once it covers everything the post opens under it, and the sheet
+        // fades away onto the reader.
+        leaveFor(postId) {
+            if (this.leaving) return;
+            if (reducedMotionQuery.matches) { this.openPost(postId); return; }
+            this.leaving = true;
+            this.skipOpening();
+            this.settle();
+            const ease = 'cubic-bezier(.76,0,.24,1)';
+            const shown = this.cards.filter(card => card.visible);
+            for (let i = shown.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shown[i], shown[j]] = [shown[j], shown[i]];
+            }
+            const STAGGER = 55, CUT = 520;
+            const cuts = shown.map((card, k) => card.el.animate(
+                [{ clipPath: 'inset(0 0 0% 0)' }, { clipPath: 'inset(0 0 100% 0)' }],
+                { duration: CUT, delay: k * STAGGER, easing: ease, fill: 'both' }));
+            const sheet = document.createElement('div');
+            sheet.className = 'rail-exit-sheet';
+            document.body.append(sheet);
+            const rise = sheet.animate([{ transform: 'translate3d(0,100%,0)' }, { transform: 'translate3d(0,0,0)' }],
+                { duration: 760, delay: Math.max(0, shown.length - 1) * STAGGER + CUT * 0.6, easing: ease, fill: 'both' });
+            rise.finished.then(() => {
+                this.openPost(postId);
+                // Two frames for the reader to be laid out under the sheet, then let it go.
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    cuts.forEach(motion => motion.cancel());
+                    this.leaving = false;
+                    sheet.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 480, delay: 700, easing: 'ease', fill: 'forwards' })
+                        .finished.then(() => sheet.remove(), () => sheet.remove());
+                }));
+            }, () => { sheet.remove(); this.leaving = false; });
+        }
+
         updateCards(posts) {
-            this.links.replaceChildren();
+            this.posts = (posts || []).filter(post => getFirstImage(post.content));
+            this.copies = -1;
+            this.measure();
+        }
+
+        build(copies) {
+            this.copies = copies;
+            this.cards.forEach(card => card.el.remove());
             this.cards = [];
-            this.hovered = null;
             this.focused = null;
-            (posts || []).forEach(post => {
-                const source = getFirstImage(post.content);
-                if (!source) return;
-                let color = '#569aff';
-                if (post.category === 'DESIGN') color = '#ffba59';
-                if (post.category === 'LIFE') color = '#ff6e8e';
-                const card = { post, postId: post.id, index: this.cards.length, color, texture: null, image: new Image(), lift: 0 };
-
-                const link = document.createElement('a');
-                link.className = 'rail-link';
-                link.href = `?post=${encodeURIComponent(post.id)}`;
-                link.textContent = post.title || '글 읽기';
-                link.addEventListener('focus', () => { this.focused = card; this.requestFrame(); });
-                link.addEventListener('blur', () => { if (this.focused === card) this.focused = null; this.requestFrame(); });
-                link.addEventListener('click', event => { event.preventDefault(); this.openPost(post.id); });
-                this.links.append(link);
-
-                card.image.decoding = 'async';
-                card.image.onload = () => {
-                    if (this.destroyed) return;
-                    this.buildTexture(card);
-                    this.requestFrame();
+            const total = this.posts.length * copies;
+            for (let i = 0; i < total; i++) {
+                const post = this.posts[i % this.posts.length];
+                const el = document.createElement('a');
+                el.className = 'strip-card';
+                el.href = `?post=${encodeURIComponent(post.id)}`;
+                el.draggable = false;
+                el.dataset.category = window.SwblogTags?.label(window.SwblogTags.tagsOf(post)) || '';
+                el.setAttribute('aria-label', post.title || '글 읽기');
+                // Repeats exist only to fill the row; keyboards and screen readers get each post once.
+                if (i >= this.posts.length) {
+                    el.tabIndex = -1;
+                    el.setAttribute('aria-hidden', 'true');
+                }
+                // The window is squeezed to the box's width; the picture inside is stretched back
+                // by the same factor about its centre, so it keeps its shape and is cropped evenly.
+                el.innerHTML = `<span class="strip-card-window"><span class="strip-card-pic"><img src="${escapeHtml(getFirstImage(post.content))}" alt="" decoding="async" draggable="false"></span></span><span class="strip-card-name"><span>${escapeHtml(post.title || '')}</span></span>`;
+                const card = {
+                    post, el, index: i,
+                    window: el.querySelector('.strip-card-window'),
+                    pic: el.querySelector('.strip-card-pic'),
+                    image: el.querySelector('img'),
+                    visible: false, pose: '', squeeze: ''
                 };
-                card.image.src = source;
+                // Decode off the main thread first, so a large image never stalls a frame.
+                const reveal = () => { card.loaded = true; card.image.classList.add('is-loaded'); };
+                if (card.image.decode) card.image.decode().then(reveal, reveal);
+                else card.image.addEventListener('load', reveal, { once: true });
+
+                el.addEventListener('click', event => {
+                    event.preventDefault();
+                    if (event.detail === 0 || this.dragDistance < 5) this.leaveFor(post.id);
+                });
+                el.addEventListener('dragstart', event => event.preventDefault());
+                el.addEventListener('focus', () => { this.focused = card; this.requestFrame(); });
+                el.addEventListener('blur', () => { if (this.focused === card) this.focused = null; });
+                this.sceneContainer.appendChild(el);
                 this.cards.push(card);
+            }
+            this.arrivalStart = null;
+        }
+
+        // Places from the middle of the row, wrapped so every post has exactly one place.
+        offset(card) {
+            const count = this.cards.length;
+            return ((((card.index - this.position) % count) + count * 1.5) % count) - count / 2;
+        }
+
+        // The opening: the boxes rise into their windows from the middle outward, then the
+        // wordmark and the controls come in.
+        beginOpening(reduced) {
+            if (reduced || !document.documentElement.classList.contains('opening')) {
+                revealLandingChrome(false);
+                return;
+            }
+            this.opening = { start: null };
+        }
+
+        playOpening(time) {
+            this.opening.start = time;
+            const ease = 'cubic-bezier(.16,1,.3,1)';
+            let last = 0;
+            this.cards.forEach(card => {
+                const u = Math.abs(this.offset(card));
+                if (u > this.reach + 0.5) return;
+                const delay = Math.round(u * 110);
+                last = Math.max(last, delay);
+                card.el.animate([{ clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0% 0 0 0)' }],
+                    { duration: 1200, delay, easing: ease, fill: 'backwards' });
+                card.image.animate([{ transform: 'translate3d(0,18%,0) scale(1.18)' }, { transform: 'translate3d(0,0,0) scale(1)' }],
+                    { duration: 1600, delay, easing: ease, fill: 'backwards' });
             });
-            this.layoutCards();
+            window.setTimeout(() => revealLandingChrome(true), last + 520);
+            window.setTimeout(() => { this.opening = null; }, last + 1200);
+        }
+
+        skipOpening() {
+            if (!this.opening) return;
+            this.opening = null;
+            this.cards.forEach(card => {
+                card.el.getAnimations().forEach(motion => motion.finish());
+                card.image.getAnimations().forEach(motion => motion.finish());
+            });
+            revealLandingChrome(false);
+        }
+
+        // The wheel gives the row a small push; the scroll itself belongs to the wordmark.
+        spin(amount) {
+            this.skipOpening();
+            this.velocity = Math.max(-0.012, Math.min(0.012, this.velocity + amount * 0.02));
             this.requestFrame();
         }
 
-        triggerExit() {
-            this.transitionState = 'exiting';
-            this.exitStart = performance.now();
-        }
-
-        triggerEnter() {
-            this.transitionState = 'entering';
-            this.arrivalStart = null;
-            this.velocity = -this.slot * 0.045;
-        }
-
-        applyScrollReaction(progress) {
-            if (!this.sceneContainer) return;
-            const eased = 1 - Math.pow(1 - Math.max(0, Math.min(progress, 1)), 3);
-            this.sceneContainer.style.transformOrigin = 'center top';
-            this.sceneContainer.style.transform = `perspective(1400px) translate3d(0, ${-28 * eased}px, 0) scale(${1 - 0.035 * eased}) rotateX(${2.8 * eased}deg)`;
-            this.sceneContainer.style.opacity = String(1 - 0.12 * eased);
-            this.container.style.setProperty('--landing-scroll-progress', String(eased));
+        // The row comes to rest as the page moves to the index.
+        settle() {
+            this.settling = true;
         }
 
         onPointerDown(e) {
+            this.skipOpening();
             this.isDragging = true;
-            this.pressed = true;
             this.lastMouseX = e.clientX || 0;
-            this.lastPointerY = e.clientY || 0;
             this.dragDistance = 0;
             this.velocity = 0;
             this.container.style.cursor = 'grabbing';
@@ -2262,241 +2648,26 @@ function syncLandingChromeAlignment(force = false) {
         }
 
         onPointerMove(e) {
+            if (!isLanding || !this.isDragging) return;
             const clientX = Number.isFinite(e.clientX) ? e.clientX : 0;
-            const clientY = Number.isFinite(e.clientY) ? e.clientY : 0;
-
-            if (isLanding) {
-                const rect = this.container.getBoundingClientRect();
-                this.pointer.x = clientX - rect.left;
-                this.pointer.y = clientY - rect.top;
-                this.pointer.inside = e.pointerType !== 'touch'
-                    && clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
-                if (reducedMotionQuery.matches) this.requestFrame();
-            }
-
-            if (!this.isDragging) return;
             const dx = clientX - this.lastMouseX;
-            const dy = clientY - this.lastPointerY;
             this.lastMouseX = clientX;
-            this.lastPointerY = clientY;
-            this.dragDistance += Math.hypot(dx, dy);
-            // The front card follows the pointer one-to-one.
-            this.dragTarget += dx / this.frontScale;
-        }
-
-        onPointerUp(e) {
-            const wasPressed = this.pressed;
-            this.pressed = false;
-            if (this.isDragging) {
-                this.isDragging = false;
-                this.velocity = Math.max(-90, Math.min(90, this.speed));
-                this.container.style.cursor = this.hovered ? 'pointer' : 'grab';
-            }
-            if (e?.pointerType === 'touch') this.pointer.inside = false;
-            if (!wasPressed || e?.type !== 'pointerup' || this.dragDistance >= 5 || !isLanding) return;
-            const rect = this.container.getBoundingClientRect();
-            const card = this.hit((e.clientX - rect.left) * this.dpr, (e.clientY - rect.top) * this.dpr);
-            if (card) this.openPost(card.postId);
-        }
-
-        onWheel(e) {
-            this.velocity -= e.deltaY * 0.045;
-            if (e.deltaY > 0 && typeof handlePlaceholderLandingScroll === 'function') {
-                handlePlaceholderLandingScroll(e.deltaY);
-            }
-        }
-
-        nudge() {
-            if (!isLanding || document.hidden || reducedMotionQuery.matches) return;
-            this.velocity -= this.slot * 0.045;
-            this.container.dataset.introNudge = 'complete';
-            this.lastTime = performance.now();
+            this.dragDistance += Math.abs(dx);
+            // The row follows the pointer.
+            this.dragTarget -= dx / this.dragUnit;
             this.requestFrame();
         }
 
-        // Which card is under a point (device px), nearest first.
-        hit(x, y) {
-            for (let i = this.drawOrder.length - 1; i >= 0; i--) {
-                const quad = this.drawOrder[i].quad;
-                for (let j = 0; j < this.segments; j++) {
-                    const k = j * 4;
-                    const a = (quad[k + 4] - quad[k]) * (y - quad[k + 1]) - (quad[k + 5] - quad[k + 1]) * (x - quad[k]);
-                    const b = (quad[k + 6] - quad[k + 4]) * (y - quad[k + 5]) - (quad[k + 7] - quad[k + 5]) * (x - quad[k + 4]);
-                    const c = (quad[k + 2] - quad[k + 6]) * (y - quad[k + 7]) - (quad[k + 3] - quad[k + 7]) * (x - quad[k + 6]);
-                    const d = (quad[k] - quad[k + 2]) * (y - quad[k + 3]) - (quad[k + 1] - quad[k + 3]) * (x - quad[k + 2]);
-                    if ((a >= 0 && b >= 0 && c >= 0 && d >= 0) || (a <= 0 && b <= 0 && c <= 0 && d <= 0)) return this.drawOrder[i].card;
-                }
-            }
-            return null;
-        }
-
-        // Bend one card along the path and project its top and bottom edges to the screen.
-        shape(placement, center, size, lift, rise, waveScale, time) {
-            const segments = this.segments;
-            const { quad, facing } = placement;
-            const xs = this.columnX, ys = this.columnY, zs = this.columnZ;
-            const point = this.point;
-            const width = this.cardWidth * size;
-            for (let j = 0; j <= segments; j++) {
-                this.pathPoint(this.thetaAt(center + (j / segments - 0.5) * width), point, waveScale);
-                xs[j] = point[0]; ys[j] = point[1] + rise; zs[j] = point[2];
-            }
-
-            const half = (this.cardHeight * size) / 2;
-            const distance = this.distance;
-            const pointer = this.pointer;
-            const rippleSize = this.cardHeight * 0.1 * this.ripple;
-            const rippleStep = (Math.PI * 2) / (this.slot * 1.7);
-            const ripplePhase = time * 0.0065;
-            let depth = 0;
-            for (let j = 0; j <= segments; j++) {
-                const before = j ? j - 1 : 0;
-                const after = j < segments ? j + 1 : segments;
-                const tx = xs[after] - xs[before], tz = zs[after] - zs[before];
-                // Card edges stay vertical, like a curtain on a rail, so neighbouring strips share
-                // parallel edges and tile without gaps. The normal is therefore horizontal.
-                const flatLength = Math.hypot(tx, tz) || 1;
-                const nx = -tz / flatLength, nz = tx / flatLength;
-
-                // A flick sends a wave down the ribbon; the pointer presses a soft bump into it.
-                const phase = (center + (j / segments - 0.5) * width) * rippleStep + ripplePhase;
-                const wave = Math.sin(phase) * rippleSize;
-                const x = xs[j] + nx * wave;
-                const y = ys[j] + Math.cos(phase) * rippleSize * 0.5;
-                let z = zs[j] + nz * wave;
-                const flat = distance / (distance - z);
-                const dx = this.centerX + x * flat - pointer.x;
-                const dy = this.centerY - y * flat - pointer.y;
-                z += lift + pointer.strength * this.bulge * Math.exp(-(dx * dx + dy * dy) / this.bulgeFalloff);
-
-                const scale = (distance / (distance - z)) * this.dpr;
-                // Speed tips the whole ribbon back, the same amount on every edge.
-                const lean = this.lean * half * scale;
-                const k = j * 4;
-                quad[k] = this.centerX * this.dpr + x * scale + lean;
-                quad[k + 1] = this.centerY * this.dpr - (y + half) * scale;
-                quad[k + 2] = this.centerX * this.dpr + x * scale - lean;
-                quad[k + 3] = this.centerY * this.dpr - (y - half) * scale;
-                facing[j] = (nx * -x + nz * (distance - z)) / Math.hypot(x, y, distance - z);
-                depth += z;
-                if (j === 0) placement.depthStart = z;
-                if (j === segments) placement.depthEnd = z;
-            }
-            placement.depth = depth / (segments + 1);
-            const middle = (segments >> 1) * 4;
-            placement.screenX = (quad[middle] + quad[middle + 2]) / 2;
-        }
-
-        // Outline of the strips between two columns: top edge out, bottom edge back.
-        trace(quad, first, last) {
-            const ctx = this.ctx;
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
-            ctx.beginPath();
-            ctx.moveTo(quad[first * 4], quad[first * 4 + 1]);
-            for (let j = first + 1; j <= last; j++) ctx.lineTo(quad[j * 4], quad[j * 4 + 1]);
-            for (let j = last; j >= first; j--) ctx.lineTo(quad[j * 4 + 2], quad[j * 4 + 3]);
-            ctx.closePath();
-        }
-
-        paint(placement) {
-            const ctx = this.ctx;
-            const segments = this.segments;
-            const { quad, facing, card } = placement;
-            const texture = card.texture;
-            // Paint from the far end so a card that wraps a turn covers itself correctly.
-            const ascending = placement.depthStart <= placement.depthEnd;
-            const spill = 0.015;
-
-            let sourceX = 0, sourceY = 0, sourceStep = 0, sourceHeight = 0;
-            if (texture) {
-                // The image sits slightly zoomed in its frame, eases out on hover,
-                // and slides against the card's travel.
-                const zoom = 1.08 - 0.045 * card.lift;
-                const windowWidth = texture.width / (1.12 * zoom);
-                sourceHeight = texture.height / zoom;
-                const slide = Math.max(-0.9, Math.min(0.9, (placement.screenX / this.dpr - this.centerX) / (this.width * 0.5)));
-                sourceX = (texture.width - windowWidth) * (0.5 + 0.5 * slide);
-                sourceY = (texture.height - sourceHeight) / 2;
-                sourceStep = windowWidth / segments;
-            }
-
-            let n = 0;
-            while (n < segments) {
-                // A run is a stretch of strips that all face the same way.
-                const startStrip = ascending ? n : segments - 1 - n;
-                const front = facing[startStrip] + facing[startStrip + 1] > 0;
-                let end = n + 1;
-                while (end < segments) {
-                    const j = ascending ? end : segments - 1 - end;
-                    if ((facing[j] + facing[j + 1] > 0) !== front) break;
-                    end++;
-                }
-                const endStrip = ascending ? end - 1 : segments - end;
-                const first = Math.min(startStrip, endStrip);
-                const last = Math.max(startStrip, endStrip) + 1;
-
-                // Strips are affine, so they overshoot a little and the true outline trims them.
-                this.trace(quad, first, last);
-                ctx.save();
-                ctx.clip();
-                for (let i = n; i < end; i++) {
-                    const j = ascending ? i : segments - 1 - i;
-                    const k = j * 4;
-                    const bx = (quad[k + 2] - quad[k] + quad[k + 6] - quad[k + 4]) / 2;
-                    const by = (quad[k + 3] - quad[k + 1] + quad[k + 7] - quad[k + 5]) / 2;
-                    const ax = (quad[k + 4] + quad[k + 6] - quad[k] - quad[k + 2]) / 2;
-                    const ay = (quad[k + 5] + quad[k + 7] - quad[k + 1] - quad[k + 3]) / 2;
-                    const edge = Math.hypot(ax, ay);
-                    if (edge < 0.05 || Math.abs(ax * by - ay * bx) < 0.5) continue;
-                    const overlap = Math.min(0.5, 1.4 / edge);
-                    const left = j === 0 ? Math.min(overlap, 0.06) : overlap;
-                    const right = j === segments - 1 ? Math.min(overlap, 0.06) : overlap;
-                    ctx.setTransform(ax, ay, bx, by, (quad[k] + quad[k + 2] - bx) / 2, (quad[k + 1] + quad[k + 3] - by) / 2);
-                    if (front && texture) {
-                        ctx.drawImage(
-                            texture,
-                            sourceX + (j - left) * sourceStep, sourceY - spill * sourceHeight,
-                            sourceStep * (1 + left + right), sourceHeight * (1 + spill * 2),
-                            -left, -spill, 1 + left + right, 1 + spill * 2
-                        );
-                    } else {
-                        ctx.fillStyle = front ? '#ece5e0' : card.color;
-                        ctx.fillRect(-left, -spill, 1 + left + right, 1 + spill * 2);
-                    }
-                }
-                ctx.restore();
-
-                // Shade where the ribbon turns away, fog with distance, then a hairline.
-                this.trace(quad, first, last);
-                const fromX = (quad[first * 4] + quad[first * 4 + 2]) / 2;
-                const toX = (quad[last * 4] + quad[last * 4 + 2]) / 2;
-                if (Math.abs(toX - fromX) > 2) {
-                    const gradient = ctx.createLinearGradient(fromX, 0, toX, 0);
-                    for (let j = first; j <= last; j++) {
-                        const offset = ((quad[j * 4] + quad[j * 4 + 2]) / 2 - fromX) / (toX - fromX);
-                        const shade = Math.min(0.42, (1 - Math.abs(facing[j])) * 0.5 + (front ? 0 : 0.05));
-                        gradient.addColorStop(Math.max(0, Math.min(1, offset)), RAIL_SHADES[Math.round(shade * 100)]);
-                    }
-                    ctx.fillStyle = gradient;
-                    ctx.fill();
-                }
-                if (placement.fog > 0.01) {
-                    ctx.globalAlpha = placement.fog;
-                    ctx.fillStyle = this.paper;
-                    ctx.fill();
-                    ctx.globalAlpha = 1;
-                }
-                const focused = card === this.focused;
-                ctx.lineWidth = (focused ? 2.5 : 1) * this.dpr;
-                ctx.strokeStyle = focused ? '#121212' : 'rgba(18,18,18,.17)';
-                ctx.stroke();
-                n = end;
-            }
+        onPointerUp() {
+            if (!this.isDragging) return;
+            this.isDragging = false;
+            this.velocity = Math.max(-0.05, Math.min(0.05, this.speed));
+            this.container.style.cursor = '';
         }
 
         animate(time) {
             this.rafId = null;
-            if ((!isLanding && this.transitionState !== 'exiting') || document.hidden || this.container.classList.contains('hidden-state')) return;
+            if (!isLanding || document.hidden) return;
             if (!this.width) { this.measure(); if (!this.width) return; }
 
             time = time || performance.now();
@@ -2504,83 +2675,62 @@ function syncLandingChromeAlignment(force = false) {
             this.lastTime = time;
             const step = dt / 16.6;
             const reduced = reducedMotionQuery.matches;
+            const count = this.cards.length;
+            if (!count) return;
 
-            const pointerActive = this.pointer.inside && !reduced && !this.isDragging
-                && !document.body.classList.contains('menu-open')
-                && !document.body.classList.contains('content-pointer-locked');
-            this.pointer.strength += ((pointerActive ? 1 : 0) - this.pointer.strength) * (1 - Math.pow(0.88, step));
+            if (this.arrivalStart == null) {
+                this.arrivalStart = time;
+                this.sceneContainer.classList.add('is-ready');
+                this.beginOpening(reduced);
+            }
+            if (this.opening && this.opening.start == null) {
+                // Wait for the pictures in the middle, but not for long.
+                const ready = this.cards.every(card => Math.abs(this.offset(card)) > 2.5 || card.loaded);
+                if (ready || time - this.arrivalStart > 1400) this.playOpening(time);
+            }
 
-            // Travel: drag, then inertia, then a slow forward drift.
+            // Travel: drag, then inertia, then the slow drift to the left that never stops.
             const dragStep = this.dragTarget * (1 - Math.pow(0.7, step));
             this.dragTarget -= dragStep;
             let travel = dragStep;
             if (!this.isDragging) {
-                this.velocity *= Math.pow(0.945, step);
-                if (Math.abs(this.velocity) < 0.01) this.velocity = 0;
+                this.velocity *= Math.pow(this.settling ? 0.85 : 0.95, step);
+                if (Math.abs(this.velocity) < 0.00002) this.velocity = 0;
                 travel += this.velocity * step;
-                if (this.focused && this.ribbonLength) {
-                    // Keyboard focus brings its card to the front.
-                    const length = this.ribbonLength;
-                    const gap = ((((-this.focused.index * this.slot - this.scroll) % length) + length * 1.5) % length) - length / 2;
-                    travel += gap * (1 - Math.pow(0.86, step));
-                } else if (!reduced && !this.hovered) {
-                    travel -= 0.4 * step;
+                if (this.focused) {
+                    // Keyboard focus brings its post to the middle.
+                    travel += this.offset(this.focused) * (1 - Math.pow(0.88, step));
+                } else if (!reduced && !this.settling) {
+                    travel += 0.0021 * step;
                 }
             }
-            this.scroll += travel;
-            this.speed += (travel / step - this.speed) * (1 - Math.pow(0.75, step));
-            const energy = Math.min(1, Math.abs(this.speed) / 36);
-            this.ripple += (energy - this.ripple) * (1 - Math.pow(energy > this.ripple ? 0.72 : 0.955, step));
-            this.lean += (Math.max(-0.16, Math.min(0.16, -this.speed * 0.004)) - this.lean) * (1 - Math.pow(0.85, step));
+            this.position += travel;
+            this.speed += (travel / step - this.speed) * (1 - Math.pow(0.6, step));
 
-            if (this.arrivalStart == null) this.arrivalStart = time;
-            const arrival = time - this.arrivalStart;
-            const exit = this.transitionState === 'exiting' ? Math.min(1, (time - this.exitStart) / 300) : 0;
-            // The figure-eight opens out of a flat line, then breathes.
-            const unfurl = reduced ? 1 : 1 - Math.pow(1 - Math.min(1, arrival / 1500), 4);
-            const waveScale = unfurl * (1 + (reduced ? 0 : 0.05 * Math.sin(time * 0.0007))) * (1 - exit);
-
-            const ctx = this.ctx;
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
-            ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-            const ribbon = this.ribbonLength;
-            const halfPath = this.pathLength / 2;
-            const order = this.drawOrder;
-            order.length = 0;
-            for (let i = 0; i < this.placements.length; i++) {
-                const placement = this.placements[i];
-                const card = placement.card;
-                const center = ((((placement.offset + this.scroll) % ribbon) + ribbon * 1.5) % ribbon) - ribbon / 2;
-                const reach = Math.abs(center);
-                if (reach >= halfPath) continue;
-                // Cards swap in and out at the hidden back crossing; shrink them there.
-                const seam = Math.min(1, Math.max(0, (halfPath - 0.15 * this.slot - reach) / (0.8 * this.slot)));
-                const grown = reduced ? 1 : 1 - Math.pow(1 - Math.max(0, Math.min(1, (arrival - Math.min(reach / this.slot, 5) * 85) / 1000)), 4);
-                const leaving = Math.max(0, Math.min(1, exit * 1.4 - 0.4 * (0.5 + center / this.pathLength)));
-                const size = seam * seam * (3 - 2 * seam) * grown * (1 - 0.45 * leaving);
-                if (size < 0.02) continue;
-                const rise = (this.height * 1.25 / this.frontScale) * Math.pow(leaving, 1.7) - (1 - grown) * this.cardHeight * 0.4;
-                this.shape(placement, center, size, card.lift * this.cardHeight * 0.12, rise, waveScale, time);
-                placement.fog = 0.52 * Math.pow(Math.max(0, Math.min(1, (this.radiusZ - placement.depth) / (2 * this.radiusZ))), 1.2);
-                order.push(placement);
-            }
-            order.sort((a, b) => a.depth - b.depth);
-
-            const hovered = pointerActive ? this.hit(this.pointer.x * this.dpr, this.pointer.y * this.dpr) : null;
-            if (hovered !== this.hovered) {
-                this.hovered = hovered;
-                if (!this.isDragging) this.container.style.cursor = hovered ? 'pointer' : 'grab';
-            }
-            for (let i = 0; i < this.cards.length; i++) {
+            const top = this.top, gap = this.gap / 2, full = this.cardWidth;
+            for (let i = 0; i < count; i++) {
                 const card = this.cards[i];
-                const target = card === this.hovered || card === this.focused ? 1 : 0;
-                card.lift = reduced ? target : card.lift + (target - card.lift) * (1 - Math.pow(0.86, step));
+                const u = this.offset(card);
+                const left = this.slotEdge(u - 0.5) + gap;
+                const width = this.slotEdge(u + 0.5) - gap - left;
+                const visible = width > 0.5;
+                if (visible !== card.visible) {
+                    card.visible = visible;
+                    card.el.style.visibility = visible ? 'visible' : 'hidden';
+                }
+                if (!visible) continue;
+                const pose = `translate3d(${left.toFixed(2)}px,${top}px,0)`;
+                if (pose !== card.pose) card.el.style.transform = card.pose = pose;
+                const share = Math.min(1, width / full);
+                const squeeze = share.toFixed(4);
+                if (squeeze !== card.squeeze) {
+                    card.squeeze = squeeze;
+                    card.window.style.transform = `scaleX(${squeeze})`;
+                    card.pic.style.transform = `scaleX(${(1 / share).toFixed(4)})`;
+                }
             }
 
-            for (let i = 0; i < order.length; i++) this.paint(order[i]);
-
-            if (!reduced) this.requestFrame();
+            if (!reduced || this.isDragging || Math.abs(this.dragTarget) > 0.001 || this.focused) this.requestFrame();
         }
 
         destroy() {
@@ -2589,7 +2739,6 @@ function syncLandingChromeAlignment(force = false) {
             this.rafId = null;
             if (this.resizeObserver) this.resizeObserver.disconnect();
             this.container.removeEventListener('pointerdown', this.onPointerDownBound);
-            this.container.removeEventListener('wheel', this.onWheelBound);
             window.removeEventListener('pointermove', this.onPointerMoveBound);
             window.removeEventListener('pointerup', this.onPointerUpBound);
             window.removeEventListener('pointercancel', this.onPointerUpBound);
@@ -2597,8 +2746,8 @@ function syncLandingChromeAlignment(force = false) {
             delete this.container.placeholderScene;
             this.container.classList.remove('rail-placeholder');
             this.container.style.cursor = '';
+            this.sceneContainer.remove();
             this.cards.length = 0;
-            this.placements.length = 0;
         }
     }
 
@@ -2615,8 +2764,7 @@ function syncLandingChromeAlignment(force = false) {
 
     document.addEventListener('DOMContentLoaded', () => {
         if (isLanding) {
-            window.globalPlaceholderScene = new PlaceholderScene('post-panel-placeholder');
-            if (allPosts.length) window.globalPlaceholderScene.updateCards(allPosts);
+            mountRail();
         } else mountReadingPlaceholder();
         setupStickyStages();
     });

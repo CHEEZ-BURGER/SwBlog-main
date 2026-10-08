@@ -84,6 +84,9 @@
         if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         const destination = link.href;
         if (!destination) return;
+        // Browsers with cross-document view transitions carry the page across themselves
+        // (css/pageTransition.css); the cover below is for the others.
+        if ('onpagereveal' in window) return;
         event.preventDefault();
 
         const menu = document.querySelector('.header-hidden');
@@ -96,6 +99,16 @@
           window.location.href = destination;
         }, 820);
       });
+    });
+
+    // Coming back through history to a page kept in memory: the menu that led away is shut and
+    // the cover is gone.
+    window.addEventListener('pageshow', (event) => {
+      if (!event.persisted) return;
+      if (document.querySelector('.header-hidden')?.classList.contains('active')) btn_1();
+      overlay.classList.remove('is-entering');
+      overlay.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('is-navigating');
     });
   }
 

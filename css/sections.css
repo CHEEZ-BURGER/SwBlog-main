@@ -1,0 +1,170 @@
+/* Blog and Gallery, the two section pages beside the index (blog.html, gallery.html, driven by
+   js/sections.js). Palette, type, curve and the top navigation come from css/site.css; this file
+   adds the quiet page title, the hashtag filter, the text list of the blog and the picture grid of
+   the gallery. Both lay out on one twelve-column grid so titles, numbers and pictures line up.
+
+   Motion, after gilhuybrecht.com: every line of text sits in a mask one line tall and rises into
+   it on the expo-out curve; pictures are uncovered from the bottom while they settle from a slight
+   scale. The hidden starting states live under html.js, so without the script the page still
+   reads; prefers-reduced-motion drops the movement and shows everything in place. */
+.section-page{
+    --cols:repeat(12,minmax(0,1fr));
+    --gutter:clamp(14px,1.7vw,24px);
+    /* The exit curve: a soft start, a quick middle and a soft landing as the line slips out of its mask. */
+    --ease-out-in:cubic-bezier(.7,0,.3,1);
+    overflow-x:clip;
+}
+.section-main{padding:0 var(--margin) clamp(120px,20vh,240px)}
+
+/* A line of text in its mask. The padding gives descenders room inside the mask; the negative
+   margin takes the same room back, so the mask never changes the layout. */
+.section-page .line{display:block;overflow:hidden;padding-bottom:.12em;margin-bottom:-.12em}
+.section-page .line>span{display:block}
+.js .section-page .line>span{transform:translate3d(0,110%,0);transition:transform 1200ms var(--ease-expo);transition-delay:calc(var(--d,0ms) + var(--l,0ms))}
+.js .section-page :is(.is-ready .section-head,.is-in) .line>span{transform:none}
+
+/* Page title: one large, light word and one Korean line under it. */
+.section-head{padding-top:clamp(128px,22vh,224px)}
+.section-title{margin:0 0 0 -.06em;font:450 clamp(64px,11.5vw,184px)/.92 var(--font-ui);letter-spacing:-.055em}
+.section-title .line{padding-bottom:.2em;margin-bottom:-.2em}
+.section-lede{margin:clamp(18px,2.2vw,30px) 0 0;color:var(--muted-strong);font:400 clamp(17px,1.35vw,20px)/1.5 var(--font-text);letter-spacing:-.01em}
+
+/* The hashtag filter and the count, in one row that rises as a single line once the posts are in.
+   A soft pill glides to the chosen tag; the other chips stay as plain words. The row's mask
+   reaches 20px past the margin so the pill (pulled left to line its words up with the title) and
+   a focus ring are never clipped. */
+.section-tools{overflow:hidden;margin:clamp(60px,11vh,124px) -20px 0;padding:0 20px}
+.section-tools-inner{display:flex;align-items:center;justify-content:space-between;gap:12px 24px;padding:4px 0 clamp(44px,7vh,80px)}
+.js .section-tools-inner{transform:translate3d(0,100%,0);transition:transform 1200ms var(--ease-expo) 180ms}
+.js .section-tools.is-in .section-tools-inner{transform:none}
+.tag-filter{position:relative;display:flex;flex-wrap:wrap;gap:2px;min-width:0;margin-left:-14px}
+.tag-filter[hidden]{display:none}
+.tag-chip{position:relative;z-index:1;display:inline-flex;align-items:baseline;gap:6px;margin:0;padding:10px 14px;border:0;border-radius:999px;background:none;color:var(--muted-strong);font:400 14px/1.2 var(--font-text);letter-spacing:-.005em;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:color 500ms var(--ease-expo)}
+.tag-chip:hover,.tag-chip[aria-pressed="true"]{color:var(--ink)}
+.tag-chip:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
+.tag-chip-count{color:var(--muted);font:400 11px/1 var(--font-ui);font-variant-numeric:tabular-nums}
+.tag-indicator{position:absolute;top:0;left:0;width:0;height:0;border-radius:999px;background:var(--white-soft);pointer-events:none;transition:transform 800ms var(--ease-expo),width 800ms var(--ease-expo),height 800ms var(--ease-expo)}
+/* The count rolls: the old figure leaves upward while the new one rises in the same mask. */
+.section-count{display:inline-grid;flex:none;overflow:hidden;margin:0;color:var(--muted);font:400 13px/1.4 var(--font-text);font-variant-numeric:tabular-nums;white-space:nowrap}
+.section-count>span{grid-area:1/1}
+
+/* Loading, empty and failed states: one calm line where the list would be. */
+.section-status{margin:0;color:var(--muted-strong);font:400 15px/1.6 var(--font-text);animation:section-status-in 600ms ease both}
+.section-status:empty{display:none}
+/* "Loading" waits a moment, so a quick answer never flashes it. */
+.section-status.is-loading{color:var(--muted);animation-delay:400ms}
+@keyframes section-status-in{from{opacity:0}to{opacity:1}}
+.section-retry{margin:0 0 0 14px;padding:0;border:0;background:none;color:var(--ink);font:inherit;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+
+/* Lines leave upward when the filter changes, so the old list and the new one read as one
+   continuous movement. Each row's small --x staggers the rows that are on screen. */
+.js .section-page .is-leaving .is-in .line>span{transform:translate3d(0,-110%,0);transition:transform 480ms var(--ease-out-in) var(--x,0ms)}
+
+/* ---------------------------------------------------------------- Blog: a text-first index */
+.entries{margin:0;padding:0;list-style:none}
+.entry+.entry{margin-top:clamp(44px,6.5vh,72px)}
+.entry-link{display:grid;grid-template-columns:var(--cols);column-gap:var(--gutter);align-items:start;color:inherit;text-decoration:none;outline:none}
+.entry-num{grid-column:1/span 2;padding-top:.62em;color:var(--muted);font:400 13px/1.4 var(--font-ui);font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.entry-body{grid-column:3/span 7;min-width:0}
+.entry-title{margin:0;font:400 clamp(22px,1.9vw,28px)/1.34 var(--font-text);letter-spacing:-.022em;word-break:keep-all;overflow-wrap:anywhere}
+/* Hover draws a hairline under the title from the left; nothing else on the page changes. */
+.entry-title-text{background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;-webkit-box-decoration-break:clone;box-decoration-break:clone;transition:background-size 700ms var(--ease-expo)}
+.entry-excerpt{max-width:62ch;margin:12px 0 0;color:var(--muted-strong);font:400 15.5px/1.62 var(--font-text);letter-spacing:-.005em;word-break:keep-all;overflow-wrap:anywhere}
+.entry-excerpt .line>span{display:-webkit-box;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.entry-meta{margin:16px 0 0;color:var(--muted);font:400 13px/1.5 var(--font-text);font-variant-numeric:tabular-nums}
+.entry-meta .sep{margin:0 .55em}
+/* The small picture at the right: uncovered from the bottom, settling from a slight scale. */
+.entry-thumb{position:relative;grid-column:11/-1;overflow:hidden;aspect-ratio:4/3;background:var(--white-soft)}
+.entry-thumb img{width:100%;height:100%;object-fit:cover}
+.js .entry-thumb{clip-path:inset(100% 0 0 0);transition:clip-path 1300ms var(--ease-expo) calc(var(--d,0ms) + 60ms)}
+.js .entry-thumb img{opacity:0;transform:scale(1.14);transition:transform 1900ms var(--ease-expo) calc(var(--d,0ms) + 60ms),opacity 600ms ease}
+.js .entry-thumb img.is-loaded{opacity:1}
+.js .entry.is-in .entry-thumb{clip-path:inset(0)}
+.js .entry.is-in .entry-thumb img{transform:none}
+.js .is-leaving .entry.is-in .entry-thumb{clip-path:inset(0 0 100% 0);transition:clip-path 520ms var(--ease-out-in) var(--x,0ms)}
+@media(hover:hover){
+    .entry-link:hover .entry-title-text{background-size:100% 1px}
+    .section-page .entry.is-settled .entry-link:hover .entry-thumb img{transform:scale(1.05);transition:transform 1100ms var(--ease-expo),opacity 600ms ease}
+}
+.entry-link:focus-visible .entry-title-text{background-size:100% 1px}
+
+/* ------------------------------------------------------- Gallery: large pictures, portfolio-like */
+/* js/sections.js plans the rhythm from each picture's shape: a large landscape picture may run
+   across the page; the others go in pairs set off-centre, a larger picture beside a smaller one
+   lowered a little, every other pair mirrored. Each frame takes its picture's own proportions
+   (--ratio, kept within sensible limits), so works are cropped as little as possible. */
+.works{display:grid;grid-template-columns:var(--cols);column-gap:var(--gutter);row-gap:clamp(80px,13vh,152px);grid-auto-flow:row dense;align-items:start;margin:0;padding:0;list-style:none}
+.work{min-width:0}
+.work--wide{grid-column:1/-1}
+.work--major{grid-column:1/span 7}
+.work--minor{grid-column:9/-1;margin-top:clamp(96px,18vh,220px)}
+/* Pairs keep reading order in the source whichever side each picture takes; dense placement lets
+   the second of a pair fill the empty columns of its partner's row. */
+.work--major.is-flipped{grid-column:6/-1}
+.work--minor.is-flipped{grid-column:1/span 4}
+.work-link{display:block;color:inherit;text-decoration:none;outline:none}
+.work-frame{position:relative;overflow:hidden;background:var(--white-soft)}
+.work-frame{aspect-ratio:var(--ratio,4/5)}
+/* Across the page the frame stops short of the screen's height, so a plate is seen whole. */
+.work--wide .work-frame{aspect-ratio:auto;height:min(calc((100vw - var(--margin) * 2) / var(--ratio,1.7778)),84svh)}
+/* The picture drifts a little against the scroll inside its frame (where the browser can tie an
+   animation to the scroll), so the large plates feel set in depth rather than pasted on. */
+.work-drift{position:absolute;inset:-5% 0}
+.work-drift img{width:100%;height:100%;object-fit:cover}
+.js .work-frame{clip-path:inset(100% 0 0 0);transition:clip-path 1500ms var(--ease-expo) var(--d,0ms)}
+.js .work-drift img{opacity:0;transform:scale(1.12);transition:transform 2100ms var(--ease-expo) var(--d,0ms),opacity 600ms ease}
+.js .work-drift img.is-loaded{opacity:1}
+.js .work.is-in .work-frame{clip-path:inset(0)}
+.js .work.is-in .work-drift img{transform:none}
+.js .is-leaving .work.is-in .work-frame{clip-path:inset(0 0 100% 0);transition:clip-path 560ms var(--ease-out-in) var(--x,0ms)}
+@media(hover:hover){
+    .section-page .work.is-settled .work-link:hover .work-drift img{transform:scale(1.04);transition:transform 1200ms var(--ease-expo),opacity 600ms ease}
+}
+.work-link:focus-visible .work-frame{outline:1px solid var(--ink);outline-offset:6px}
+@supports (animation-timeline:view()){
+    @media(prefers-reduced-motion:no-preference){
+        .work-drift{animation:work-drift linear both;animation-timeline:view()}
+    }
+}
+@keyframes work-drift{from{transform:translate3d(0,-4%,0)}to{transform:translate3d(0,4%,0)}}
+/* A work without a usable picture shows its title as a plate of type in the same frame. */
+.work-plate{position:absolute;right:clamp(18px,2vw,32px);bottom:clamp(16px,2vw,28px);left:clamp(18px,2vw,32px);margin:0;color:var(--muted-strong);font:400 clamp(22px,2.6vw,40px)/1.2 var(--font-text);letter-spacing:-.025em;word-break:keep-all}
+.work-caption{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 24px;margin-top:18px}
+.work-title{grid-column:1/-1;margin:0;font:400 clamp(17px,1.35vw,20px)/1.4 var(--font-text);letter-spacing:-.018em;word-break:keep-all;overflow-wrap:anywhere}
+.work-tags,.work-date{margin:0;color:var(--muted);font:400 13px/1.5 var(--font-text);font-variant-numeric:tabular-nums}
+.work-tags{color:var(--muted-strong)}
+.work-date{text-align:right}
+
+/* ------------------------------------------------------------------------------ Small screens */
+@media(max-width:1100px){
+    .entry-body{grid-column:3/span 6}
+    .entry-thumb{grid-column:10/-1}
+    /* The smaller picture of a pair gives up the empty column, so its caption still fits. */
+    .work--minor{grid-column:8/-1}
+    .work--minor.is-flipped{grid-column:1/span 5}
+}
+@media(max-width:720px){
+    /* The chips carry their own counts; the rolling count is left to wider screens. The pill
+       starts at the margin here: pulled out, it would nearly touch the screen's edge. */
+    .section-tools{margin-top:56px}
+    .section-count{display:none}
+    .tag-filter{margin-left:0}
+    .tag-chip{padding:9px 13px}
+    .entry-link{grid-template-columns:minmax(0,1fr)}
+    .entry-num,.entry-body{grid-column:auto}
+    .entry-num{padding:0 0 10px}
+    .entry-thumb{display:none}
+    .entry-title{font-size:21px}
+    .entry-excerpt{font-size:15px}
+    .works{grid-template-columns:minmax(0,1fr);row-gap:64px}
+    .work--wide,.work--major,.work--minor,.work--major.is-flipped,.work--minor.is-flipped{grid-column:1/-1;margin-top:0}
+    .work-frame,.work--wide .work-frame{height:auto;aspect-ratio:var(--ratio-narrow,4/5)}
+    .work-caption{margin-top:14px}
+}
+
+/* Reduced motion: everything is simply there; hover keeps only the hairline under a title. */
+@media(prefers-reduced-motion:reduce){
+    .js .section-page .line>span,.js .section-tools-inner,.js .entry-thumb,.js .entry-thumb img,.js .work-frame,.js .work-drift img{transform:none!important;clip-path:none!important;transition:none!important}
+    .js .entry-thumb img,.js .work-drift img{opacity:1}
+    .tag-indicator,.tag-chip,.entry-title-text{transition:none}
+}

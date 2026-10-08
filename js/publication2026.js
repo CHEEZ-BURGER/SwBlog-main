@@ -33,17 +33,20 @@
     }
     function select(row){
         if(row===activeRow)return;activeRow?.classList.remove('signal-active');activeRow=row;rowBounds=null;row?.classList.add('signal-active');clearTimeout(hoverTimer);
-        if(!row)window.globalAsciiScene?.setRowPointer(null,null);
-        hoverTimer=setTimeout(()=>window.globalAsciiScene?.setPost(source(row)),reduced.matches?0:60);
+        if(!row)window.globalPanelScene?.setRowPointer(null,null);
+        hoverTimer=setTimeout(()=>window.globalPanelScene?.setPost(source(row)),reduced.matches?0:60);
     }
     function tiltRaster(e,row=e.target.closest('.post-list-item')){
         if(!row||e.pointerType==='touch')return;
         const bounds=rowBounds||(rowBounds=row.getBoundingClientRect());
-        if(bounds.width&&bounds.height)window.globalAsciiScene?.setRowPointer(
+        if(bounds.width&&bounds.height)window.globalPanelScene?.setRowPointer(
             (e.clientX-bounds.left)/bounds.width*2-1,(e.clientY-bounds.top)/bounds.height*2-1);
     }
+    // In the gallery every row already carries its picture; the cursor preview only serves
+    // the collapsed list beside an open post.
+    const readerOpen=()=>!!$('#post-panel-viewer')?.classList.contains('active-state');
     document.addEventListener('pointerover',e=>{
-        const row=e.target.closest('.post-list-item');if(row){select(row);tiltRaster(e,row);showPreview(row.dataset.previewImg,e);return;}
+        const row=e.target.closest('.post-list-item');if(row){select(row);tiltRaster(e,row);if(readerOpen())showPreview(row.dataset.previewImg,e);else hidePreview();return;}
         const next=e.target.closest('.post-continuation-link');if(next)showPreview(next.querySelector('img:not([hidden])')?.src,e);
     });
     document.addEventListener('pointerout',e=>{
@@ -65,38 +68,64 @@
             if(e.cancelable)e.preventDefault();e.stopImmediatePropagation();
         },{capture:true,passive:false});
     }
-    function cancelEntry(){++entryId;entry?.getAnimations({subtree:true}).forEach(a=>a.cancel());entry?.remove();entry=null;document.body.classList.remove('content-resolving','content-pointer-locked');hidePreview();}
-    async function number(state,value){
-        if(state.ticket!==entryId)return;
-        state.scene.dataset.percentage=String(value);
-        const digits=String(value).padStart(3,' '),reels=state.scene.querySelectorAll('.resolution-digit'),animations=[];
-        for(let index=2;index>=0;index--){
-            const reel=reels[index],old=reel.lastElementChild;
-            if(old.textContent===digits[index])continue;
-            const next=document.createElement('span');next.textContent=digits[index];reel.append(next);
-            if(reduced.matches){old.remove();continue;}
-            const options={duration:1500,delay:(2-index)*35,easing:'cubic-bezier(0,.97,0,.97)',fill:'both'};
-            const incoming=next.animate([{transform:'translateY(110%)'},{transform:'translateY(0)'}],options);
-            // Add the exit to the still-running entrance so overlapping digits never snap.
-            const outgoing=old.animate([{transform:'translateY(0)'},{transform:'translateY(-110%)'}],{...options,composite:'add'});
-            animations.push(incoming.finished.then(()=>{old.remove();incoming.cancel();outgoing.cancel();}).catch(()=>{}));
-        }
-        await Promise.all(animations);
-        state.value=value;
+    function cancelEntry(){++entryId;document.querySelector('.split-layout')?.getAnimations().forEach(a=>{if(a.id==='resolution-under')a.cancel();});entry?.getAnimations({subtree:true}).forEach(a=>a.cancel());entry?.remove();entry=null;document.body.classList.remove('content-resolving','content-pointer-locked');hidePreview();}
+    // The loading mark: the logo, at the size it has in the header, stands in the middle of the
+    // paper, pale, and fills from the bottom up as the post loads. What fills it is a band of
+    // the category colours that keeps flowing upward through the letters while the level rises;
+    // both are compositor transforms.
+    const FILL={duration:1000,easing:'cubic-bezier(.65,0,.2,1)'};
+    function number(state,value){
+        if(state.ticket!==entryId)return Promise.resolve();
+        state.value=value;state.scene.dataset.percentage=String(value);
+        const empty=(100-value).toFixed(2);
+        state.level.style.transform=`translate3d(0,${empty}%,0)`;
+        return sleep(reduced.matches||!state.ready?0:FILL.duration);
+    }
+    // A post that is already loaded gets the same paper, but it does not stop: it comes up over
+    // the page and carries straight on off the top, and the post is there underneath.
+    function pass(){
+        if(reduced.matches)return;
+        const sheet=document.createElement('div');sheet.className='resolution-pass';sheet.setAttribute('aria-hidden','true');
+        document.body.append(sheet);
+        sheet.animate([{transform:'translate3d(0,100%,0)'},{transform:'translate3d(0,-100%,0)'}],
+            {duration:1300,easing:'cubic-bezier(.7,0,.3,1)',fill:'forwards'}).finished.then(()=>sheet.remove(),()=>sheet.remove());
+        const page=document.querySelector('.split-layout');
+        const under=page?.animate([{transform:'translate3d(0,0,0) scale(1)'},{transform:'translate3d(0,-150px,0) scale(.96)'}],
+            {duration:650,easing:'cubic-bezier(.7,0,.84,0)',fill:'forwards',id:'resolution-under'});
+        setTimeout(()=>{
+            under?.cancel();
+            document.querySelector('#panel-post-body')?.animate([
+                {transform:'translate3d(0,220px,0)',opacity:.4},{transform:'translate3d(0,0,0)',opacity:1}
+            ],{duration:1150,easing:'cubic-bezier(.22,1,.36,1)'});
+        },650);
     }
     function begin(id){
-        cancelEntry();if(loadedPosts.has(String(id)))return null;
+        cancelEntry();if(loadedPosts.has(String(id))){pass();return null;}
         const ticket=entryId,scene=document.createElement('section');entry=scene;
         scene.className='resolution-scene';scene.setAttribute('aria-hidden','true');
-        scene.innerHTML='<div class="resolution-typography"><div class="resolution-number"><div class="resolution-digit"><span> </span></div><div class="resolution-digit"><span>0</span></div><div class="resolution-digit"><span>0</span></div></div><span class="resolution-percent">%</span></div>';
+        scene.innerHTML='<div class="resolution-stage"><div class="resolution-mark"><span class="resolution-mark-base"></span><span class="resolution-mark-level"><span class="resolution-mark-colours"></span></span></div></div><p class="resolution-label"><span>Loading</span><span class="resolution-title"></span></p>';
+        // An absolute address: a relative one inside a custom property resolves against the stylesheet.
+        scene.querySelector('.resolution-mark').style.setProperty('--mark',`url("${new URL('./mainPage_img/Frame 2.png',document.baseURI).href}")`);
+        scene.querySelector('.resolution-title').textContent=source(rowFor(id))?.title||'';
+        // The same size as the logo in the header.
+        const headerLogo=document.querySelector('#site-header-controls .logo')?.getBoundingClientRect();
+        const markSize=Math.round(headerLogo&&headerLogo.width>8?headerLogo.width:72);
+        const mark=scene.querySelector('.resolution-mark');mark.style.width=mark.style.height=markSize+'px';
         document.body.append(scene);document.body.classList.add('content-resolving','content-pointer-locked');
-        clearTimeout(hoverTimer);hidePreview();activeRow?.classList.remove('signal-active');activeRow=null;window.globalAsciiScene?.setRowPointer(null,null);
-        const state={ticket,scene,value:0,id:String(id)};
+        clearTimeout(hoverTimer);hidePreview();activeRow?.classList.remove('signal-active');activeRow=null;window.globalPanelScene?.setRowPointer(null,null);
+        const state={ticket,scene,value:0,id:String(id),ready:false,level:scene.querySelector('.resolution-mark-level')};
+        number(state,0);state.ready=true;
+        // The page underneath is drawn down and back as the paper comes up over it.
+        if(!reduced.matches)document.querySelector('.split-layout')?.animate([
+            {transform:'translate3d(0,0,0) scale(1)'},{transform:'translate3d(0,-150px,0) scale(.96)'}
+        ],{duration:900,easing:'cubic-bezier(.76,0,.24,1)',fill:'forwards',id:'resolution-under'});
+        // A few calm steps while the post loads.
         state.progress=(async()=>{
-            for(const value of [18,30,68,92]){
+            await sleep(reduced.matches?0:420);
+            for(const value of [26,58,84]){
                 if(ticket!==entryId)return;
-                state.reelMotion=number(state,value);
-                await sleep(210);
+                number(state,value);
+                await sleep(reduced.matches?0:560);
             }
         })();
         return state;
@@ -107,17 +136,81 @@
         await state.progress;if(state.ticket!==entryId)return;
         if(ok)await number(state,100);
         if(state.ticket!==entryId)return;
-        // Rainbow starts with each glyph's entrance; completion needs only the settled hold.
-        await sleep(210);if(state.ticket!==entryId)return;
+        await sleep(reduced.matches?0:220);if(state.ticket!==entryId)return;
+        document.querySelector('.split-layout')?.getAnimations().forEach(a=>{if(a.id==='resolution-under')a.cancel();});
         if(ok&&!reduced.matches){
+            // The article rises from well below as the paper lifts away.
             document.querySelector('#panel-post-body')?.animate([
-                {transform:'translate3d(0,32px,0)'},{transform:'translate3d(0,0,0)'}
-            ],{duration:1200,easing:'cubic-bezier(.72,-0.01,0,.98)'});
+                {transform:'translate3d(0,220px,0)',opacity:.4},{transform:'translate3d(0,0,0)',opacity:1}
+            ],{duration:1250,easing:'cubic-bezier(.22,1,.36,1)'});
         }
+        document.documentElement.classList.remove('opening-post');
         document.body.classList.remove('content-resolving');state.scene.classList.add('is-resolved');
-        await sleep(reduced.matches?80:1200);if(state.ticket===entryId){state.scene.remove();entry=null;document.body.classList.remove('content-pointer-locked');}
+        await sleep(reduced.matches?80:860);if(state.ticket===entryId){state.scene.remove();entry=null;document.body.classList.remove('content-pointer-locked');}
     }
-    let revealObserver, completionObserver, coverObserver, decodeObserver;
+    let revealObserver, completionObserver, coverObserver, decodeObserver, linePrepObserver, lineRevealObserver;
+    // Reading: the text comes up line by line as it scrolls into view, each line rising from
+    // below through a mask of its own height. Every word is put in a mask (an inline-block clipped
+    // to its line) with the word inside it; when a block comes into view its words are grouped
+    // into lines by where they sit, and each line rises a moment after the one above it. Blocks
+    // are split a little before they arrive, so the work is spread over the scroll.
+    const LINE_BLOCKS='p,li,h1,h2,h3,h4,h5,h6,figcaption,dt,dd';
+    function lineBlocks(root){
+        return [...root.querySelectorAll(LINE_BLOCKS)].filter(el=>
+            !el.closest('pre,table,.img-zoom-wrapper,.image-slider,.slider-container,.post-button-row')&&
+            !el.querySelector(LINE_BLOCKS)&&el.textContent.trim());
+    }
+    function splitWords(block){
+        const walker=document.createTreeWalker(block,NodeFilter.SHOW_TEXT,{acceptNode:node=>
+            node.textContent.trim()&&!node.parentElement.closest('code,kbd,svg,.rl-m')?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT});
+        const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
+        nodes.forEach(node=>{
+            const frag=document.createDocumentFragment();
+            node.textContent.split(/(\s+)/).forEach(part=>{
+                if(!part)return;
+                if(/^\s+$/.test(part)){frag.append(part);return;}
+                const mask=document.createElement('span');mask.className='rl-m';
+                const word=document.createElement('span');word.className='rl-i';word.textContent=part;
+                mask.append(word);frag.append(mask);
+            });
+            node.replaceWith(frag);
+        });
+        // Inline code is kept whole, as one word.
+        block.querySelectorAll('code,kbd').forEach(code=>{
+            if(code.closest('.rl-m'))return;
+            const mask=document.createElement('span');mask.className='rl-m';
+            const word=document.createElement('span');word.className='rl-i';
+            code.replaceWith(mask);word.append(code);mask.append(word);
+        });
+        block.classList.add('rl-split');
+    }
+    function revealLines(block){
+        let line=-1,last=null;
+        block.querySelectorAll('.rl-m').forEach(mask=>{
+            const top=Math.round(mask.getBoundingClientRect().top);
+            if(last===null||Math.abs(top-last)>4){line++;last=top;}
+            mask.firstElementChild.style.transitionDelay=Math.min(line,12)*70+'ms';
+        });
+        block.classList.add('rl-in');
+    }
+    function setupLines(content){
+        linePrepObserver?.disconnect();lineRevealObserver?.disconnect();
+        if(reduced.matches)return;
+        const blocks=[$('#panel-title'),...lineBlocks(content)].filter(Boolean);
+        lineRevealObserver=new IntersectionObserver(entries=>entries.forEach(e=>{
+            if(!e.isIntersecting)return;lineRevealObserver.unobserve(e.target);
+            if(!e.target.classList.contains('rl-split'))splitWords(e.target);
+            revealLines(e.target);
+        }),{rootMargin:'0px 0px -6% 0px'});
+        linePrepObserver=new IntersectionObserver(entries=>entries.forEach(e=>{
+            if(!e.isIntersecting)return;linePrepObserver.unobserve(e.target);
+            if(!e.target.classList.contains('rl-split'))splitWords(e.target);
+        }),{rootMargin:'0px 0px 60% 0px'});
+        blocks.forEach(block=>{
+            block.classList.remove('rl-split','rl-in');block.classList.add('rl-block');
+            linePrepObserver.observe(block);lineRevealObserver.observe(block);
+        });
+    }
     function enhance(content,data={}){
         revealObserver?.disconnect();completionObserver?.disconnect();coverObserver?.disconnect();decodeObserver?.disconnect();
         const header=$('#panel-header')||$('.post-article-header');
@@ -134,14 +227,11 @@
         const archive=$('#archive-panel');if(archive){archive.dataset.currentNumber=String(data.id||'').padStart(2,'0');archive.style.setProperty('--current-number','"'+String(data.id||'').padStart(2,'0')+'"');}
         content.querySelectorAll('.post-editorial-heading').forEach((el,i)=>{el.classList.toggle('chapter-takeover',i===1||i===5);});
         content.querySelectorAll('pre').forEach(pre=>{pre.dataset.codeLabel='CODE / '+(pre.querySelector('code')?.className.match(/language-([\w-]+)/)?.[1]||'TEXT').toUpperCase();});
-        const targets=content.querySelectorAll('.post-editorial-heading,h3,figure,.img-zoom-wrapper,blockquote,.post-split-section,video');
+        // Pictures and media are uncovered as whole blocks; text rises line by line (setupLines).
+        const targets=content.querySelectorAll('figure:not(.gallery-plate),.img-zoom-wrapper,video');
         revealObserver=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('is-revealed');revealObserver.unobserve(e.target);}}),{threshold:.08});
         targets.forEach(el=>{el.classList.add('publication-reveal');revealObserver.observe(el);});
-        // Decode only the first editorial figure; zoom and slider DOM remain untouched.
-        const decode=content.querySelector('figure img,.img-zoom-wrapper img');
-        if(decode&&!reduced.matches){
-            decodeObserver=new IntersectionObserver(entries=>{if(!entries[0].isIntersecting)return;decodeImage(decode);decodeObserver.disconnect();},{threshold:.15});decodeObserver.observe(decode);
-        }
+        // Pictures are shown as they are: the old pixelated decode reveal on the first figure read as a broken image.
         let complete=$('.reading-complete');
         if(!complete){complete=document.createElement('section');complete.className='reading-complete';complete.setAttribute('aria-label','읽기 완료');complete.innerHTML='<div><span class="complete-value">00</span><span>%</span></div><p>READING COMPLETE</p>';$('[id="panel-continuation"],.post-continuation')?.before(complete);}
         if(complete){
@@ -151,6 +241,7 @@
         }
         const next=$('.post-continuation-label'),nextLink=$('.post-continuation-link');if(next&&nextLink){const id=nextLink.dataset.postId||new URL(nextLink.href).searchParams.get('id');next.textContent=id?'NEXT / A'+String(id).padStart(3,'0'):'NEXT / INDEX';}
         setupContents();
+        setupLines(content);
     }
     function setupContents(){
         const toc=$('#post-toc-sidebar');if(!toc)return;
@@ -162,16 +253,6 @@
         document.body.classList.remove('contents-open');button.setAttribute('aria-expanded','false');button.textContent='CONTENTS +';button.hidden=toc.hidden;
     }
     let mobileFrame=0;
-    async function decodeImage(img){
-        try{await img.decode();}catch{return;}
-        if(!img.isConnected||reduced.matches)return;
-        const parent=img.parentElement,rect=img.getBoundingClientRect(),pr=parent.getBoundingClientRect();if(!rect.width||!rect.height)return;
-        const canvas=document.createElement('canvas');canvas.setAttribute('aria-hidden','true');
-        Object.assign(canvas.style,{position:'absolute',left:(rect.left-pr.left)+'px',top:(rect.top-pr.top)+'px',width:rect.width+'px',height:rect.height+'px',pointerEvents:'none',zIndex:'2',imageRendering:'pixelated'});
-        if(getComputedStyle(parent).position==='static')parent.style.position='relative';
-        parent.append(canvas);
-        try{for(const block of [32,16,8,4]){if(!img.isConnected||reduced.matches)break;canvas.width=Math.max(1,Math.ceil(rect.width/block));canvas.height=Math.max(1,Math.ceil(rect.height/block));canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);await sleep(140);}}finally{canvas.remove();}
-    }
     function mobileActive(){
         mobileFrame=0;if(!mobile.matches||$('#post-panel-viewer')?.classList.contains('active-state'))return;
         const rows=document.querySelectorAll('.post-list-item');let nearest=null,distance=Infinity;rows.forEach(row=>{const r=row.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;const d=Math.abs(r.top+r.height/2-innerHeight/2);if(d<distance){nearest=row;distance=d;}});select(nearest||rows[0]||null);

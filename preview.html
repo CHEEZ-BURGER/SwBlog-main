@@ -10,17 +10,27 @@
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="./js/postContent.js?v=journal-2"></script>
+    <script src="./js/postTags.js?v=1"></script>
+    <script src="./js/postType.js?v=2"></script>
+    <script src="./js/galleryReader.js?v=2"></script>
     <style>
         *{box-sizing:border-box}[hidden]{display:none!important}body{margin:0;background:var(--publication-paper);color:var(--publication-ink);font-family:Pretendard,sans-serif}
-        .preview-notice{padding:18px 24px;background:#ebebe8;display:flex;justify-content:space-between;gap:20px;font-size:13px;line-height:1.7;border-bottom:1px solid #d4d4d0}.preview-notice a{color:inherit;text-underline-offset:4px}
+        .preview-notice{padding:18px 24px;background:#f5f5f7;display:flex;justify-content:space-between;gap:20px;font-size:13px;line-height:1.7;border-bottom:1px solid #d4d4d0}.preview-notice a{color:inherit;text-underline-offset:4px}
         .publication-header,.publication-content{padding-left:max(24px,calc((100vw - 1120px)/2));padding-right:max(24px,calc((100vw - 1120px)/2))}
         .publication-header{padding-top:85px}.publication-header .post-title{margin-top:20px}.post-reading-meta{font-size:14px;color:#666;margin-left:18px}
-        .preview-end{padding:44px 24px;background:#ebebe8;font:500 32px/1.3 'Pretendard',sans-serif;text-align:center}
+        .preview-end{padding:44px 24px;background:#f5f5f7;font:500 32px/1.3 'Pretendard',sans-serif;text-align:center}
         .publication-content .story-images{display:flex;overflow-x:auto;scroll-snap-type:x mandatory}.publication-content .story-img{flex:0 0 100%;width:100%;max-height:70vh;object-fit:contain;scroll-snap-align:center}.publication-content .story-controls,.publication-content .story-progress{display:none}
-        .publication-content .in-editor-dropzone{border:1px dashed #a0a09b;min-height:180px;display:grid;place-items:center;color:#6b6b68;background:#e9e9e6;font-size:13px}.publication-content .in-editor-dropzone button{display:none}
+        .publication-content .in-editor-dropzone{border:1px dashed #a0a09b;min-height:180px;display:grid;place-items:center;color:#6b6b68;background:#f5f5f7;font-size:13px}.publication-content .in-editor-dropzone button{display:none}
         @media(max-width:820px){.publication-header{padding:60px 24px 44px}.publication-header .post-title{font-size:42px;line-height:1.16}.preview-notice{font-size:12px}}
     </style>
 <link rel="stylesheet" href="./css/publication2026.css?v=2026-1">
+<link rel="stylesheet" href="./css/gallery.css?v=3">
+<link rel="stylesheet" href="./css/reading.css?v=11">
+<style>
+    /* A gallery post opens wide in the preview as it does on the site. */
+    body.reading-gallery .publication-content{padding-left:max(24px,calc((100vw - 1320px)/2));padding-right:max(24px,calc((100vw - 1320px)/2))}
+    body.reading-gallery .gallery-counter{left:max(24px,calc((100vw - 1320px)/2))}
+</style>
 </head>
 <body>
     <div class="preview-notice" id="preview-notice"><span>레이아웃 샘플 · 발행되지 않는 미리보기</span><a href="./editor.html">에디터로 돌아가기 ↗</a></div>
@@ -49,10 +59,16 @@
         const content=document.getElementById('preview-content');
         function renderPreview(data) {
             document.getElementById('preview-title').textContent=data.title || '제목 없는 기록';
-            document.getElementById('preview-category').textContent=data.category || 'NOTE';
+            const kind=(data.type || window.SwblogPostType?.postType(data))==='gallery'?'GALLERY':'BLOG';
+            const tags=window.SwblogTags?.label(window.SwblogTags.parse(data.category)) || '';
+            document.getElementById('preview-category').textContent=[kind,tags].filter(Boolean).join(' · ');
             document.getElementById('preview-date').textContent='미리보기 · 아직 발행되지 않았습니다';
-            content.innerHTML=DOMPurify.sanitize(PostContent.toRenderableHtml(data.content || '<p>본문을 입력하면 여기에 표시됩니다.</p>',window.marked));
-            PostContent.enhanceEditorialLayout(content, { title: data.title || '' });
+            content.innerHTML=DOMPurify.sanitize(PostContent.toRenderableHtml(data.content || '<p>본문을 입력하면 여기에 표시됩니다.</p>',window.marked),{ADD_ATTR:['target','rel','colspan','rowspan','scope']});
+            // A gallery post is previewed the way the site sets it: large plates and short notes.
+            const gallery=(data.type || window.SwblogPostType?.postType(data))==='gallery' && window.GalleryReader;
+            document.body.classList.toggle('reading-gallery',Boolean(gallery));
+            if(gallery) window.GalleryReader.build(content,{...data,created_at:new Date().toISOString()},{open:src=>window.open(src,'_blank','noopener')});
+            else { window.GalleryReader?.stop(); PostContent.enhanceEditorialLayout(content, { title: data.title || '' }); }
             document.getElementById('preview-time').textContent='약 '+Math.max(1,Math.ceil(content.textContent.replace(/\s/g,'').length/500))+'분 읽기';
         }
         window.addEventListener('message',event=>{

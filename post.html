@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SW Blog</title>
+    <link rel="stylesheet" href="./css/pageTransition.css?v=2">
+    <script src="./js/pageTransition.js?v=2"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="./js/postContent.js?v=editorial-layout-3"></script>
@@ -419,8 +421,8 @@
     <link rel="stylesheet" href="./css/lightRefinement.css?v=light-system-1">
     <link rel="stylesheet" href="./css/editorial.css?v=journal-2">
     <link rel="stylesheet" href="./css/exhibition.css?v=journal-2">
-<link rel="stylesheet" href="./css/publication2026.css?v=2026-1">
-<script src="./js/publication2026.js?v=2026-1" defer></script>
+<link rel="stylesheet" href="./css/publication2026.css?v=2026-15">
+<script src="./js/publication2026.js?v=2026-17" defer></script>
 </head>
 <body>
 
@@ -593,7 +595,7 @@
             ? PostContent.toRenderableHtml(rawContent, window.marked)
             : marked.parse(rawContent);
         body.innerHTML = DOMPurify.sanitize(rawHtml, {
-            ADD_TAGS: ['svg', 'polyline', 'circle', 'line', 'path', 'blockquote', 'button'],
+            ADD_TAGS: ['svg', 'polyline', 'circle', 'line', 'path', 'blockquote', 'button', 'table', 'tr', 'td', 'th', 'tbody', 'thead', 'tfoot', 'caption', 'colgroup', 'col', 'figure', 'figcaption'],
             ADD_ATTR: ['stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'fill', 'viewBox', 'points', 'cx', 'cy', 'r', 'x1', 'y1', 'x2', 'y2', 'id', 'class', 'data-layout', 'd', 'data-initialized', 'contenteditable']
         });
 

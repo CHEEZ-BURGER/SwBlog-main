@@ -1,6 +1,6 @@
 /* Shared editorial post language for the panel, standalone reader, and editor. */
 :root {
-    --editorial-paper: #f3eee8;
+    --editorial-paper: #f5f5f7;
     --editorial-ink: #141414;
     --editorial-muted: #6f6b66;
     --editorial-line: rgba(20, 20, 20, 0);
@@ -11,7 +11,7 @@
 
 body.dark {
     --editorial-paper: #171717;
-    --editorial-ink: #f3eee8;
+    --editorial-ink: #f5f5f7;
     --editorial-muted: #aaa39b;
     --editorial-line: rgba(243, 238, 232, 0);
 }
@@ -255,7 +255,7 @@ body.dark {
     width: 100%;
     padding: clamp(4rem, 9vw, 8rem) clamp(1.25rem, 6vw, 7rem);
     background: #141414;
-    color: #f3eee8;
+    color: #f5f5f7;
 }
 
 .post-continuation-inner {
@@ -318,7 +318,7 @@ body.dark {
 
 .post-continuation-link:hover .post-continuation-arrow,
 .post-continuation-link:focus-visible .post-continuation-arrow {
-    background: #f3eee8;
+    background: #f5f5f7;
     color: #141414;
     transform: translate(0.35rem, -0.35rem);
 }

@@ -1,7 +1,7 @@
 /* Restrained editorial refinement based on the supplied dark case-study reference. */
 :root {
     --post-canvas: #141414;
-    --post-ink: #f2efe9;
+    --post-ink: #f5f5f7;
     --post-muted: #9d9993;
     --post-blue: #569aff;
     --post-gutter: clamp(1.25rem, 5vw, 5rem);
@@ -79,8 +79,8 @@ body:has(.post-panel-viewer.active-state) .post-panel-viewer {
 }
 
 body:has(.post-panel-viewer.active-state) {
-    --color-hamburger-bar1: #f2efe9;
-    --color-hamburger-bar2: #f2efe9;
+    --color-hamburger-bar1: #f5f5f7;
+    --color-hamburger-bar2: #f5f5f7;
 }
 
 body:has(.post-panel-viewer.active-state) .hamburger-btn {
