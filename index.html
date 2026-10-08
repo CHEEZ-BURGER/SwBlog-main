@@ -42,9 +42,10 @@
     <link rel="stylesheet" href="./css/publication2026.css?v=2026-15">
     <link rel="stylesheet" href="./css/indexReel.css?v=reel-56">
     <link rel="stylesheet" href="./css/gallery.css?v=3">
-    <link rel="stylesheet" href="./css/reading.css?v=25">
+    <link rel="stylesheet" href="./css/reading.css?v=27">
     <link rel="stylesheet" href="./css/codeBlock.css?v=1">
     <link rel="stylesheet" href="./css/tags.css?v=1">
+    <link rel="stylesheet" href="./css/siteFooter.css?v=3">
 </head>
 <body class="landing-state">
 
@@ -128,28 +129,7 @@
                 </div>
             </div>
 
-            <footer class="footer" data-random-footer>
-                <div class="footer-shell">
-                    <div class="footer-main">
-                        <div>
-                            <span class="footer-kicker">SWBLOG / FIELD NOTES</span>
-                            <h2 class="footer-statement">관찰하고, 만들고, 다시 기록합니다.</h2>
-                        </div>
-                        <nav class="footer-nav" aria-label="푸터 탐색">
-                            <span class="footer-nav-label">Explore</span>
-                            <a href="./blog.html">블로그</a>
-                            <a href="./gallery.html">갤러리</a>
-                            <a href="./playground.html">플레이그라운드</a>
-                            <a href="./info.html">소개</a>
-                            <a href="./editor.html">에디터</a>
-                        </nav>
-                    </div>
-                    <div class="footer-bottom">
-                        <strong class="footer-wordmark">KIMSUNGWOO</strong>
-                        <span class="footer-meta">SEOUL · © <span class="current-year">2026</span> SWBLOG</span>
-                    </div>
-                </div>
-            </footer>
+            <footer class="footer" data-site-footer></footer>
             <div class="pg-lode-box1"></div>
             <div class="pg-lode-box2"></div>
         </div>
@@ -169,42 +149,16 @@
                     </div>
                     <div class="post-viewer-content" id="panel-content"></div>
                 </div>
-                <section class="post-continuation" id="panel-continuation" aria-labelledby="panel-continuation-label">
-                    <div class="post-continuation-inner">
-                        <span class="post-continuation-label" id="panel-continuation-label">Read more / 최신 포스트</span>
-                        <a class="post-continuation-link" id="panel-continuation-link" href="./index.html">
-                            <span class="post-continuation-media">
-                                <img id="panel-continuation-image" src="" alt="" loading="lazy" hidden>
-                            </span>
-                            <span class="post-continuation-copy">
-                                <span class="post-continuation-meta" id="panel-continuation-meta">SWBLOG ARCHIVE</span>
-                                <span class="post-continuation-title" id="panel-continuation-title">더 많은 포스트 보기</span>
-                            </span>
-                        </a>
+                <section class="next-flow" id="panel-continuation" aria-labelledby="panel-continuation-label">
+                    <div class="next-flow-head">
+                        <span class="next-flow-label" id="panel-continuation-label">다음으로 읽을 글</span>
+                        <a class="next-flow-all" href="./blog.html">모든 글 <span aria-hidden="true">→</span></a>
+                    </div>
+                    <div class="next-flow-window">
+                        <ul class="next-flow-track" id="next-flow-track"></ul>
                     </div>
                 </section>
-                <footer class="post-page-footer" data-random-footer>
-                    <div class="footer-shell">
-                        <div class="footer-main">
-                            <div>
-                                <span class="footer-kicker">SWBLOG / FIELD NOTES</span>
-                                <h2 class="footer-statement">좋은 질문은 다음 글로 이어집니다.</h2>
-                            </div>
-                            <nav class="footer-nav" aria-label="푸터 탐색">
-                                <span class="footer-nav-label">Explore</span>
-                                <a href="./blog.html">블로그</a>
-                                <a href="./gallery.html">갤러리</a>
-                                <a href="./playground.html">플레이그라운드</a>
-                                <a href="./info.html">소개</a>
-                                <a href="./editor.html">에디터</a>
-                            </nav>
-                        </div>
-                        <div class="footer-bottom">
-                            <strong class="footer-wordmark">SWBLOG</strong>
-                            <span class="footer-meta">SEOUL · © <span class="current-year">2026</span> KIMSUNGWOO</span>
-                        </div>
-                    </div>
-                </footer>
+                <footer class="post-page-footer" data-site-footer></footer>
             </div>
         </div>
     </div>
@@ -241,7 +195,7 @@
     </div>
 </div>
 
-<script src="./js/publication2026.js?v=2026-19"></script>
+<script src="./js/publication2026.js?v=2026-20"></script>
 <script>
     function isMobileLayout() {
         return window.matchMedia('(max-width: 1180px)').matches;
@@ -1005,56 +959,57 @@ function syncLandingChromeAlignment(force = false) {
     const displayLimit = 50;
     let currentRenderId = 0;
 
+    // After a post: a row of same-height boxes, its next reads, drifting slowly to the left in a
+    // loop (css/reading.css). First the post the reader is most likely to want next (same kind
+    // and a shared hashtag), then the rest of the same kind, then everything else; never the post
+    // itself or a private one. Pointing at the row holds it still; a box opens its post.
     function renderPanelContinuation(currentPostId) {
-        const link = document.getElementById('panel-continuation-link');
-        const title = document.getElementById('panel-continuation-title');
-        const meta = document.getElementById('panel-continuation-meta');
-        const image = document.getElementById('panel-continuation-image');
-        if (!link || !title || !meta || !image) return;
-
+        const track = document.getElementById('next-flow-track');
+        if (!track) return;
         const currentPost = allPosts.find(post => String(post.id) === String(currentPostId));
         const candidates = allPosts.filter(post => String(post.id) !== String(currentPostId) && !window.SwblogPostType?.isPrivate(post));
-        // Next: a post of the same kind that shares a hashtag, else the same kind, else the newest.
         const kind = post => window.SwblogPostType?.postType(post) || 'blog';
         const tags = new Set(window.SwblogTags?.tagsOf(currentPost) || []);
-        const sameKind = candidates.filter(post => kind(post) === kind(currentPost));
-        const nextPost = sameKind.find(post => (window.SwblogTags?.tagsOf(post) || []).some(tag => tags.has(tag)))
-            || sameKind[0] || candidates[0];
-        if (!nextPost) {
-            link.href = './index.html';
-            delete link.dataset.postId;
-            title.textContent = '더 많은 포스트 보기';
-            meta.textContent = 'SWBLOG ARCHIVE';
-            image.hidden = true;
-            image.removeAttribute('src');
-            image.alt = '';
-            return;
-        }
+        const shares = post => (window.SwblogTags?.tagsOf(post) || []).some(tag => tags.has(tag));
+        const rank = post => (kind(post) === kind(currentPost) ? 0 : 2) + (shares(post) ? 0 : 1);
+        const picks = candidates.map((post, order) => ({ post, order }))
+            .sort((a, b) => rank(a.post) - rank(b.post) || a.order - b.order)
+            .slice(0, 10).map(item => item.post);
+        const section = document.getElementById('panel-continuation');
+        section.hidden = !picks.length;
+        if (!picks.length) { track.replaceChildren(); return; }
 
-        const date = nextPost.created_at
-            ? new Date(nextPost.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' })
-            : '';
-        const url = new URL(window.location.href);
-        url.searchParams.set('post', nextPost.id);
-        link.href = url.toString();
-        link.dataset.postId = String(nextPost.id);
-        title.textContent = nextPost.title || '최신 포스트 보기';
-        // The next post's hashtags as pills (its kind when it has none), then its date.
-        const nextTags = window.SwblogTags?.tagsOf(nextPost) || [];
-        meta.replaceChildren(
-            nextTags.length ? window.SwblogTags.pills(nextTags) : (kind(nextPost) === 'gallery' ? 'GALLERY' : 'BLOG'),
-            ...(date ? [Object.assign(document.createElement('span'), { className: 'post-continuation-date', textContent: date })] : [])
-        );
-        const thumbnail = getFirstImage(nextPost.content);
-        if (thumbnail) {
-            image.src = thumbnail;
-            image.alt = `${nextPost.title || '최신 포스트'} 썸네일`;
-            image.hidden = false;
-        } else {
-            image.hidden = true;
-            image.removeAttribute('src');
-            image.alt = '';
-        }
+        const card = (post, copy) => {
+            const created = new Date(post.created_at);
+            const date = [created.getFullYear(), created.getMonth() + 1, created.getDate()].map(n => String(n).padStart(2, '0')).join('.');
+            const picture = getFirstImage(post.content);
+            const url = new URL(window.location.href);
+            url.searchParams.set('post', post.id);
+            return `<li class="next-flow-item"${copy ? ' aria-hidden="true"' : ''}>
+                <a class="next-flow-card" href="${escapeHtml(url.toString())}" data-post-id="${escapeHtml(String(post.id))}"${copy ? ' tabindex="-1"' : ''}>
+                    <span class="next-flow-frame">${picture
+                        ? `<img src="${escapeHtml(picture)}" alt="" loading="lazy" decoding="async">`
+                        : `<span class="next-flow-plate">${escapeHtml(post.title || '')}</span>`}</span>
+                    <span class="next-flow-caption">
+                        <span class="next-flow-title">${escapeHtml(post.title || '제목 없음')}</span>
+                        <span class="next-flow-date">${date}</span>
+                    </span>
+                </a>
+            </li>`;
+        };
+        // The row loops by running the same run twice; a short run is repeated first so one run is
+        // always wider than the screen.
+        const run = [];
+        while (run.length < 8) run.push(...picks);
+        track.innerHTML = run.map(post => card(post, false)).join('') + run.map(post => card(post, true)).join('');
+        track.querySelectorAll('.next-flow-item').forEach((item, index) => {
+            if (index >= picks.length && index < run.length) {
+                item.setAttribute('aria-hidden', 'true');
+                item.querySelector('a').tabIndex = -1;
+            }
+        });
+        // About 5.5 seconds a box, so the drift reads the same whatever the number of posts.
+        track.style.setProperty('--flow-time', (run.length * 5.5).toFixed(1) + 's');
     }
 
     function setupStickyStages() {
@@ -2476,11 +2431,11 @@ function syncLandingChromeAlignment(force = false) {
         openPanelPost(postId, null, 'push');
     });
 
-    document.getElementById('panel-continuation-link')?.addEventListener('click', function (event) {
-        const postId = this.dataset.postId;
-        if (!postId) return;
+    document.getElementById('next-flow-track')?.addEventListener('click', function (event) {
+        const card = event.target.closest('.next-flow-card');
+        if (!card || event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         event.preventDefault();
-        openPanelPost(postId, null, 'push');
+        openPanelPost(card.dataset.postId, null, 'push');
     });
 
     const clamp01 = value => Math.max(0, Math.min(1, value));
@@ -2905,7 +2860,7 @@ function syncLandingChromeAlignment(force = false) {
         setupStickyStages();
     });
 </script>
-<script src="./js/footerTheme.js?v=journal-2"></script>
+<script src="./js/siteFooter.js?v=5"></script>
 <script src="./js/readingExperience.js?v=mobile-1"></script>
 <script src="./js/sectionRail.js?v=3"></script>
 </body>
