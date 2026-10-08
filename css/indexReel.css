@@ -165,6 +165,10 @@ html body:not(:is(.reader-open.reader-open)) .post-list-item:is(:hover,:focus-vi
 .panel-field-tag.is-date{left:42.2%;font-variant-numeric:tabular-nums}
 .panel-field-tag.is-read{right:1.5%}
 .panel-field-tag .panel-field-line{height:16px;gap:0}
+/* The hashtags stand in pills (css/tags.css), so their mask is a pill tall, centred on the same line. */
+.panel-field-tag.is-category{top:-11px;height:22px}
+.panel-field-tag.is-category .panel-field-line{height:22px;align-items:center}
+.panel-field-tag.is-category .tag-pill{height:22px;padding:0 9px;letter-spacing:.02em}
 /* Opening a post: the reader's layout snaps into place under the loading paper. */
 html body.reader-snap :is(.split-layout>.index-panel,#archive-panel,.post-panel,.panel-close-btn,.post-panel-viewer){transition:none!important}
 /* The picture already shows what the cursor preview would. */

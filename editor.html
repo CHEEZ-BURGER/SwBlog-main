@@ -12,7 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="./js/postContent.js?v=code-2"></script>
-    <script src="./js/postTags.js?v=1"></script>
+    <script src="./js/postTags.js?v=2"></script>
     <script src="./js/postType.js?v=2"></script>
     <script src="./js/editorBlocks.js?v=studio-1"></script>
 
@@ -456,7 +456,7 @@
     // 예전 카테고리(CODING, DESIGN, LIFE)는 불러올 때 해당 해시태그로 바뀝니다.
     const Tags = window.SwblogTags;
     const tagRow = $('post-tags');
-    tagRow.innerHTML = Tags.TAGS.map(tag => `<button type="button" class="tag-chip" data-tag="${tag}" aria-pressed="false">#${tag}</button>`).join('');
+    tagRow.innerHTML = Tags.TAGS.map(tag => `<button type="button" class="tag-chip" data-tag="${tag}" aria-pressed="false">${tag}</button>`).join('');
 
     function renderTags() {
         const chosen = Tags.parse(categorySelect.value);

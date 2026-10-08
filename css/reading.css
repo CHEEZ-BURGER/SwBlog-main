@@ -226,3 +226,7 @@ html body:is(.reader-open.reader-open) div.hamburger-btn.hamburger-btn .menu-arr
    and its head (a filled shape) gets a thin outline of the same colour. */
 html body:is(.reader-open.reader-open) div.hamburger-btn.hamburger-btn .menu-arrow-line{stroke-width:5.35px!important}
 html body:is(.reader-open.reader-open) div.hamburger-btn.hamburger-btn .menu-arrow-head{stroke:currentColor!important;stroke-width:1.1px!important;stroke-linejoin:miter}
+
+/* The next post's hashtag pills (css/tags.css), then its date. */
+html body .post-continuation-meta .tag-pills{vertical-align:middle}
+html body .post-continuation-meta .post-continuation-date{margin-left:.8em;vertical-align:middle}

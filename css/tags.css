@@ -1,0 +1,9 @@
+/* Hashtags are shown without "#", each in a pill (js/postTags.js: SwblogTags.pills / pillsHTML).
+   The pill takes its size from the text around it and its tint from the text colour, so the same
+   pill reads on the white pages, on #f5f5f7 surfaces and on the dark playground. */
+.tag-pills{display:inline-flex;flex-wrap:wrap;align-items:center;gap:.4em;max-width:100%;vertical-align:middle}
+.tag-pill{
+    display:inline-flex;align-items:center;height:1.85em;padding:0 .78em;border-radius:999px;
+    background:rgba(128,128,128,.13);background:color-mix(in srgb,currentColor 8%,transparent);
+    color:inherit;font:inherit;line-height:1;letter-spacing:0;white-space:nowrap;text-transform:none
+}

@@ -5,7 +5,7 @@ import vm from 'node:vm';
 // The hashtag rule, exercised without a browser.
 const context = {window: {}};
 vm.runInNewContext(readFileSync('js/postTags.js', 'utf8'), context);
-const {TAGS, MAX, parse, tagsOf, format, label} = context.window.SwblogTags;
+const {TAGS, MAX, parse, tagsOf, format, label, pillsHTML} = context.window.SwblogTags;
 const list = value => Array.from(value);
 
 assert.equal(TAGS.length, 10, 'ten hashtags');
@@ -30,6 +30,8 @@ console.log('PASS: unknown words dropped, repeats collapsed, three at most.');
 
 // What is stored and what is shown.
 assert.equal(format(['개발', '디자인']), '개발,디자인');
-assert.equal(label('개발,디자인'), '#개발 #디자인');
+assert.equal(label('개발,디자인'), '개발 · 디자인');
 assert.equal(label(''), '');
-console.log('PASS: stored as "개발,디자인", shown as "#개발 #디자인".');
+assert.equal(pillsHTML('개발,<b>'), '<span class="tag-pills"><span class="tag-pill">개발</span></span>');
+assert.equal(pillsHTML(''), '');
+console.log('PASS: stored as "개발,디자인", shown without "#" as "개발 · 디자인" or as pills.');

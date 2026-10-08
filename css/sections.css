@@ -168,3 +168,11 @@
     .js .entry-thumb img,.js .work-drift img{opacity:1}
     .tag-indicator,.tag-chip,.entry-title-text{transition:none}
 }
+
+/* Hashtags are pills everywhere (css/tags.css): after a row's date and reading time, under a
+   gallery work, and in the filter, where every tag now has its own outline pill and the grey
+   pill still slides to the chosen one. */
+.entry-meta .tag-pills{display:flex;margin-top:10px}
+.work-tags .tag-pills{margin:4px 0}
+.tag-chip{box-shadow:inset 0 0 0 1px rgba(18,18,18,.1)}
+.tag-chip[aria-pressed="true"]{box-shadow:none}

@@ -130,7 +130,11 @@
         // the caption under it (number and title).
         label(view) {
             const [category, date, read] = this.tags;
-            this.swap(category, line => { line.textContent = view.category || ''; }, 0);
+            // Hashtags as pills (css/tags.css); the plain text if the tag helper is missing.
+            this.swap(category, line => {
+                if (window.SwblogTags) { if (view.category) line.append(window.SwblogTags.pills(view.category)); }
+                else line.textContent = view.category || '';
+            }, 0);
             this.swap(date, line => { line.textContent = view.date || ''; }, 60);
             this.swap(read, line => { line.textContent = view.read ? `약 ${view.read}분 읽기` : ''; }, 120);
             this.swap(this.caption, line => {

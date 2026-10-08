@@ -188,3 +188,9 @@ a.info-email-address:is(:hover,:focus-visible){text-decoration-color:currentColo
 .info-static .ln-in{transform:none!important}
 .info-static [data-lines]{visibility:visible!important}
 .info-static .info-contact::before{clip-path:none!important}
+
+/* The ten hashtags as pills (css/tags.css), a little slimmer at this size; the count sits level
+   with the pill's middle. */
+.info-tag{align-items:center}
+.info-tag .tag-pill{height:1.62em;padding:0 .62em}
+.info-tag-count{padding-top:0}

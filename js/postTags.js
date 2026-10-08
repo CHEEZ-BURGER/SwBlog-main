@@ -19,7 +19,31 @@
 
     const tagsOf = post => parse(post?.category);
     const format = tags => parse(tags).join(',');
-    const label = tags => parse(tags).map(tag => '#' + tag).join(' ');
+    // Shown without "#": as plain text where only text fits (labels, search, screen readers)…
+    const label = tags => parse(tags).join(' · ');
 
-    window.SwblogTags = { TAGS, MAX, parse, tagsOf, format, label };
+    // …and, wherever a reader sees them, each in its own pill (css/tags.css).
+    const escapeHTML = value => String(value).replace(/[&<>"']/g, ch => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
+    ));
+    // `text` may wrap a tag's (already escaped) text, e.g. to mark a search hit.
+    function pillsHTML(tags, text = escapeHTML) {
+        const list = parse(tags);
+        return list.length
+            ? '<span class="tag-pills">' + list.map(tag => '<span class="tag-pill">' + text(tag) + '</span>').join('') + '</span>'
+            : '';
+    }
+    function pills(tags) {
+        const box = document.createElement('span');
+        box.className = 'tag-pills';
+        parse(tags).forEach(tag => {
+            const pill = document.createElement('span');
+            pill.className = 'tag-pill';
+            pill.textContent = tag;
+            box.append(pill);
+        });
+        return box;
+    }
+
+    window.SwblogTags = { TAGS, MAX, parse, tagsOf, format, label, pills, pillsHTML };
 }());

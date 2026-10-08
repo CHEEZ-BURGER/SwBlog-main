@@ -114,7 +114,9 @@
             const row = document.createElement('div');
             row.innerHTML = '<dt></dt><dd></dd>';
             row.querySelector('dt').textContent = term;
-            row.querySelector('dd').textContent = value;
+            // The hashtags stand as pills (css/tags.css).
+            if (term === 'Tags' && window.SwblogTags?.pills) row.querySelector('dd').append(window.SwblogTags.pills(window.SwblogTags.tagsOf(data)));
+            else row.querySelector('dd').textContent = value;
             facts.append(row);
         });
         sheet.append(facts);
