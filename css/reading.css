@@ -207,12 +207,12 @@ html body:not(.reading-gallery) :is(.post-viewer-content,.publication-content,#p
 html body:is(.reader-open.reader-open) div.hamburger-btn.hamburger-btn .menu-arrow{inset:auto!important;left:calc(50% - var(--twin-arrow) / 2)!important;top:calc(50% - var(--twin-arrow) / 2)!important;width:var(--twin-arrow)!important;height:var(--twin-arrow)!important}
 @media(min-width:1181px){
     /* X: 44px drawing (33px drawn) on the 48px button with its 72px paper square. */
-    html body:is(.reader-open.reader-open) div.hamburger-btn.hamburger-btn{--twin-arrow:41px}
+    html body:is(.reader-open.reader-open) div.hamburger-btn.hamburger-btn{--twin-arrow:48px}
 }
 @media(max-width:1180px){
     /* X: a 56px square of 90% white, 10px in from the corner, 40px drawing (30px drawn). */
     html body:is(.reader-open.reader-open) div.hamburger-btn.hamburger-btn{
-        --twin-arrow:37.5px;
+        --twin-arrow:44px;
         top:max(10px,env(safe-area-inset-top))!important;right:max(10px,env(safe-area-inset-right))!important;left:auto!important;
         width:56px!important;height:56px!important
     }
@@ -224,9 +224,14 @@ html body:is(.reader-open.reader-open) div.hamburger-btn.hamburger-btn .menu-arr
 }
 /* …and the same weight: the X's strokes draw about 5px; the arrow's shaft is thickened to match
    and its head (a filled shape) gets a thin outline of the same colour. */
-html body:is(.reader-open.reader-open) div.hamburger-btn.hamburger-btn .menu-arrow-line{stroke-width:5.35px!important}
-html body:is(.reader-open.reader-open) div.hamburger-btn.hamburger-btn .menu-arrow-head{stroke:currentColor!important;stroke-width:1.1px!important;stroke-linejoin:miter}
+html body:is(.reader-open.reader-open) div.hamburger-btn.hamburger-btn .menu-arrow-line{stroke-width:4.55px!important}
+html body:is(.reader-open.reader-open) div.hamburger-btn.hamburger-btn .menu-arrow-head{stroke:currentColor!important;stroke-width:.32px!important;stroke-linejoin:miter}
 
 /* The next post's hashtag pills (css/tags.css), then its date. */
 html body .post-continuation-meta .tag-pills{vertical-align:middle}
 html body .post-continuation-meta .post-continuation-date{margin-left:.8em;vertical-align:middle}
+
+/* Date, reading time and hashtag pills share one centre line. The date carried an old
+   align-self:end and the rest sat on the baseline; once the pills made the row taller than the
+   text, the date dropped below the reading time. */
+html body #panel-header.post-viewer-header :is(#panel-date,#panel-reading-meta,#panel-tags){align-self:center!important}

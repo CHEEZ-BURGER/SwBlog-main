@@ -130,11 +130,9 @@
         // the caption under it (number and title).
         label(view) {
             const [category, date, read] = this.tags;
-            // Hashtags as pills (css/tags.css); the plain text if the tag helper is missing.
-            this.swap(category, line => {
-                if (window.SwblogTags) { if (view.category) line.append(window.SwblogTags.pills(view.category)); }
-                else line.textContent = view.category || '';
-            }, 0);
+            // Plain words here, unlike elsewhere ("개발 · 디자인", no pills): the panel's three
+            // labels are text only.
+            this.swap(category, line => { line.textContent = view.category || ''; }, 0);
             this.swap(date, line => { line.textContent = view.date || ''; }, 60);
             this.swap(read, line => { line.textContent = view.read ? `약 ${view.read}분 읽기` : ''; }, 120);
             this.swap(this.caption, line => {
