@@ -186,3 +186,8 @@
 .work-plate.is-locked{inset:0;display:grid;place-items:center;color:var(--muted)}
 .work-plate.is-locked .lock-icon{width:clamp(22px,2.4vw,34px);height:auto}
 .work-link.is-locked .work-title{color:var(--muted-strong)}
+
+/* Keep the image and lock inside the same clipped frame. */
+.entry-link.is-locked .entry-thumb img,.work-link.is-locked .work-drift img{filter:blur(12px);transform:scale(1.12)!important}
+.entry-link.is-locked .entry-thumb{overflow:hidden}
+.work-link.is-locked .work-plate.is-locked{z-index:2;pointer-events:none;color:#fff}

@@ -34,7 +34,7 @@
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
 
     <script src="./js/postTags.js?v=2"></script>
-    <script src="./js/postType.js?v=3"></script>
+    <script src="./js/postType.js?v=4"></script>
     <script src="./js/galleryReader.js?v=4"></script>
     <script src="./js/panelField.js?v=8"></script>
     <link rel="stylesheet" href="./css/editorial.css?v=journal-2">
@@ -42,7 +42,7 @@
     <link rel="stylesheet" href="./css/publication2026.css?v=2026-15">
     <link rel="stylesheet" href="./css/indexReel.css?v=reel-56">
     <link rel="stylesheet" href="./css/gallery.css?v=3">
-    <link rel="stylesheet" href="./css/reading.css?v=27">
+    <link rel="stylesheet" href="./css/reading.css?v=28">
     <link rel="stylesheet" href="./css/codeBlock.css?v=1">
     <link rel="stylesheet" href="./css/tags.css?v=1">
     <link rel="stylesheet" href="./css/siteFooter.css?v=3">
@@ -1348,9 +1348,9 @@ function syncLandingChromeAlignment(force = false) {
             // A private post (set in the editor's DB view) keeps its place with a lock: no picture,
             // no panel picture, and it does not open.
             const locked = Boolean(window.SwblogPostType?.isPrivate(post));
-            const lockHtml = locked ? `<span class="post-lock">${window.SwblogPostType.LOCK_SVG}<span class="sr-only">비공개 글</span></span>` : '';
-            const firstImg = locked ? null : getFirstImage(post.content);
-            const imgDataAttr = firstImg ? `data-preview-img="${escapeHtml(firstImg)}"` : '';
+            const lockHtml = locked ? `<span class="post-lock">${window.SwblogPostType.LOCK_SVG}<span class="sr-only">준비 중인 글</span></span>` : '';
+            const firstImg = getFirstImage(post.content);
+            const imgDataAttr = firstImg && !locked ? `data-preview-img="${escapeHtml(firstImg)}"` : '';
             // The picture made for the right-hand panel, if the post has one.
             const panelImg = locked ? null : window.PanelScene?.panelImage(post.content);
             const panelDataAttr = panelImg ? `data-panel-img="${escapeHtml(panelImg)}"` : '';
@@ -1369,7 +1369,7 @@ function syncLandingChromeAlignment(force = false) {
             `;
 
             return `
-            <a ${locked ? 'aria-disabled="true" title="비공개 글"' : `href="?post=${postIdEnc}"`}
+            <a href="?post=${postIdEnc}" ${locked ? 'data-locked-post title="준비 중인 글"' : ''}
                class="post-list-item is-${postKind}${locked ? ' is-private' : ''}"
                data-post-id="${postIdSafe}"
                data-type="${postKind}"
@@ -1384,7 +1384,7 @@ function syncLandingChromeAlignment(force = false) {
                aria-label="${escapeHtml(post.title)}">
                 <div class="flap-line"></div>
                 <div class="post-list-thumb"><span class="post-list-thumb-pic">${locked
-                    ? `<span class="post-list-thumb-lock">${window.SwblogPostType.LOCK_SVG}</span>`
+                    ? `${firstImg ? `<img src="${escapeHtml(firstImg)}" alt="" loading="lazy" decoding="async">` : ''}<span class="post-list-thumb-lock">${window.SwblogPostType.LOCK_SVG}</span>`
                     : firstImg
                     ? `<img src="${escapeHtml(firstImg)}" alt="" loading="lazy" decoding="async">`
                     : `<img class="post-list-thumb-glyph" src="./mainPage_img/${dotColor}" alt="">`}</span></div>
@@ -1689,15 +1689,15 @@ function syncLandingChromeAlignment(force = false) {
         if (!error && data && window.SwblogPostType?.isPrivate(data)) {
             document.body.classList.remove('reading-gallery');
             window.GalleryReader?.stop();
-            document.getElementById('panel-cat').textContent = 'PRIVATE';
+            document.getElementById('panel-cat').textContent = 'PREPARING';
             document.getElementById('panel-tags').replaceChildren();
             document.getElementById('panel-title').textContent = data.title || '';
             document.getElementById('panel-date').textContent =
                 new Date(data.created_at).toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' });
             header.style.display = '';
-            content.innerHTML = `<div class="post-locked">${window.SwblogPostType.LOCK_SVG}<p>비공개 글입니다.</p></div>`;
+            content.innerHTML = `<div class="post-locked">${window.SwblogPostType.LOCK_SVG}<p>준비 중인 글입니다.</p></div>`;
             generateTOC(content);
-            document.getElementById('panel-reading-meta').textContent = '비공개';
+            document.getElementById('panel-reading-meta').textContent = '준비 중';
             renderPanelContinuation(data.id);
             window.Publication2026?.resolve(resolution, false);
             requestAnimationFrame(() => {
@@ -2411,6 +2411,7 @@ function syncLandingChromeAlignment(force = false) {
             item.classList.remove('is-denied');
             void item.offsetWidth;
             item.classList.add('is-denied');
+            window.SwblogPostType.showPreparingNotice();
             return;
         }
         // The list is on its way in or out; nothing opens until it has landed.
@@ -2619,8 +2620,8 @@ function syncLandingChromeAlignment(force = false) {
         }
 
         updateCards(posts) {
-            // Private posts stay off the landing rail: it is made of their pictures.
-            this.posts = (posts || []).filter(post => getFirstImage(post.content) && !window.SwblogPostType?.isPrivate(post));
+            // Locked posts remain discoverable on the landing with blurred previews.
+            this.posts = (posts || []).filter(post => getFirstImage(post.content));
             this.copies = -1;
             this.measure();
         }
@@ -2634,7 +2635,9 @@ function syncLandingChromeAlignment(force = false) {
             for (let i = 0; i < total; i++) {
                 const post = this.posts[i % this.posts.length];
                 const el = document.createElement('a');
-                el.className = 'strip-card';
+                const locked = window.SwblogPostType?.isPrivate(post);
+                el.className = 'strip-card' + (locked ? ' is-private' : '');
+                if (locked) { el.dataset.lockedPost = ''; el.title = '준비 중인 글'; }
                 el.href = `?post=${encodeURIComponent(post.id)}`;
                 el.draggable = false;
                 el.dataset.category = window.SwblogTags?.label(window.SwblogTags.tagsOf(post)) || '';
@@ -2646,7 +2649,7 @@ function syncLandingChromeAlignment(force = false) {
                 }
                 // The window is squeezed to the box's width; the picture inside is stretched back
                 // by the same factor about its centre, so it keeps its shape and is cropped evenly.
-                el.innerHTML = `<span class="strip-card-window"><span class="strip-card-pic"><img src="${escapeHtml(getFirstImage(post.content))}" alt="" decoding="async" draggable="false"></span></span><span class="strip-card-name"><span>${escapeHtml(post.title || '')}</span></span>`;
+                el.innerHTML = `<span class="strip-card-window"><span class="strip-card-pic"><img src="${escapeHtml(getFirstImage(post.content))}" alt="" decoding="async" draggable="false"></span></span><span class="strip-card-name"><span>${locked ? window.SwblogPostType.LOCK_SVG : ''}${escapeHtml(post.title || '')}</span></span>`;
                 const card = {
                     post, el, index: i,
                     window: el.querySelector('.strip-card-window'),

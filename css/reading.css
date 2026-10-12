@@ -374,3 +374,9 @@ html body .next-flow-card:focus-visible .next-flow-frame{outline:1px solid #1d1d
 /* The reader's column takes the panel's width, not its widest content (the drifting row and the
    footer's big line are wider than the screen on purpose). */
 html body #post-panel>#post-panel-viewer{min-width:0}
+
+/* Locked thumbnails remain visible as blurred previews. */
+html body .post-list-item.is-private .post-list-thumb-pic > img{filter:blur(12px);transform:scale(1.12)}
+html body .post-list-thumb-lock{z-index:1;color:#fff;text-shadow:0 1px 6px #000}
+html body .strip-card.is-private img{filter:blur(12px)}
+html body .strip-card.is-private .strip-card-name .lock-icon{display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:middle}

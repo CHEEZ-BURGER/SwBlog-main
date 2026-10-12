@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="./js/postContent.js?v=code-2"></script>
     <script src="./js/postTags.js?v=2"></script>
-    <script src="./js/postType.js?v=3"></script>
+    <script src="./js/postType.js?v=4"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reset-css@5.0.1/reset.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -492,7 +492,8 @@
     const S_URL = 'https://dwyoitvmforukvdikzqo.supabase.co';
     const S_KEY = 'sb_publishable_c5y0L6D5oRgoEV_MzedQQQ_nCJfKHb0';
     const supabaseClient = window.supabase.createClient(S_URL, S_KEY);
-    document.getElementById('post-current-year').textContent = new Date().getFullYear();
+    const currentYear = document.getElementById('post-current-year');
+    if (currentYear) currentYear.textContent = new Date().getFullYear();
 
     function renderStandaloneContinuation(post) {
         const link = document.getElementById('post-continuation-link');
@@ -574,8 +575,8 @@
         // 비공개 글은 제목과 자물쇠만 보이고 본문은 열리지 않습니다.
         if (window.SwblogPostType?.isPrivate(data)) {
             document.getElementById('post-cat').replaceChildren();
-            body.innerHTML = '<p style="color:#6e6e73">비공개 글입니다.</p>';
-            document.getElementById('post-reading-meta').textContent = '비공개';
+            body.innerHTML = `<span style="display:inline-block;width:28px">${window.SwblogPostType.LOCK_SVG}</span><p style="color:#6e6e73">준비 중인 글입니다.</p>`;
+            document.getElementById('post-reading-meta').textContent = '준비 중';
             return;
         }
 

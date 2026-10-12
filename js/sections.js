@@ -60,12 +60,12 @@
 
     /* ------------------------------------------------------------------------------ Rows */
 
-    // A private post keeps its place with a lock beside its title; it has no link, picture or excerpt.
+    // Locked titles remain actionable for the preparing notice, with blurred thumbnails.
     const LOCK = () => window.SwblogPostType?.LOCK_SVG || '';
     const linkOpen = (className, post) => post.locked
-        ? `<a class="${className} is-locked" aria-disabled="true" title="비공개 글">`
+        ? `<a class="${className} is-locked" href="${escapeHTML(post.url)}" data-locked-post title="준비 중인 글">`
         : `<a class="${className}" href="${escapeHTML(post.url)}">`;
-    const titleText = post => (post.locked ? `<span class="locked-mark">${LOCK()}<span class="sr-only">비공개 글: </span></span>` : '') + escapeHTML(post.title || '제목 없음');
+    const titleText = post => (post.locked ? `<span class="locked-mark">${LOCK()}<span class="sr-only">준비 중인 글: </span></span>` : '') + escapeHTML(post.title || '제목 없음');
 
     function blogEntry(post) {
         // The date and reading time, then the hashtags as pills (css/tags.css).
@@ -73,7 +73,7 @@
             .join('<span class="sep" aria-hidden="true">·</span>')
             + (post.tags.length ? window.SwblogTags.pillsHTML(post.tags) : '');
         const excerpt = post.locked
-            ? `<p class="entry-excerpt is-locked">${line('비공개 글입니다.', 70)}</p>`
+            ? `<p class="entry-excerpt is-locked">${line('준비 중인 글입니다.', 70)}</p>`
             : post.excerpt ? `<p class="entry-excerpt">${line(escapeHTML(post.excerpt), 70)}</p>` : '';
         const thumb = post.image
             ? `<div class="entry-thumb"><img src="${escapeHTML(post.image)}" alt="" loading="lazy" decoding="async"></div>`
@@ -161,14 +161,12 @@
         // On a phone every work stands in one column, so it gets a gentler range of its own.
         const narrow = size ? clamp(size.w / size.h, 0.8, 1.6) : (slot === 'wide' ? 4 / 3 : 4 / 5);
         const title = post.title || '제목 없음';
-        const picture = post.locked
-            ? `<p class="work-plate is-locked" aria-hidden="true">${LOCK()}</p>`
-            : post.image
+        const picture = post.image
             ? `<div class="work-drift"><img src="${escapeHTML(post.image)}" alt="" loading="${index < 3 ? 'eager' : 'lazy'}" decoding="async"></div>`
             : plate(title);
         return `<li class="work work--${slot}${flipped ? ' is-flipped' : ''}" style="--ratio:${ratio.toFixed(4)};--ratio-narrow:${narrow.toFixed(4)}">
             ${linkOpen('work-link', post)}
-                <div class="work-frame">${picture}</div>
+                <div class="work-frame">${picture}${post.locked ? `<span class="work-plate is-locked" aria-hidden="true">${LOCK()}</span>` : ''}</div>
                 <div class="work-caption">
                     <h2 class="work-title">${line(titleText(post), 120)}</h2>
                     ${post.tags.length ? `<p class="work-tags">${line(window.SwblogTags.pillsHTML(post.tags), 190)}</p>` : ''}

@@ -54,7 +54,7 @@
             tags,
             tagLabel: window.SwblogTags?.label(tags) || '',
             locked,
-            image: locked ? null : firstImage(post.content),
+            image: firstImage(post.content),
             minutes: readMinutes(post.content),
             excerpt: locked ? '' : excerpt(post.content),
             // The reader's own day (as the post header shows it), not the UTC one.
