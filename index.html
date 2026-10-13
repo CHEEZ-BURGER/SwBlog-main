@@ -40,7 +40,7 @@
     <link rel="stylesheet" href="./css/editorial.css?v=journal-2">
     <link rel="stylesheet" href="./css/exhibition.css?v=journal-2">
     <link rel="stylesheet" href="./css/publication2026.css?v=2026-16">
-    <link rel="stylesheet" href="./css/indexReel.css?v=reel-56">
+    <link rel="stylesheet" href="./css/indexReel.css?v=reel-57">
     <link rel="stylesheet" href="./css/gallery.css?v=3">
     <link rel="stylesheet" href="./css/reading.css?v=28">
     <link rel="stylesheet" href="./css/codeBlock.css?v=1">
@@ -522,6 +522,7 @@ function syncLandingChromeAlignment(force = false) {
     const shift = { active: false, toLanding: false, motions: [] };
     const railEl = document.getElementById('rail-layer');
     const liftTitle = document.querySelector('.hello-content-box h1');
+    const liftContent = document.querySelector('.main-cont-back');
     // How far the wordmark travels to stand in the middle of the screen, measured at rest.
     let liftDistance = 0;
     const measureLift = () => {
@@ -532,6 +533,7 @@ function syncLandingChromeAlignment(force = false) {
     };
     // Room kept between the foot of the row and the rising wordmark.
     const LIFT_GAP = 18;
+    const sheetDrag = () => isMobileLayout() ? liftDistance * .88 : SHEET_DRAG;
     const showLift = share => {
         if (!liftTitle) return;
         liftTitle.style.transform = share ? `translate3d(0,${(-share * liftDistance).toFixed(2)}px,0)` : '';
@@ -540,7 +542,7 @@ function syncLandingChromeAlignment(force = false) {
         // drawn up by SHEET_DRAG at the same time, so the cut is measured in its own frame.)
         const rail = window.globalPlaceholderScene, scene = rail?.sceneContainer;
         if (!scene || !rail.inkTop) return;
-        const edge = rail.inkTop - share * liftDistance - LIFT_GAP + SHEET_DRAG * share;
+        const edge = rail.inkTop - share * liftDistance - LIFT_GAP + sheetDrag() * share;
         const cut = share ? Math.max(0, rail.height - edge) : 0;
         const clip = cut > rail.height - rail.top - rail.cardHeight ? `inset(0 0 ${cut.toFixed(1)}px 0)` : '';
         if (scene.style.clipPath !== clip) scene.style.clipPath = clip;
@@ -581,6 +583,7 @@ function syncLandingChromeAlignment(force = false) {
         void document.body.offsetWidth;
         document.body.classList.remove('landing-layout-snap', 'landing-transition-active');
         landingTransitionActive = false;
+        document.body.classList.remove('landing-touch-pull');
         window.isLayoutTransitioning = false;
         syncLandingChromeAlignment(true);
     }
@@ -602,6 +605,8 @@ function syncLandingChromeAlignment(force = false) {
         });
         // How far the scroll has lifted the wordmark as the move starts.
         const sheetFrom = toIndex ? Math.max(0, Math.min(1, sheet.value)) : 1;
+        const mobileShift = isMobileLayout();
+        const contentFrom = mobileShift && toIndex ? content.getBoundingClientRect() : null;
         sheet.stop();
         shift.active = true;
         shift.toLanding = !toIndex;
@@ -632,6 +637,7 @@ function syncLandingChromeAlignment(force = false) {
             return;
         }
         const to = title.getBoundingClientRect();
+        const contentTo = mobileShift ? content.getBoundingClientRect() : null;
         // Measure everything first: reading a box after an animation has been attached would
         // lay the page out a second time.
         chrome.forEach(item => {
@@ -643,12 +649,14 @@ function syncLandingChromeAlignment(force = false) {
         // index rises, and the side panel opens out from the right edge as the page lands.
         // Coming back the side panel first folds away to the right, then the index sinks and
         // the row is wiped back in from the top down.
-        const beats = toIndex
+        const beats = mobileShift
+            ? { wipe: [0, 680], page: [0, 680], panel: [0, 680] }
+            : toIndex
             ? { wipe: [0, 760], page: [380, 1480], panel: [900, 1800] }
             : { panel: [0, 800], page: [450, 1450], wipe: [1150, 1910] };
         // One curve for every beat (quartic in-out): each beat starts and lands softly, and hands
         // over to the next near its end.
-        const easeInOut = 'cubic-bezier(.76,0,.24,1)';
+        const easeInOut = mobileShift ? 'cubic-bezier(.22,.68,.12,1)' : 'cubic-bezier(.76,0,.24,1)';
         // Frames are written landing-first and flipped for the trip back.
         const add = (element, frames, [start, end], easing) => {
             if (!element) return;
@@ -665,8 +673,8 @@ function syncLandingChromeAlignment(force = false) {
         // The slabs are also carried up a little while they are cut away (and settle back
         // down into place on the way back).
         add(rail.sceneContainer, [
-            { transform: `translate3d(0,${(toIndex ? -SHEET_DRAG * sheetFrom : 0).toFixed(2)}px,0)` },
-            { transform: `translate3d(0,calc(100% - ${WIPE_DRAG}px),0)` }
+            { transform: `translate3d(0,${(toIndex ? -sheetDrag() * sheetFrom : 0).toFixed(2)}px,0)` },
+            { transform: mobileShift ? 'translate3d(0,0,0)' : `translate3d(0,calc(100% - ${WIPE_DRAG}px),0)` }
         ], beats.wipe, wipeEase);
 
         // 2. The index rises as one page: the wordmark travels on from the middle of the landing
@@ -682,7 +690,8 @@ function syncLandingChromeAlignment(force = false) {
                 { transform: base }
             ], beats.page, pageEase);
         });
-        const rise = [{ transform: `translate3d(0,${window.innerHeight}px,0)` }, { transform: 'translate3d(0,0,0)' }];
+        const riseDistance = contentFrom && contentTo ? contentFrom.top - contentTo.top : window.innerHeight;
+        const rise = [{ transform: `translate3d(0,${riseDistance.toFixed(2)}px,0)` }, { transform: 'translate3d(0,0,0)' }];
         add(content, [rise[0], { transform: `translate3d(0,${tug.toFixed(2)}px,0)` }], beats.page, pageEase);
 
         // 3. The side panel unfolds from the right edge. The panel is a window: it slides in
@@ -770,6 +779,7 @@ function syncLandingChromeAlignment(force = false) {
             if (!this.frame && !shift.active) {
                 this.time = 0;
                 if (!this.value) liftDistance = measureLift();
+                if (isMobileLayout()) document.body.classList.add('landing-touch-pull');
                 this.frame = requestAnimationFrame(this.step);
             }
         },
@@ -782,6 +792,8 @@ function syncLandingChromeAlignment(force = false) {
             this.value = this.speed = 0;
             const scene = window.globalPlaceholderScene?.sceneContainer;
             if (scene) scene.style.transform = '';
+            liftContent.style.transform = '';
+            document.body.classList.remove('landing-touch-pull');
             pull = 0;
             pullLatched = pullHeld = false;
             showLift(0);
@@ -798,7 +810,7 @@ function syncLandingChromeAlignment(force = false) {
             // A wheel has to be kept turning before the sheet is far up; a finger moves it directly.
             const share = Math.min(1, pull / pullLimit);
             const target = pullLatched ? 1.12 : pullLimit === TOUCH_LIMIT ? share : Math.pow(share, 1.6);
-            const omega = 13, error = sheet.value - target, drive = sheet.speed + omega * error, decay = Math.exp(-omega * dt);
+            const omega = isMobileLayout() && pullHeld ? 26 : 13, error = sheet.value - target, drive = sheet.speed + omega * error, decay = Math.exp(-omega * dt);
             sheet.value = target + (error + drive * dt) * decay;
             sheet.speed = (sheet.speed - omega * drive * dt) * decay;
             if (pullLatched && sheet.value >= 1) {
@@ -812,12 +824,18 @@ function syncLandingChromeAlignment(force = false) {
                 showLift(0);
                 const scene = window.globalPlaceholderScene?.sceneContainer;
                 if (scene) scene.style.transform = '';
+                liftContent.style.transform = '';
+                document.body.classList.remove('landing-touch-pull');
                 return;
             }
             showLift(Math.max(0, sheet.value));
-            // The row is drawn up a little by the wordmark rising toward it.
+            // Mobile carries the pictures and next list upward with the same pull.
             const scene = window.globalPlaceholderScene?.sceneContainer;
-            if (scene) scene.style.transform = `translate3d(0,${(-SHEET_DRAG * Math.max(0, sheet.value)).toFixed(2)}px,0)`;
+            if (scene) scene.style.transform = `translate3d(0,${(-sheetDrag() * Math.max(0, sheet.value)).toFixed(2)}px,0)`;
+            if (isMobileLayout()) {
+                const preview = Math.min(1, Math.max(0, sheet.value));
+                liftContent.style.transform = `translate3d(0,${(-preview * liftDistance).toFixed(2)}px,0)`;
+            }
             sheet.frame = requestAnimationFrame(sheet.step);
         }
     };
@@ -882,18 +900,25 @@ function syncLandingChromeAlignment(force = false) {
     let shiftTouchX = 0;
     let shiftTouchY = 0;
     let shiftTouching = false;
+    let shiftTouchTime = 0;
+    let shiftTouchVelocity = 0;
     document.addEventListener('touchstart', (e) => {
         if (!e.touches || !e.touches[0]) return;
         shiftTouchX = e.touches[0].clientX;
         shiftTouchY = e.touches[0].clientY;
+        shiftTouchTime = performance.now();
+        shiftTouchVelocity = 0;
         shiftTouching = false;
         if (!pullLatched) pull = 0;
     }, { passive: true });
 
     document.addEventListener('touchmove', (e) => {
-        if (!e.touches || !e.touches[0] || shiftBlocked() || pullLatched) return;
+        if (!e.touches || e.touches.length !== 1 || shiftBlocked() || pullLatched) return;
         const dx = shiftTouchX - e.touches[0].clientX;
         const dy = shiftTouchY - e.touches[0].clientY;
+        const touchNow = performance.now();
+        shiftTouchVelocity = dy / Math.max(8, touchNow - shiftTouchTime);
+        shiftTouchTime = touchNow;
         shiftTouchX = e.touches[0].clientX;
         shiftTouchY = e.touches[0].clientY;
         if (!shiftTouching) {
@@ -903,6 +928,8 @@ function syncLandingChromeAlignment(force = false) {
             if (!(isLanding && dy > 0) && !returning) return;
             shiftTouching = true;
         }
+        // Consume only the recognised vertical landing/return gesture; normal reading stays native.
+        if (isMobileLayout() && e.cancelable) e.preventDefault();
         if (reducedMotionQuery.matches) { playShift(isLanding); return; }
         // The finger can also take the pull back before it lets go.
         pull = Math.max(0, pull + (isLanding ? dy : -dy) / window.innerHeight);
@@ -918,9 +945,13 @@ function syncLandingChromeAlignment(force = false) {
         } else {
             showIndexPull(pull / TOUCH_LIMIT);
         }
-    }, { passive: true });
+    }, { passive: false });
 
-    const endShiftTouch = () => {
+    const endShiftTouch = event => {
+        if (event.type === 'touchend' && isLanding && shiftTouching && !pullLatched && isMobileLayout() &&
+            (pull >= TOUCH_LIMIT * .48 || (pull > .045 && shiftTouchVelocity > .45 && performance.now() - shiftTouchTime < 100))) {
+            requestIndex();
+        }
         if (shiftTouching && !isLanding) releaseIndexPull();
         shiftTouching = false;
         pullHeld = false;

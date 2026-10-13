@@ -241,3 +241,10 @@ html body:is(.reader-open.reader-open) #archive-panel .post-list-title.is-runnin
 html body.reading-gallery :is(.post-viewer-toc-sidebar,#panel-header .publication-hero){display:none!important}
 html body:not(:is(.reader-open.reader-open)) .gallery-counter{display:none}
 /* The plates, notes and counter themselves are in css/gallery.css (shared with the preview). */
+
+/* The mobile pull moves the existing list with the landing, without a delayed CSS chase. */
+@media(max-width:1180px){
+ html body.landing-touch-pull .main-cont-back{transition:none!important}
+ html body.landing-state .rail-stage{overscroll-behavior:none}
+}
+@media(max-width:1180px){html body.landing-transition-active{overflow:hidden}}
