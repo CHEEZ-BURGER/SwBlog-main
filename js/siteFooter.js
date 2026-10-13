@@ -6,7 +6,7 @@
 (function () {
     'use strict';
     const MARK = '© 2026 KIMSUNGWOO';
-    const LINKS = [['INFO', './info.html'], ['BLOG', './blog.html'], ['GALLERY', './gallery.html'], ['PLAYGROUND', './playground.html']];
+    const LINKS = [['INFO', './info.html'], ['BLOG', './blog.html'], ['GALLERY', './gallery.html'], ['PLAYGROUND', './playground.html'], ['EDITOR', './editor.html']];
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     const canvas = document.createElement('canvas').getContext('2d');
 
@@ -18,7 +18,7 @@
     function markup() {
         const here = location.pathname.split('/').pop() || 'index.html';
         const nav = LINKS.map(([name, href]) =>
-            `<a href="${href}"${href.endsWith(here) ? ' aria-current="page"' : ''}><span class="site-footer-roll"><span>${name}</span><span aria-hidden="true">${name}</span></span></a>`
+            `<a href="${href}"${name === 'EDITOR' ? ' class="site-footer-editor" aria-label="에디터 열기"' : ''}${href.endsWith(here) ? ' aria-current="page"' : ''}><span class="site-footer-roll"><span>${name}</span><span aria-hidden="true">${name}</span></span>${name === 'EDITOR' ? '<span aria-hidden="true">↗</span>' : ''}</a>`
         ).join('');
         return `<div class="site-footer-top">
                 <nav class="site-footer-nav" aria-label="사이트">${nav}</nav>
