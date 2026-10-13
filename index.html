@@ -40,7 +40,7 @@
     <link rel="stylesheet" href="./css/editorial.css?v=journal-2">
     <link rel="stylesheet" href="./css/exhibition.css?v=journal-2">
     <link rel="stylesheet" href="./css/publication2026.css?v=2026-16">
-    <link rel="stylesheet" href="./css/indexReel.css?v=reel-57">
+    <link rel="stylesheet" href="./css/indexReel.css?v=reel-58">
     <link rel="stylesheet" href="./css/gallery.css?v=3">
     <link rel="stylesheet" href="./css/reading.css?v=28">
     <link rel="stylesheet" href="./css/codeBlock.css?v=1">
@@ -533,7 +533,16 @@ function syncLandingChromeAlignment(force = false) {
     };
     // Room kept between the foot of the row and the rising wordmark.
     const LIFT_GAP = 18;
-    const sheetDrag = () => isMobileLayout() ? liftDistance * .88 : SHEET_DRAG;
+    const sheetDrag = () => isMobileLayout() ? liftDistance * .46 : SHEET_DRAG;
+    // A restrained paper-like fold, isolated from each card's horizontal lens transform.
+    const foldPose = (progress, side = 0) => {
+        const p = Math.max(0, Math.min(1, progress));
+        const bow = Math.sin(Math.PI * p);
+        return {
+            transform: `translate3d(0,${(-32 * p).toFixed(2)}px,0) scale(${(1 + .028 * bow).toFixed(4)},${(1 - .985 * p).toFixed(4)}) skewY(${(side * 1.1 * bow).toFixed(3)}deg)`,
+            opacity: p <= .74 ? '1' : String(Math.max(0, (1 - p) / .26))
+        };
+    };
     const showLift = share => {
         if (!liftTitle) return;
         liftTitle.style.transform = share ? `translate3d(0,${(-share * liftDistance).toFixed(2)}px,0)` : '';
@@ -541,6 +550,17 @@ function syncLandingChromeAlignment(force = false) {
         // overlap: its foot stays a little above the top of the wordmark's ink. (The row is
         // drawn up by SHEET_DRAG at the same time, so the cut is measured in its own frame.)
         const rail = window.globalPlaceholderScene, scene = rail?.sceneContainer;
+        if (rail && ((!share) || (isMobileLayout() && !reducedMotionQuery.matches))) {
+            const progress = Math.min(1, Math.max(0, share)) * .18;
+            rail.cards.forEach(card => {
+                if (!card.surface || (!card.visible && progress)) return;
+                card.foldProgress = progress;
+                card.foldSide = Math.max(-1, Math.min(1, rail.offset(card) / 2));
+                const pose = foldPose(progress, card.foldSide);
+                card.surface.style.transform = pose.transform;
+                card.surface.style.opacity = pose.opacity;
+            });
+        }
         if (!scene || !rail.inkTop) return;
         const edge = rail.inkTop - share * liftDistance - LIFT_GAP + sheetDrag() * share;
         const cut = share ? Math.max(0, rail.height - edge) : 0;
@@ -650,13 +670,13 @@ function syncLandingChromeAlignment(force = false) {
         // Coming back the side panel first folds away to the right, then the index sinks and
         // the row is wiped back in from the top down.
         const beats = mobileShift
-            ? { wipe: [0, 680], page: [0, 680], panel: [0, 680] }
+            ? { wipe: [0, 740], page: [0, 740], panel: [0, 740] }
             : toIndex
             ? { wipe: [0, 760], page: [380, 1480], panel: [900, 1800] }
             : { panel: [0, 800], page: [450, 1450], wipe: [1150, 1910] };
         // One curve for every beat (quartic in-out): each beat starts and lands softly, and hands
         // over to the next near its end.
-        const easeInOut = mobileShift ? 'cubic-bezier(.22,.68,.12,1)' : 'cubic-bezier(.76,0,.24,1)';
+        const easeInOut = mobileShift ? 'cubic-bezier(.2,.72,.14,1)' : 'cubic-bezier(.76,0,.24,1)';
         // Frames are written landing-first and flipped for the trip back.
         const add = (element, frames, [start, end], easing) => {
             if (!element) return;
@@ -669,12 +689,26 @@ function syncLandingChromeAlignment(force = false) {
         // 1. The wipe. The rail's window slides up while the rail inside it slides down by the
         //    same amount, so the slabs stay where they are and are cut away from the bottom.
         const wipeEase = easeInOut;
-        add(railEl, [{ transform: 'translate3d(0,0,0)' }, { transform: 'translate3d(0,-100%,0)' }], beats.wipe, wipeEase);
+        add(railEl, [{ transform: 'translate3d(0,0,0)' }, { transform: mobileShift ? 'translate3d(0,-2.5vh,0)' : 'translate3d(0,-100%,0)' }], beats.wipe, wipeEase);
+        if (mobileShift) {
+            // The centre gives first; the neighbours follow within 50ms, without a wave or bounce.
+            rail.cards.filter(card => card.visible && card.surface).forEach(card => {
+                const side = Math.max(-1, Math.min(1, rail.offset(card) / 2));
+                const start = toIndex ? (card.foldProgress || 0) : 0;
+                const delay = Math.abs(side) * 48;
+                add(card.surface, [
+                    { ...foldPose(start, side), offset: 0 },
+                    { ...foldPose(.48, side), offset: .42 },
+                    { ...foldPose(.88, side), offset: .78 },
+                    { ...foldPose(1, side), offset: 1 }
+                ], [delay, 650 + delay], 'cubic-bezier(.3,0,.2,1)');
+            });
+        }
         // The slabs are also carried up a little while they are cut away (and settle back
         // down into place on the way back).
         add(rail.sceneContainer, [
             { transform: `translate3d(0,${(toIndex ? -sheetDrag() * sheetFrom : 0).toFixed(2)}px,0)` },
-            { transform: mobileShift ? 'translate3d(0,0,0)' : `translate3d(0,calc(100% - ${WIPE_DRAG}px),0)` }
+            { transform: mobileShift ? `translate3d(0,${(-sheetDrag() * (toIndex ? sheetFrom : 0)).toFixed(2)}px,0)` : `translate3d(0,calc(100% - ${WIPE_DRAG}px),0)` }
         ], beats.wipe, wipeEase);
 
         // 2. The index rises as one page: the wordmark travels on from the middle of the landing
@@ -2684,11 +2718,13 @@ function syncLandingChromeAlignment(force = false) {
                 }
                 // The window is squeezed to the box's width; the picture inside is stretched back
                 // by the same factor about its centre, so it keeps its shape and is cropped evenly.
-                el.innerHTML = `<span class="strip-card-window"><span class="strip-card-pic"><img src="${escapeHtml(getFirstImage(post.content))}" alt="" decoding="async" draggable="false"></span></span><span class="strip-card-name"><span>${locked ? window.SwblogPostType.LOCK_SVG : ''}${escapeHtml(post.title || '')}</span></span>`;
+                el.innerHTML = `<span class="strip-card-window"><span class="strip-card-pic"><span class="strip-card-surface"><img src="${escapeHtml(getFirstImage(post.content))}" alt="" decoding="async" draggable="false"></span></span></span><span class="strip-card-name"><span>${locked ? window.SwblogPostType.LOCK_SVG : ''}${escapeHtml(post.title || '')}</span></span>`;
                 const card = {
                     post, el, index: i,
                     window: el.querySelector('.strip-card-window'),
                     pic: el.querySelector('.strip-card-pic'),
+                    surface: el.querySelector('.strip-card-surface'),
+                    foldProgress: 0, foldSide: 0,
                     image: el.querySelector('img'),
                     visible: false, pose: '', squeeze: ''
                 };

@@ -30,15 +30,22 @@ const os = require('node:os');
                 list:document.querySelector('.main-cont-back').getBoundingClientRect().top,
                 rail:new DOMMatrix(getComputedStyle(document.querySelector('.rail-scene')).transform).m42,
                 title:new DOMMatrix(getComputedStyle(document.querySelector('.hello-content-box h1')).transform).m42,
+                fold:Math.min(...Array.from(document.querySelectorAll('.strip-card')).filter(card=>card.style.visibility==='visible').map(card=>new DOMMatrix(getComputedStyle(card.querySelector('.strip-card-surface')).transform).m22)),
                 landing:document.body.classList.contains('landing-state')
             }));
+            assert.ok(progress.fold < .98 && progress.fold > .8, 'held images compress gently without collapsing');
             assert.ok(progress.landing, 'the scene follows the held finger before committing');
             assert.ok(initial-progress.list>40, 'the next list visibly rises during the gesture');
-            assert.ok(progress.rail < -40 && progress.title < -40, 'pictures and title move upward together');
+            assert.ok(progress.rail < -viewport.height*.04 && progress.title < -40, 'pictures and title move upward together');
             await page.screenshot({path:path.join(os.tmpdir(),`swblog-mobile-pull-${viewport.width}.png`)});
             await touch('touchEnd');
+            await page.waitForFunction(()=>window.isLayoutTransitioning);
+            await page.waitForTimeout(260);
+            assert.ok(await page.locator('.strip-card-surface').evaluateAll(els=>els.some(el=>{const scale=new DOMMatrix(getComputedStyle(el).transform).m22;return scale>.01 && scale<.6;})), 'release folds the images before they disappear');
+            await page.screenshot({path:path.join(os.tmpdir(),`swblog-mobile-fold-${viewport.width}.png`)});
             await page.waitForFunction(()=>!document.body.classList.contains('landing-state')&&!window.isLayoutTransitioning);
             assert.equal(await page.locator('.main-cont-back').evaluate(el=>el.style.transform),'');
+            assert.ok(await page.locator('.strip-card-surface').evaluateAll(els=>els.every(el=>Math.abs(new DOMMatrix(getComputedStyle(el).transform).m22-1)<.001)), 'folds clear after completion or cancellation');
             assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),true);
             await page.screenshot({path:path.join(os.tmpdir(),`swblog-mobile-index-${viewport.width}.png`)});
             await reset();

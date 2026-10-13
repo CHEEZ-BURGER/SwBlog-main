@@ -248,3 +248,12 @@ html body:not(:is(.reader-open.reader-open)) .gallery-counter{display:none}
  html body.landing-state .rail-stage{overscroll-behavior:none}
 }
 @media(max-width:1180px){html body.landing-transition-active{overflow:hidden}}
+
+/* Deformation has its own surface, so the rail lens and image hover remain independent. */
+.strip-card-surface{position:absolute;inset:0;display:block;transform-origin:50% 50%}
+@media(max-width:1180px){
+ body:is(.landing-touch-pull,.landing-transition-active) .strip-card-surface{will-change:transform,opacity}
+}
+@media(prefers-reduced-motion:reduce){.strip-card-surface{transform:none!important;opacity:1!important}}
+@media(max-width:1180px){body:is(.landing-touch-pull,.landing-transition-active) .strip-card-window{background:transparent}}
+@media(max-width:1180px){html body.landing-transition-active .hello-scene{background:transparent!important}}
