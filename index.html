@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500&amp;display=swap">
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
-    <link rel="stylesheet" href="./css/mainPage.css?v=landing-motion-sequence-11">
+    <link rel="stylesheet" href="./css/mainPage.css?v=mobile-image-tap-12">
     <link rel="stylesheet" href="./css/postExperience.css?v=editorial-post-1">
     <link rel="stylesheet" href="./css/postRefinement.css?v=editorial-post-2">
     <link rel="stylesheet" href="./css/lightRefinement.css?v=light-system-1">
@@ -2097,6 +2097,7 @@ function syncLandingChromeAlignment(force = false) {
         const images = slider.querySelectorAll('.story-img');
         
         if (!imgContainer || images.length === 0) return;
+        images.forEach(setupMobileImageTap);
 
         if (prevBtn) {
             prevBtn.type = 'button';
@@ -2327,9 +2328,52 @@ function syncLandingChromeAlignment(force = false) {
         updateUI();
     }
 
+    function syncMobileImageZoom(images = document.querySelectorAll('img[data-mobile-image-zoom]')) {
+        images.forEach(img => {
+            if (isMobileLayout()) {
+                img.setAttribute('role', 'button');
+                img.tabIndex = 0;
+                img.setAttribute('aria-label', img.alt ? img.alt + ' 이미지 확대' : '이미지 확대');
+            } else {
+                ['role', 'tabindex', 'aria-label'].forEach(name => {
+                    const value = img._zoomOriginalAttributes[name];
+                    if (value === null) img.removeAttribute(name);
+                    else img.setAttribute(name, value);
+                });
+            }
+        });
+    }
+    window.matchMedia('(max-width: 1180px)').addEventListener('change', () => syncMobileImageZoom());
+
+    function setupMobileImageTap(img) {
+        if (img.hasAttribute('data-mobile-image-zoom')) return;
+        img.dataset.mobileImageZoom = '';
+        img._zoomOriginalAttributes = Object.fromEntries(['role', 'tabindex', 'aria-label'].map(name => [name, img.getAttribute(name)]));
+        let startX = 0, startY = 0, moved = false;
+        img.addEventListener('pointerdown', event => {
+            startX = event.clientX; startY = event.clientY; moved = false;
+        });
+        img.addEventListener('pointermove', event => {
+            if (Math.hypot(event.clientX - startX, event.clientY - startY) > 10) moved = true;
+        });
+        img.addEventListener('pointercancel', () => { moved = true; });
+        img.addEventListener('click', event => {
+            if (!isMobileLayout()) return;
+            event.preventDefault(); event.stopPropagation();
+            if (!moved || event.detail === 0) openFullscreen(img.currentSrc || img.src);
+        });
+        img.addEventListener('keydown', event => {
+            if (!isMobileLayout() || !['Enter', ' '].includes(event.key)) return;
+            event.preventDefault(); event.stopPropagation();
+            openFullscreen(img.currentSrc || img.src);
+        });
+        syncMobileImageZoom([img]);
+    }
+
     function setupGlobalImageZoom(contentElement) {
         const images = contentElement.querySelectorAll('img:not(.story-img):not(.hidden-thumbnail)');
         images.forEach(img => {
+            setupMobileImageTap(img);
             if (img.parentElement.classList.contains('img-zoom-wrapper')) return;
             const wrapper = document.createElement('div');
             wrapper.className = 'img-zoom-wrapper';

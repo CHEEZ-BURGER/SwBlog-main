@@ -3001,3 +3001,8 @@ body.landing-state .scroll-down-btn:hover {
     }
 }
 .header-hidden-inner,.header-hidden-inner :is(a,span,li,p,small,h1,h2,h3){font-family:'Instrument Serif','Noto Serif KR',Georgia,serif!important}
+
+@media (max-width: 1180px) {
+    .global-zoom-btn, .story-zoom { display: none !important; }
+    img[data-mobile-image-zoom] { cursor: zoom-in; }
+}
