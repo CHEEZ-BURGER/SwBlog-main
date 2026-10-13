@@ -56,5 +56,22 @@ const os = require('node:os');
             console.log('PASS:',viewport,progress,'follow, release, cancellation, horizontal input, cleanup');
             await context.close();
         }
+        const reduced = await browser.newContext({viewport:{width:375,height:812},hasTouch:true,isMobile:true,reducedMotion:'reduce'});
+        const page = await reduced.newPage();
+        await page.goto('http://127.0.0.1:4173/');
+        await page.locator('.strip-card').first().waitFor({state:'attached'});
+        const cdp = await reduced.newCDPSession(page);
+        await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:150,y:700}]});
+        for(let i=1;i<=8;i++) {
+            await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:150,y:700-i*28}]});
+            await page.waitForTimeout(25);
+        }
+        await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+        assert.equal(await page.locator('body').evaluate(el=>el.classList.contains('landing-state')),false,'reduced motion enters the index once per gesture');
+        await page.mouse.wheel(0,350);
+        await page.waitForTimeout(600);
+        assert.ok(await page.evaluate(()=>window.scrollY)>50,'native reading scroll resumes');
+        await reduced.close();
+        console.log('PASS: reduced motion and native reading scroll');
     } finally {await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

@@ -930,7 +930,11 @@ function syncLandingChromeAlignment(force = false) {
         }
         // Consume only the recognised vertical landing/return gesture; normal reading stays native.
         if (isMobileLayout() && e.cancelable) e.preventDefault();
-        if (reducedMotionQuery.matches) { playShift(isLanding); return; }
+        if (reducedMotionQuery.matches) {
+            shiftTouching = false;
+            playShift(isLanding);
+            return;
+        }
         // The finger can also take the pull back before it lets go.
         pull = Math.max(0, pull + (isLanding ? dy : -dy) / window.innerHeight);
         if (isLanding) {
