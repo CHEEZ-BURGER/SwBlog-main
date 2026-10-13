@@ -14,74 +14,53 @@ const os = require('node:os');
             const cdp = await context.newCDPSession(page);
             const touch = (type,x,y) => cdp.send('Input.dispatchTouchEvent', {type,touchPoints:type==='touchEnd'?[]:[{x,y}]});
             const reset = async () => {
-                await page.goto(process.env.SWBLOG_URL || 'http://127.0.0.1:4173/');
+                await page.goto('http://127.0.0.1:4173/');
                 await page.locator('.strip-card').first().waitFor({state:'attached'});
                 await page.waitForTimeout(2600);
             };
             await reset();
             const x = viewport.width*.35, y = viewport.height*.8;
-            const pose = () => page.evaluate(()=>({
-                progress: mobileProgress,
-                active: !!shift.interactive,
-                list: document.querySelector('.main-cont-back').getBoundingClientRect().top,
-                fold: new DOMMatrix(getComputedStyle(document.querySelector('.strip-card-surface')).transform).m22
-            }));
-            const initial = await pose();
+            const initial = await page.locator('.main-cont-back').evaluate(el=>el.getBoundingClientRect().top);
             await touch('touchStart',x,y);
             for(let i=1;i<=8;i++) {
                 await touch('touchMove',x,y-viewport.height*.023*i);
                 await page.waitForTimeout(35);
             }
-            const held = await pose();
-            assert.ok(held.active && held.progress > .1 && held.progress < .3);
-            assert.ok(initial.list-held.list>(viewport.height>500?40:0), 'list follows the finger');
-            assert.ok(held.fold < .9 && held.fold > .65, 'images fold with gesture distance');
+            const progress = await page.evaluate(()=>({
+                list:document.querySelector('.main-cont-back').getBoundingClientRect().top,
+                rail:new DOMMatrix(getComputedStyle(document.querySelector('.rail-scene')).transform).m42,
+                title:new DOMMatrix(getComputedStyle(document.querySelector('.hello-content-box h1')).transform).m42,
+                fold:Math.min(...Array.from(document.querySelectorAll('.strip-card')).filter(card=>card.style.visibility==='visible').map(card=>new DOMMatrix(getComputedStyle(card.querySelector('.strip-card-surface')).transform).m22)),
+                landing:document.body.classList.contains('landing-state')
+            }));
+            assert.ok(progress.fold < .98 && progress.fold > .8, 'held images compress gently without collapsing');
+            assert.ok(progress.landing, 'the scene follows the held finger before committing');
+            assert.ok(initial-progress.list>40, 'the next list visibly rises during the gesture');
+            assert.ok(progress.rail < -viewport.height*.04 && progress.title < -40, 'pictures and title move upward together');
+            await page.screenshot({path:path.join(os.tmpdir(),`swblog-mobile-pull-${viewport.width}.png`)});
             await touch('touchEnd');
-            await page.waitForTimeout(1000);
-            const released = await pose();
-            assert.ok(Math.abs(released.progress-held.progress)<.001, 'release never snaps or finishes automatically');
-            assert.ok(Math.abs(released.list-held.list)<1, 'release holds the page exactly');
-            await page.setViewportSize({...viewport,height:viewport.height+20});
-            await page.waitForTimeout(200);
-            assert.ok(Math.abs((await pose()).progress-held.progress)<.001,'resize keeps the held progress');
-            await page.setViewportSize(viewport);
-            await page.waitForTimeout(200);
-            await page.screenshot({path:path.join(os.tmpdir(),`swblog-linear-${viewport.width}.png`)});
-            await page.mouse.wheel(0,viewport.height*.1);
-            await page.waitForTimeout(150);
-            const next = await pose();
-            assert.ok(Math.abs(next.progress-released.progress-.1/.85)<.003, 'wheel distance maps linearly');
-            await page.mouse.wheel(0,-viewport.height*.1);
-            await page.waitForTimeout(150);
-            assert.ok(Math.abs((await pose()).progress-released.progress)<.003, 'reverse retraces the same poses');
-            await page.mouse.wheel(0,-viewport.height);
-            await page.waitForTimeout(150);
-            assert.equal((await pose()).active,false);
-            assert.ok(await page.locator('body').evaluate(el=>el.classList.contains('landing-state')));
+            await page.waitForFunction(()=>window.isLayoutTransitioning);
+            await page.waitForTimeout(260);
+            assert.ok(await page.locator('.strip-card-surface').evaluateAll(els=>els.some(el=>{const scale=new DOMMatrix(getComputedStyle(el).transform).m22;return scale>.01 && scale<.6;})), 'release folds the images before they disappear');
+            await page.screenshot({path:path.join(os.tmpdir(),`swblog-mobile-fold-${viewport.width}.png`)});
+            await page.waitForFunction(()=>!document.body.classList.contains('landing-state')&&!window.isLayoutTransitioning);
+            assert.equal(await page.locator('.main-cont-back').evaluate(el=>el.style.transform),'');
+            assert.ok(await page.locator('.strip-card-surface').evaluateAll(els=>els.every(el=>Math.abs(new DOMMatrix(getComputedStyle(el).transform).m22-1)<.001)), 'folds clear after completion or cancellation');
+            assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),true);
+            await page.screenshot({path:path.join(os.tmpdir(),`swblog-mobile-index-${viewport.width}.png`)});
+            await reset();
+            await touch('touchStart',x,y);
+            for(let i=1;i<=4;i++) {await touch('touchMove',x,y-i*5);await page.waitForTimeout(60);}
+            await touch('touchEnd');
+            await page.waitForTimeout(1800);
+            assert.equal(await page.locator('body').evaluate(el=>el.classList.contains('landing-state')),true,'small pulls cancel');
+            assert.equal(await page.locator('.main-cont-back').evaluate(el=>el.style.transform),'');
             await touch('touchStart',x,y);
             await touch('touchMove',x+60,y+1);
             await touch('touchEnd');
-            assert.equal((await pose()).active,false,'horizontal drag leaves the landing intact');
-            await page.mouse.wheel(0,viewport.height);
-            await page.waitForTimeout(200);
-            assert.equal((await pose()).active,false);
-            assert.equal(await page.locator('body').evaluate(el=>el.classList.contains('landing-state')),false);
-            assert.equal(await page.locator('.main-cont-back').evaluate(el=>el.style.transform),'');
-            await page.mouse.wheel(0,300);
-            await page.waitForTimeout(400);
-            assert.ok(await page.evaluate(()=>window.scrollY)>50,'reading scroll remains native');
-            await page.evaluate(()=>window.scrollTo(0,0));
-            await page.waitForTimeout(500);
-            await page.mouse.wheel(0,-viewport.height*.2);
-            await page.waitForTimeout(150);
-            assert.ok((await pose()).active && (await pose()).progress < .8,'return is also distance controlled');
-            await page.mouse.wheel(0,-viewport.height);
-            await page.waitForTimeout(150);
-            assert.equal((await pose()).active,false);
-            assert.ok(await page.locator('body').evaluate(el=>el.classList.contains('landing-state')));
-            assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),true);
+            assert.equal(await page.locator('body').evaluate(el=>el.classList.contains('landing-state')),true,'horizontal input stays on landing');
             assert.deepEqual(errors,[]);
-            console.log('PASS:',viewport,'linear distance, hold on release, reverse, endpoints, native scroll');
+            console.log('PASS:',viewport,progress,'follow, release, cancellation, horizontal input, cleanup');
             await context.close();
         }
         const reduced = await browser.newContext({viewport:{width:375,height:812},hasTouch:true,isMobile:true,reducedMotion:'reduce'});
