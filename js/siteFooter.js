@@ -18,7 +18,7 @@
     function markup() {
         const here = location.pathname.split('/').pop() || 'index.html';
         const nav = LINKS.map(([name, href]) =>
-            `<a href="${href}"${name === 'EDITOR' ? ' class="site-footer-editor" aria-label="에디터 열기"' : ''}${href.endsWith(here) ? ' aria-current="page"' : ''}><span class="site-footer-roll"><span>${name}</span><span aria-hidden="true">${name}</span></span>${name === 'EDITOR' ? '<span aria-hidden="true">↗</span>' : ''}</a>`
+            `<a ${name === 'INFO' ? 'role="link" aria-disabled="true" tabindex="-1" title="준비 중"' : `href="${href}"`}${name === 'EDITOR' ? ' class="site-footer-editor" aria-label="에디터 열기"' : ''}${href.endsWith(here) ? ' aria-current="page"' : ''}><span class="site-footer-roll"><span>${name}</span><span aria-hidden="true">${name}</span></span>${name === 'EDITOR' ? '<span aria-hidden="true">↗</span>' : ''}</a>`
         ).join('');
         return `<div class="site-footer-top">
                 <nav class="site-footer-nav" aria-label="사이트">${nav}</nav>

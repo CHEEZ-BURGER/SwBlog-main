@@ -401,3 +401,10 @@ html body.content-resolving .panel-close-btn{visibility:hidden!important}
 :where(a,u,ins) .rl-i{text-decoration:underline;text-decoration-color:inherit}
 :where(s,del) .rl-i{text-decoration:line-through}
 @media(prefers-reduced-motion:reduce){.rl-block:not(.rl-split){opacity:1}.rl-i{transform:none;transition:none}}
+
+.header-hidden .typography-list a[aria-disabled="true"]{color:#86868b;cursor:default}
+@media(max-width:1180px){
+ html body.menu-open #site-header-controls{z-index:auto!important}
+ html body.menu-open #site-header-controls .logo{z-index:590!important}
+ html body.menu-open #site-header-controls .hamburger-btn{z-index:620!important}
+}

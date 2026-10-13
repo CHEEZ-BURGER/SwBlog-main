@@ -22,7 +22,7 @@
         button.setAttribute('aria-expanded', String(open));
         button.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
         if (open) nav.classList.remove('is-tucked');
-        if (focus) (open ? menu.querySelector('a') : button)?.focus({ preventScroll: true });
+        if (focus) (open ? menu.querySelector('a[href]') : button)?.focus({ preventScroll: true });
     }
 
     button?.addEventListener('click', event => setMenu(!isOpen(), { focus: event.detail === 0 }));

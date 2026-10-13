@@ -97,3 +97,12 @@ body.menu-open .site-menu-scrim{opacity:1;pointer-events:auto}
 @media(prefers-reduced-motion:reduce){
     .site-menu,.site-menu-list a,.site-menu-footer,.site-menu-scrim,.site-menu-button .menu-arrow{transition-duration:.01ms!important;transition-delay:0s!important}
 }
+
+/* Disabled INFO remains in the menu without accepting navigation. */
+.site-menu-list a[aria-disabled="true"]{color:var(--muted,#86868b);cursor:default}
+/* Let the full-width menu cover the logo while the arrow stays available above it. */
+@media(max-width:1180px){
+ body.menu-open .site-nav{display:contents}
+ body.menu-open .site-nav-logo{position:fixed;z-index:590}
+ body.menu-open .site-menu-button{position:fixed;z-index:620}
+}

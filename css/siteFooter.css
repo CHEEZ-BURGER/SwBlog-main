@@ -70,3 +70,7 @@ html body footer.site-footer.is-in .site-footer-ink{transition:transform 1400ms 
 @media(prefers-reduced-motion:reduce){
     html body footer.site-footer :is(.site-footer-ink,.site-footer-roll>span){transition:none!important;transform:none!important}
 }
+
+html body footer.site-footer .site-footer-nav a[aria-disabled="true"]{color:var(--sf-muted)!important;cursor:default}
+html body footer.site-footer .site-footer-nav a[aria-disabled="true"] .site-footer-roll>span{transition:none;transform:none}
+html body footer.site-footer .site-footer-nav a[aria-disabled="true"] .site-footer-roll>span+span{transform:translate3d(0,105%,0)}
